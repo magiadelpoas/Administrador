@@ -1,6 +1,28 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export const NavBar = () => {
+  const [adminData, setAdminData] = useState({
+    name: "Admin",
+    email: "admin@admin.com",
+  });
+
+  useEffect(() => {
+    // Obtener datos del admin desde localStorage
+    const storedAdminData = localStorage.getItem("adminData");
+    if (storedAdminData) {
+      try {
+        const parsedData = JSON.parse(storedAdminData);
+        setAdminData({
+          name: parsedData.name_admin || "Admin",
+          email: parsedData.email_admin || "admin@admin.com",
+        });
+      } catch (error) {
+        console.error("Error parsing admin data from localStorage:", error);
+        // Mantener valores por defecto si hay error al parsear
+      }
+    }
+  }, []);
+
   return (
     <>
       <nav className="pc-sidebar">
@@ -96,8 +118,8 @@ export const NavBar = () => {
                       >
                         <div className="d-flex align-items-center">
                           <div className="flex-grow-1 me-2">
-                            <h6 className="mb-0">Jhon Smith</h6>
-                            <small>Administrator</small>
+                            <h6 className="mb-0">{adminData.name}</h6>
+                            <small>Administrador</small>
                           </div>
                           <div className="flex-shrink-0">
                             <div className="btn btn-icon btn-link-secondary avtar">
