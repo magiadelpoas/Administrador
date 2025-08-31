@@ -14,6 +14,7 @@ import {
   opcionesDeposito, 
   opcionesMoneda, 
   opcionesTipoPago,
+  opcionesTipoReserva,
   opcionesExtras 
 } from "../utils/ReservaUtils";
 
@@ -39,6 +40,9 @@ export const CrearView = () => {
     handleSubmit(e, false); // false = crear nueva reserva
   };
 
+  // Verificar si ambos campos están seleccionados
+  const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
+
   return (
     <div className="container-fluid px-3 px-md-4">
       <div className="row">
@@ -54,9 +58,9 @@ export const CrearView = () => {
             </div>
             <div className="card-body">
               <form onSubmit={onSubmit}>
-                {/* Selección de Cabaña - Ancho completo */}
+                {/* Selección de Cabaña y Tipo de Reserva - Ancho completo */}
                 <div className="row mb-4">
-                  <div className="col-12">
+                  <div className="col-12 col-md-6 mb-3">
                     <label htmlFor="cabañaId" className="form-label">
                       Seleccionar Cabaña <span className="text-danger">*</span>
                     </label>
@@ -74,6 +78,25 @@ export const CrearView = () => {
                           value={cabaña.id}
                         >
                           {cabaña.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-12 col-md-6 mb-3">
+                    <label htmlFor="tipoReserva" className="form-label">
+                      Tipo de Reserva <span className="text-danger">*</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      id="tipoReserva"
+                      name="tipoReserva"
+                      value={formData.tipoReserva}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      {opcionesTipoReserva.map(opcion => (
+                        <option key={opcion} value={opcion}>
+                          {opcion}
                         </option>
                       ))}
                     </select>
@@ -109,8 +132,8 @@ export const CrearView = () => {
                   </div>
                 )}
 
-                {/* Campos adicionales que aparecen después de seleccionar cabaña */}
-                {cabañaSeleccionada && (
+                {/* Campos adicionales que aparecen después de seleccionar cabaña y tipo de reserva */}
+                {ambosSeleccionados && (
                   <>
                     {/* Formulario en 2 columnas */}
                     <div className="row">
@@ -214,13 +237,39 @@ export const CrearView = () => {
                               required
                             />
                           </div>
+                          <div className="col-12 mb-3">
+                            <FormControl fullWidth>
+                              <InputLabel id="extras-label">Extras (Selección múltiple)</InputLabel>
+                              <Select
+                                labelId="extras-label"
+                                id="extras"
+                                multiple
+                                value={formData.extras}
+                                onChange={handleExtrasChange}
+                                input={<OutlinedInput label="Extras (Selección múltiple)" />}
+                                renderValue={(selected) => (
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value) => (
+                                      <Chip key={value} label={value} size="small" />
+                                    ))}
+                                  </Box>
+                                )}
+                              >
+                                {opcionesExtras.map((extra) => (
+                                  <MenuItem key={extra} value={extra}>
+                                    {extra}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </div>
                         </div>
                       </div>
 
                       {/* COLUMNA DERECHA */}
                       <div className="col-12 col-lg-6">
                         <div className="row">
-                          <div className="col-12 col-sm-6 mb-3">
+                          <div className="col-12 mb-3">
                             <label htmlFor="horaIngreso" className="form-label">
                               Hora de Ingreso <span className="text-danger">*</span>
                             </label>
@@ -234,7 +283,7 @@ export const CrearView = () => {
                               required
                             />
                           </div>
-                          <div className="col-12 col-sm-6 mb-3">
+                          <div className="col-12 mb-3">
                             <label htmlFor="horaSalida" className="form-label">
                               Hora de Salida <span className="text-danger">*</span>
                             </label>
@@ -248,7 +297,7 @@ export const CrearView = () => {
                               required
                             />
                           </div>
-                          <div className="col-12 col-sm-6 mb-3">
+                          <div className="col-12 mb-3">
                             <label htmlFor="fechaIngreso" className="form-label">
                               Fecha de Ingreso <span className="text-danger">*</span>
                             </label>
@@ -262,7 +311,7 @@ export const CrearView = () => {
                               required
                             />
                           </div>
-                          <div className="col-12 col-sm-6 mb-3">
+                          <div className="col-12 mb-3">
                             <label htmlFor="fechaSalida" className="form-label">
                               Fecha de Salida <span className="text-danger">*</span>
                             </label>
@@ -295,44 +344,6 @@ export const CrearView = () => {
                               ))}
                             </select>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Extras - Ancho completo */}
-                    <div className="row mt-3">
-                      <div className="col-12">
-                        <FormControl fullWidth>
-                          <InputLabel id="extras-label">Extras (Selección múltiple)</InputLabel>
-                          <Select
-                            labelId="extras-label"
-                            id="extras"
-                            multiple
-                            value={formData.extras}
-                            onChange={handleExtrasChange}
-                            input={<OutlinedInput label="Extras (Selección múltiple)" />}
-                            renderValue={(selected) => (
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {selected.map((value) => (
-                                  <Chip key={value} label={value} size="small" />
-                                ))}
-                              </Box>
-                            )}
-                          >
-                            {opcionesExtras.map((extra) => (
-                              <MenuItem key={extra} value={extra}>
-                                {extra}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </div>
-                    </div>
-
-                    {/* Campos de archivos para depósitos */}
-                    <div className="row mt-4">
-                      <div className="col-12 col-md-6 mb-3">
-                        <div className="row">
                           <div className="col-12 mb-3">
                             <label htmlFor="primerDeposito" className="form-label">
                               Primer Depósito (Imagen)
@@ -372,10 +383,6 @@ export const CrearView = () => {
                               </div>
                             )}
                           </div>
-                        </div>
-                      </div>
-                      <div className="col-12 col-md-6 mb-3">
-                        <div className="row">
                           <div className="col-12 mb-3">
                             <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
                               Tipo de Pago Segundo Depósito <span className="text-danger">*</span>

@@ -5,6 +5,7 @@ import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
 export const opcionesDeposito = ["50%", "100%"];
 export const opcionesMoneda = ["Colones", "Dólares"];
 export const opcionesTipoPago = ["Sinpe móvil", "Depósito"];
+export const opcionesTipoReserva = ["Reserva Local", "Airbnb", "Booking"];
 export const opcionesExtras = [
   "WiFi",
   "Aire acondicionado", 
@@ -30,6 +31,7 @@ export const getInitialFormState = (reservaData = null) => ({
   fechaSalida: reservaData?.fechaSalida || "",
   tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Sinpe móvil",
   tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "Sinpe móvil",
+  tipoReserva: reservaData?.tipoReserva || "Reserva Local",
   extras: reservaData?.extras || []
 });
 
@@ -229,6 +231,10 @@ export const validateForm = (formData, cabañaSeleccionada) => {
 
   if (!formData.tipoPagoSegundoDeposito) {
     errors.push("El tipo de pago del segundo depósito es requerido");
+  }
+
+  if (!formData.tipoReserva) {
+    errors.push("El tipo de reserva es requerido");
   }
 
   return errors;
