@@ -1,0 +1,60 @@
+/* Estilos personalizados para el sidebar */
+
+/* Asegurar que el sidebar tenga la posición correcta */
+.pc-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 1030;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Clase para ocultar el sidebar en desktop */
+.pc-sidebar.pc-sidebar-hide {
+  transform: translateX(-100%);
+}
+
+/* Clase para mostrar el sidebar en mobile */
+.pc-sidebar.mob-sidebar-active {
+  transform: translateX(0);
+}
+
+/* Asegurar que el contenido principal se ajuste cuando el sidebar está oculto */
+.pc-container {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Ajustar el contenido cuando el sidebar está oculto en desktop */
+@media (min-width: 992px) {
+  .pc-sidebar.pc-sidebar-hide + .pc-container {
+    margin-left: 0;
+  }
+  
+  .pc-container {
+    margin-left: 260px; /* Ajustar según el ancho de tu sidebar */
+  }
+}
+
+/* En mobile, el sidebar debe estar oculto por defecto */
+@media (max-width: 991.98px) {
+  .pc-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .pc-container {
+    margin-left: 0;
+  }
+}
+
+/* Asegurar que los botones de toggle funcionen correctamente */
+#sidebar-hide,
+#mobile-collapse {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+#sidebar-hide:hover,
+#mobile-collapse:hover {
+  text-decoration: none;
+}
