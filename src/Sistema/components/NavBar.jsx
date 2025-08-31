@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export const NavBar = () => {
   const [adminData, setAdminData] = useState({
@@ -86,14 +87,14 @@ export const NavBar = () => {
                 <i className="ph-duotone ph-gauge"></i>
               </li>
               <li className="pc-item">
-                <a href="../widget/w_statistics.html" className="pc-link">
+                <Link to="/reservas/listar" className="pc-link">
                   <span className="pc-micon">
                     <i className="ph-duotone ph-projector-screen-chart"></i>
                   </span>
                   <span className="pc-mtext" data-i18n="Statistics">
-                    Statistics
+                    Reservas generales
                   </span>
-                </a>
+                </Link>
               </li>
             </ul>
 
