@@ -4,6 +4,7 @@ import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
 // Opciones para los selects
 export const opcionesDeposito = ["50%", "100%"];
 export const opcionesMoneda = ["Colones", "Dólares"];
+export const opcionesTipoPago = ["Sinpe móvil", "Depósito"];
 export const opcionesExtras = [
   "WiFi",
   "Aire acondicionado", 
@@ -18,6 +19,7 @@ export const opcionesExtras = [
 // Estado inicial del formulario
 export const getInitialFormState = (reservaData = null) => ({
   nombreCliente: reservaData?.nombreCliente || "",
+  emailCliente: reservaData?.emailCliente || "",
   cantidadPersonas: reservaData?.cantidadPersonas || 1,
   deposito: reservaData?.deposito || "50%",
   moneda: reservaData?.moneda || "Colones",
@@ -26,6 +28,8 @@ export const getInitialFormState = (reservaData = null) => ({
   horaSalida: reservaData?.horaSalida || "11:00",
   fechaIngreso: reservaData?.fechaIngreso || "",
   fechaSalida: reservaData?.fechaSalida || "",
+  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Sinpe móvil",
+  tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "Sinpe móvil",
   extras: reservaData?.extras || []
 });
 
@@ -184,6 +188,16 @@ export const validateForm = (formData, cabañaSeleccionada) => {
     errors.push("El nombre del cliente es requerido");
   }
 
+  if (!formData.emailCliente.trim()) {
+    errors.push("El correo del cliente es requerido");
+  } else {
+    // Validar formato de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.emailCliente)) {
+      errors.push("El formato del correo electrónico no es válido");
+    }
+  }
+
   if (!formData.cantidadPersonas || formData.cantidadPersonas < 1) {
     errors.push("La cantidad de personas debe ser al menos 1");
   }
@@ -207,6 +221,14 @@ export const validateForm = (formData, cabañaSeleccionada) => {
     if (fechaIngreso >= fechaSalida) {
       errors.push("La fecha de salida debe ser posterior a la fecha de ingreso");
     }
+  }
+
+  if (!formData.tipoPagoPrimerDeposito) {
+    errors.push("El tipo de pago del primer depósito es requerido");
+  }
+
+  if (!formData.tipoPagoSegundoDeposito) {
+    errors.push("El tipo de pago del segundo depósito es requerido");
   }
 
   return errors;

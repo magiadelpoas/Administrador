@@ -15,6 +15,7 @@ import {
   useReservaForm, 
   opcionesDeposito, 
   opcionesMoneda, 
+  opcionesTipoPago,
   opcionesExtras,
   formatReservaData
 } from "../utils/ReservaUtils";
@@ -31,6 +32,7 @@ export const EditarView = () => {
       id: id,
       cabañaId: "1",
       nombreCliente: "Juan Pérez",
+      emailCliente: "juan.perez@ejemplo.com",
       cantidadPersonas: 4,
       deposito: "50%",
       moneda: "Colones",
@@ -39,6 +41,8 @@ export const EditarView = () => {
       horaSalida: "11:00",
       fechaIngreso: "2024-02-15",
       fechaSalida: "2024-02-18",
+      tipoPagoPrimerDeposito: "Sinpe móvil",
+      tipoPagoSegundoDeposito: "Depósito",
       extras: ["WiFi", "Aire acondicionado", "Cocina equipada"],
       primerDepositoPreview: null, // URL de la imagen existente
       segundoDepositoPreview: null // URL de la imagen existente
@@ -184,6 +188,20 @@ export const EditarView = () => {
                             />
                           </div>
                           <div className="col-12 mb-3">
+                            <label htmlFor="emailCliente" className="form-label">
+                              Correo del Cliente <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="email"
+                              className="form-control"
+                              id="emailCliente"
+                              name="emailCliente"
+                              value={formData.emailCliente}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
                             <label htmlFor="cantidadPersonas" className="form-label">
                               Cantidad de Personas <span className="text-danger">*</span>
                             </label>
@@ -314,6 +332,25 @@ export const EditarView = () => {
                               required
                             />
                           </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="tipoPagoPrimerDeposito" className="form-label">
+                              Tipo de Pago Primer Depósito <span className="text-danger">*</span>
+                            </label>
+                            <select
+                              className="form-select"
+                              id="tipoPagoPrimerDeposito"
+                              name="tipoPagoPrimerDeposito"
+                              value={formData.tipoPagoPrimerDeposito}
+                              onChange={handleInputChange}
+                              required
+                            >
+                              {opcionesTipoPago.map(opcion => (
+                                <option key={opcion} value={opcion}>
+                                  {opcion}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -351,82 +388,109 @@ export const EditarView = () => {
                     {/* Campos de archivos para depósitos */}
                     <div className="row mt-4">
                       <div className="col-12 col-md-6 mb-3">
-                        <label htmlFor="primerDeposito" className="form-label">
-                          Primer Depósito (Imagen)
-                        </label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          id="primerDeposito"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange(e, 'primer')}
-                        />
-                        {primerDepositoPreview && (
-                          <div className="mt-3">
-                            <div className="d-flex align-items-start gap-2">
-                              <img
-                                src={primerDepositoPreview}
-                                alt="Preview Primer Depósito"
-                                className="img-thumbnail"
-                                style={{ maxWidth: '150px', maxHeight: '150px' }}
-                              />
-                              <div className="flex-grow-1">
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => handleRemoveFile('primer')}
-                                >
-                                  <i className="fas fa-times me-1"></i>
-                                  Eliminar
-                                </button>
-                                <div className="mt-1">
-                                  <small className="text-muted">
-                                    Archivo: {primerDeposito?.name || "Imagen existente"}
-                                  </small>
+                        <div className="row">
+                          <div className="col-12 mb-3">
+                            <label htmlFor="primerDeposito" className="form-label">
+                              Primer Depósito (Imagen)
+                            </label>
+                            <input
+                              type="file"
+                              className="form-control"
+                              id="primerDeposito"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e, 'primer')}
+                            />
+                            {primerDepositoPreview && (
+                              <div className="mt-3">
+                                <div className="d-flex align-items-start gap-2">
+                                  <img
+                                    src={primerDepositoPreview}
+                                    alt="Preview Primer Depósito"
+                                    className="img-thumbnail"
+                                    style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                  />
+                                  <div className="flex-grow-1">
+                                    <button
+                                      type="button"
+                                      className="btn btn-danger btn-sm"
+                                      onClick={() => handleRemoveFile('primer')}
+                                    >
+                                      <i className="fas fa-times me-1"></i>
+                                      Eliminar
+                                    </button>
+                                    <div className="mt-1">
+                                      <small className="text-muted">
+                                        Archivo: {primerDeposito?.name || "Imagen existente"}
+                                      </small>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
                       <div className="col-12 col-md-6 mb-3">
-                        <label htmlFor="segundoDeposito" className="form-label">
-                          Segundo Depósito (Imagen)
-                        </label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          id="segundoDeposito"
-                          accept="image/*"
-                          onChange={(e) => handleFileChange(e, 'segundo')}
-                        />
-                        {segundoDepositoPreview && (
-                          <div className="mt-3">
-                            <div className="d-flex align-items-start gap-2">
-                              <img
-                                src={segundoDepositoPreview}
-                                alt="Preview Segundo Depósito"
-                                className="img-thumbnail"
-                                style={{ maxWidth: '150px', maxHeight: '150px' }}
-                              />
-                              <div className="flex-grow-1">
-                                <button
-                                  type="button"
-                                  className="btn btn-danger btn-sm"
-                                  onClick={() => handleRemoveFile('segundo')}
-                                >
-                                  <i className="fas fa-times me-1"></i>
-                                  Eliminar
-                                </button>
-                                <div className="mt-1">
-                                  <small className="text-muted">
-                                    Archivo: {segundoDeposito?.name || "Imagen existente"}
-                                  </small>
+                        <div className="row">
+                          <div className="col-12 mb-3">
+                            <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
+                              Tipo de Pago Segundo Depósito <span className="text-danger">*</span>
+                            </label>
+                            <select
+                              className="form-select"
+                              id="tipoPagoSegundoDeposito"
+                              name="tipoPagoSegundoDeposito"
+                              value={formData.tipoPagoSegundoDeposito}
+                              onChange={handleInputChange}
+                              required
+                            >
+                              {opcionesTipoPago.map(opcion => (
+                                <option key={opcion} value={opcion}>
+                                  {opcion}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="segundoDeposito" className="form-label">
+                              Segundo Depósito (Imagen)
+                            </label>
+                            <input
+                              type="file"
+                              className="form-control"
+                              id="segundoDeposito"
+                              accept="image/*"
+                              onChange={(e) => handleFileChange(e, 'segundo')}
+                            />
+                            {segundoDepositoPreview && (
+                              <div className="mt-3">
+                                <div className="d-flex align-items-start gap-2">
+                                  <img
+                                    src={segundoDepositoPreview}
+                                    alt="Preview Segundo Depósito"
+                                    className="img-thumbnail"
+                                    style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                  />
+                                  <div className="flex-grow-1">
+                                    <button
+                                      type="button"
+                                      className="btn btn-danger btn-sm"
+                                      onClick={() => handleRemoveFile('segundo')}
+                                    >
+                                      <i className="fas fa-times me-1"></i>
+                                      Eliminar
+                                    </button>
+                                    <div className="mt-1">
+                                      <small className="text-muted">
+                                        Archivo: {segundoDeposito?.name || "Imagen existente"}
+                                      </small>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
 
