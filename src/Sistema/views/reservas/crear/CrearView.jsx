@@ -26,6 +26,12 @@ export const CrearView = () => {
     extras: []
   });
 
+  // Estados para los archivos y previews
+  const [primerDeposito, setPrimerDeposito] = useState(null);
+  const [segundoDeposito, setSegundoDeposito] = useState(null);
+  const [primerDepositoPreview, setPrimerDepositoPreview] = useState(null);
+  const [segundoDepositoPreview, setSegundoDepositoPreview] = useState(null);
+
   const cabañas = getCabañasColores();
 
   // Opciones para los selects
@@ -76,6 +82,42 @@ export const CrearView = () => {
     }));
   };
 
+  // Función para manejar la carga de archivos con preview
+  const handleFileChange = (e, tipo) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validar que sea una imagen
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona solo archivos de imagen');
+        return;
+      }
+
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (tipo === 'primer') {
+          setPrimerDeposito(file);
+          setPrimerDepositoPreview(e.target.result);
+        } else {
+          setSegundoDeposito(file);
+          setSegundoDepositoPreview(e.target.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Función para eliminar archivo y preview
+  const handleRemoveFile = (tipo) => {
+    if (tipo === 'primer') {
+      setPrimerDeposito(null);
+      setPrimerDepositoPreview(null);
+    } else {
+      setSegundoDeposito(null);
+      setSegundoDepositoPreview(null);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -98,6 +140,14 @@ export const CrearView = () => {
         submitFormData.append(key, formData[key]);
       }
     });
+
+    // Agregar archivos
+    if (primerDeposito) {
+      submitFormData.append('primerDeposito', primerDeposito);
+    }
+    if (segundoDeposito) {
+      submitFormData.append('segundoDeposito', segundoDeposito);
+    }
     
     // Aquí puedes enviar el FormData al servidor
     console.log('FormData creado:', submitFormData);
@@ -126,8 +176,9 @@ export const CrearView = () => {
             </div>
             <div className="card-body">
               <form onSubmit={handleSubmit}>
-                <div className="row">
-                  <div className="col-12 col-md-6">
+                {/* Selección de Cabaña - Ancho completo */}
+                <div className="row mb-4">
+                  <div className="col-12">
                     <label htmlFor="cabañaId" className="form-label">
                       Seleccionar Cabaña <span className="text-danger">*</span>
                     </label>
@@ -153,7 +204,7 @@ export const CrearView = () => {
 
                 {/* Alert que muestra la cabaña seleccionada con su color */}
                 {cabañaActual && (
-                  <div className="row mt-3">
+                  <div className="row mb-4">
                     <div className="col-12">
                       <div 
                         className="alert alert-info d-flex align-items-center" 
@@ -183,154 +234,161 @@ export const CrearView = () => {
                 {/* Campos adicionales que aparecen después de seleccionar cabaña */}
                 {cabañaSeleccionada && (
                   <>
-                    <div className="row mt-4">
-                      <div className="col-12 col-md-6 mb-3">
-                        <label htmlFor="nombreCliente" className="form-label">
-                          Nombre del Cliente <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="nombreCliente"
-                          name="nombreCliente"
-                          value={formData.nombreCliente}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="col-12 col-md-6 mb-3">
-                        <label htmlFor="cantidadPersonas" className="form-label">
-                          Cantidad de Personas <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          id="cantidadPersonas"
-                          name="cantidadPersonas"
-                          min="1"
-                          value={formData.cantidadPersonas}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-
+                    {/* Formulario en 2 columnas */}
                     <div className="row">
-                      <div className="col-12 col-md-4 mb-3">
-                        <label htmlFor="deposito" className="form-label">
-                          Depósito <span className="text-danger">*</span>
-                        </label>
-                        <select
-                          className="form-select"
-                          id="deposito"
-                          name="deposito"
-                          value={formData.deposito}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          {opcionesDeposito.map(opcion => (
-                            <option key={opcion} value={opcion}>
-                              {opcion}
-                            </option>
-                          ))}
-                        </select>
+                      {/* COLUMNA IZQUIERDA */}
+                      <div className="col-12 col-lg-6">
+                        <div className="row">
+                          <div className="col-12 mb-3">
+                            <label htmlFor="nombreCliente" className="form-label">
+                              Nombre del Cliente <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              id="nombreCliente"
+                              name="nombreCliente"
+                              value={formData.nombreCliente}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="cantidadPersonas" className="form-label">
+                              Cantidad de Personas <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="cantidadPersonas"
+                              name="cantidadPersonas"
+                              min="1"
+                              value={formData.cantidadPersonas}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="deposito" className="form-label">
+                              Depósito <span className="text-danger">*</span>
+                            </label>
+                            <select
+                              className="form-select"
+                              id="deposito"
+                              name="deposito"
+                              value={formData.deposito}
+                              onChange={handleInputChange}
+                              required
+                            >
+                              {opcionesDeposito.map(opcion => (
+                                <option key={opcion} value={opcion}>
+                                  {opcion}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="moneda" className="form-label">
+                              Moneda <span className="text-danger">*</span>
+                            </label>
+                            <select
+                              className="form-select"
+                              id="moneda"
+                              name="moneda"
+                              value={formData.moneda}
+                              onChange={handleInputChange}
+                              required
+                            >
+                              {opcionesMoneda.map(opcion => (
+                                <option key={opcion} value={opcion}>
+                                  {opcion}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label htmlFor="totalDepositado" className="form-label">
+                              Total Depositado <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              id="totalDepositado"
+                              name="totalDepositado"
+                              min="0"
+                              step="0.01"
+                              value={formData.totalDepositado}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="col-12 col-md-4 mb-3">
-                        <label htmlFor="moneda" className="form-label">
-                          Moneda <span className="text-danger">*</span>
-                        </label>
-                        <select
-                          className="form-select"
-                          id="moneda"
-                          name="moneda"
-                          value={formData.moneda}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          {opcionesMoneda.map(opcion => (
-                            <option key={opcion} value={opcion}>
-                              {opcion}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="col-12 col-md-4 mb-3">
-                        <label htmlFor="totalDepositado" className="form-label">
-                          Total Depositado <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="number"
-                          className="form-control"
-                          id="totalDepositado"
-                          name="totalDepositado"
-                          min="0"
-                          step="0.01"
-                          value={formData.totalDepositado}
-                          onChange={handleInputChange}
-                          required
-                        />
+
+                      {/* COLUMNA DERECHA */}
+                      <div className="col-12 col-lg-6">
+                        <div className="row">
+                          <div className="col-12 col-sm-6 mb-3">
+                            <label htmlFor="horaIngreso" className="form-label">
+                              Hora de Ingreso <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="time"
+                              className="form-control"
+                              id="horaIngreso"
+                              name="horaIngreso"
+                              value={formData.horaIngreso}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 col-sm-6 mb-3">
+                            <label htmlFor="horaSalida" className="form-label">
+                              Hora de Salida <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="time"
+                              className="form-control"
+                              id="horaSalida"
+                              name="horaSalida"
+                              value={formData.horaSalida}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 col-sm-6 mb-3">
+                            <label htmlFor="fechaIngreso" className="form-label">
+                              Fecha de Ingreso <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="fechaIngreso"
+                              name="fechaIngreso"
+                              value={formData.fechaIngreso}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                          <div className="col-12 col-sm-6 mb-3">
+                            <label htmlFor="fechaSalida" className="form-label">
+                              Fecha de Salida <span className="text-danger">*</span>
+                            </label>
+                            <input
+                              type="date"
+                              className="form-control"
+                              id="fechaSalida"
+                              name="fechaSalida"
+                              value={formData.fechaSalida}
+                              onChange={handleInputChange}
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="row">
-                      <div className="col-12 col-sm-6 col-md-3 mb-3">
-                        <label htmlFor="horaIngreso" className="form-label">
-                          Hora de Ingreso <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="time"
-                          className="form-control"
-                          id="horaIngreso"
-                          name="horaIngreso"
-                          value={formData.horaIngreso}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="col-12 col-sm-6 col-md-3 mb-3">
-                        <label htmlFor="horaSalida" className="form-label">
-                          Hora de Salida <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="time"
-                          className="form-control"
-                          id="horaSalida"
-                          name="horaSalida"
-                          value={formData.horaSalida}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="col-12 col-sm-6 col-md-3 mb-3">
-                        <label htmlFor="fechaIngreso" className="form-label">
-                          Fecha de Ingreso <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          id="fechaIngreso"
-                          name="fechaIngreso"
-                          value={formData.fechaIngreso}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="col-12 col-sm-6 col-md-3 mb-3">
-                        <label htmlFor="fechaSalida" className="form-label">
-                          Fecha de Salida <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          id="fechaSalida"
-                          name="fechaSalida"
-                          value={formData.fechaSalida}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-
+                    {/* Extras - Ancho completo */}
                     <div className="row mt-3">
                       <div className="col-12">
                         <FormControl fullWidth>
@@ -360,6 +418,89 @@ export const CrearView = () => {
                       </div>
                     </div>
 
+                    {/* Campos de archivos para depósitos */}
+                    <div className="row mt-4">
+                      <div className="col-12 col-md-6 mb-3">
+                        <label htmlFor="primerDeposito" className="form-label">
+                          Primer Depósito (Imagen)
+                        </label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          id="primerDeposito"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, 'primer')}
+                        />
+                        {primerDepositoPreview && (
+                          <div className="mt-3">
+                            <div className="d-flex align-items-start gap-2">
+                              <img
+                                src={primerDepositoPreview}
+                                alt="Preview Primer Depósito"
+                                className="img-thumbnail"
+                                style={{ maxWidth: '150px', maxHeight: '150px' }}
+                              />
+                              <div className="flex-grow-1">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => handleRemoveFile('primer')}
+                                >
+                                  <i className="fas fa-times me-1"></i>
+                                  Eliminar
+                                </button>
+                                <div className="mt-1">
+                                  <small className="text-muted">
+                                    Archivo: {primerDeposito?.name}
+                                  </small>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-12 col-md-6 mb-3">
+                        <label htmlFor="segundoDeposito" className="form-label">
+                          Segundo Depósito (Imagen)
+                        </label>
+                        <input
+                          type="file"
+                          className="form-control"
+                          id="segundoDeposito"
+                          accept="image/*"
+                          onChange={(e) => handleFileChange(e, 'segundo')}
+                        />
+                        {segundoDepositoPreview && (
+                          <div className="mt-3">
+                            <div className="d-flex align-items-start gap-2">
+                              <img
+                                src={segundoDepositoPreview}
+                                alt="Preview Segundo Depósito"
+                                className="img-thumbnail"
+                                style={{ maxWidth: '150px', maxHeight: '150px' }}
+                              />
+                              <div className="flex-grow-1">
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-sm"
+                                  onClick={() => handleRemoveFile('segundo')}
+                                >
+                                  <i className="fas fa-times me-1"></i>
+                                  Eliminar
+                                </button>
+                                <div className="mt-1">
+                                  <small className="text-muted">
+                                    Archivo: {segundoDeposito?.name}
+                                  </small>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botones de acción */}
                     <div className="row mt-4">
                       <div className="col-12 d-flex flex-column flex-sm-row gap-2">
                         <button type="submit" className="btn btn-primary">
