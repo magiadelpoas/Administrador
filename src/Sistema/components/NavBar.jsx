@@ -6,6 +6,7 @@ export const NavBar = () => {
     name: "Admin",
     email: "admin@admin.com",
   });
+  const [reservasMenuOpen, setReservasMenuOpen] = useState(false);
 
   useEffect(() => {
     // Obtener datos del admin desde localStorage
@@ -22,6 +23,10 @@ export const NavBar = () => {
       }
     }
   }, []);
+
+  const toggleReservasMenu = () => {
+    setReservasMenuOpen(!reservasMenuOpen);
+  };
 
   return (
     <>
@@ -96,14 +101,41 @@ export const NavBar = () => {
                 </Link>
               </li>
               <li className="pc-item">
-                <Link to="/reservas/listar" className="pc-link">
+                <Link to="/reporteria" className="pc-link">
+                  <span className="pc-micon">
+                    <i className="ph-duotone ph-chart-line"></i>
+                  </span>
+                  <span className="pc-mtext" data-i18n="Statistics">
+                    Reportería
+                  </span>
+                </Link>
+              </li>
+              <li className="pc-item pc-hasmenu pc-trigger">
+                <a href="#!" className="pc-link" onClick={toggleReservasMenu}>
                   <span className="pc-micon">
                     <i className="ph-duotone ph-projector-screen-chart"></i>
                   </span>
                   <span className="pc-mtext" data-i18n="Statistics">
                     Reservas generales
                   </span>
-                </Link>
+                  <span className="pc-arrow">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevron-right">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </span>
+                </a>
+                <ul className="pc-submenu" style={{ display: reservasMenuOpen ? "block" : "none" }}>
+                  <li className="pc-item">
+                    <Link to="/reservas/listar" className="pc-link">
+                      Ver reservas
+                    </Link>
+                  </li>
+                  <li className="pc-item">
+                    <Link to="/reservas/crear" className="pc-link">
+                      Crear Reserva
+                    </Link>
+                  </li>
+                </ul>
               </li>
             </ul>
 

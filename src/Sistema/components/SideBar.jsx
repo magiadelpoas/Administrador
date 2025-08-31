@@ -17,234 +17,19 @@ export const SideBar = () => {
                   <i className="ti ti-menu-2"></i>
                 </a>
               </li>
-              <li className="dropdown pc-h-item d-inline-flex d-md-none">
-                <a
-                  className="pc-head-link dropdown-toggle arrow-none m-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-magnifying-glass"></i>
-                </a>
-                <div className="dropdown-menu pc-h-dropdown drp-search">
-                  <form className="px-3">
-                    <div className="mb-0 d-flex align-items-center">
-                      <input
-                        type="search"
-                        className="form-control border-0 shadow-none"
-                        placeholder="Search..."
-                      />
-                      <button className="btn btn-light-secondary btn-search">
-                        Search
-                      </button>
-                    </div>
-                  </form>
-                </div>
-              </li>
-              <li className="pc-h-item d-none d-md-inline-flex">
-                <form className="form-search">
-                  <i className="ph-duotone ph-magnifying-glass icon-search"></i>
-                  <input
-                    type="search"
-                    className="form-control"
-                    placeholder="Search..."
-                  />
-
-                  <button className="btn btn-search" style={{ padding: "0" }}>
-                    <kbd>ctrl+k</kbd>
-                  </button>
-                </form>
-              </li>
+             
+            
             </ul>
           </div>
 
           <div className="ms-auto">
             <ul className="list-unstyled">
-              <li className="dropdown pc-h-item d-none d-md-inline-flex">
-                <a
-                  className="pc-head-link dropdown-toggle arrow-none me-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-circles-four"></i>
-                </a>
-                <div className="dropdown-menu dropdown-qta dropdown-menu-end pc-h-dropdown">
-                  <div className="overflow-hidden">
-                    <div className="qta-links m-n1">
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-shopping-cart"></i>
-                        <span>E-commerce</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-lifebuoy"></i>
-                        <span>Helpdesk</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-scroll"></i>
-                        <span>Invoice</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-books"></i>
-                        <span>Online Courses</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-envelope-open"></i>
-                        <span>Mail</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-identification-badge"></i>
-                        <span>Membership</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-chats-circle"></i>
-                        <span>Chat</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-currency-circle-dollar"></i>
-                        <span>Plans</span>
-                      </a>
-                      <a href="#!" className="dropdown-item">
-                        <i className="ph-duotone ph-user-circle"></i>
-                        <span>Users</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </li>
-              <li className="dropdown pc-h-item d-none d-md-inline-flex">
-                <a
-                  className="pc-head-link dropdown-toggle arrow-none me-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-sun-dim"></i>
-                </a>
-                <div className="dropdown-menu dropdown-menu-end pc-h-dropdown">
-                  <a
-                    href="#!"
-                    className="dropdown-item"
-                  >
-                    <i className="ph-duotone ph-moon"></i>
-                    <span>Dark</span>
-                  </a>
-                  <a
-                    href="#!"
-                    className="dropdown-item"
-                  >
-                    <i className="ph-duotone ph-sun-dim"></i>
-                    <span>Light</span>
-                  </a>
-                  <a
-                    href="#!"
-                    className="dropdown-item"
-                  >
-                    <i className="ph-duotone ph-cpu"></i>
-                    <span>Default</span>
-                  </a>
-                </div>
-              </li>
-              <li className="dropdown pc-h-item d-none d-md-inline-flex">
-                <a
-                  className="pc-head-link head-link-primary dropdown-toggle arrow-none me-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-translate"></i>
-                </a>
-                <div className="dropdown-menu dropdown-menu-end pc-h-dropdown lng-dropdown">
-                  <a href="#!" className="dropdown-item" data-lng="en">
-                    <span>
-                      English
-                      <small>(UK)</small>
-                    </span>
-                  </a>
-                  <a href="#!" className="dropdown-item" data-lng="fr">
-                    <span>
-                      français
-                      <small>(French)</small>
-                    </span>
-                  </a>
-                  <a href="#!" className="dropdown-item" data-lng="ro">
-                    <span>
-                      Română
-                      <small>(Romanian)</small>
-                    </span>
-                  </a>
-                  <a href="#!" className="dropdown-item" data-lng="cn">
-                    <span>
-                      中国人
-                      <small>(Chinese)</small>
-                    </span>
-                  </a>
-                </div>
-              </li>
-              <li className="pc-h-item">
-                <a
-                  className="pc-head-link pct-c-btn"
-                  href="#"
-                  data-bs-toggle="offcanvas"
-                  data-bs-target="#offcanvas_pc_layout"
-                >
-                  <i className="ph-duotone ph-gear-six"></i>
-                </a>
-              </li>
+           
+        
+          
+            
               <li className="dropdown pc-h-item">
-                <a
-                  className="pc-head-link dropdown-toggle arrow-none me-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-diamonds-four"></i>
-                </a>
-                <div className="dropdown-menu dropdown-menu-end pc-h-dropdown">
-                  <a href="#!" className="dropdown-item">
-                    <i className="ph-duotone ph-user"></i>
-                    <span>My Account</span>
-                  </a>
-                  <a href="#!" className="dropdown-item">
-                    <i className="ph-duotone ph-gear"></i>
-                    <span>Settings</span>
-                  </a>
-                  <a href="#!" className="dropdown-item">
-                    <i className="ph-duotone ph-lifebuoy"></i>
-                    <span>Support</span>
-                  </a>
-                  <a href="#!" className="dropdown-item">
-                    <i className="ph-duotone ph-lock-key"></i>
-                    <span>Lock Screen</span>
-                  </a>
-                  <a href="#!" className="dropdown-item">
-                    <i className="ph-duotone ph-power"></i>
-                    <span>Logout</span>
-                  </a>
-                </div>
-              </li>
-              <li className="dropdown pc-h-item">
-                <a
-                  className="pc-head-link dropdown-toggle arrow-none me-0"
-                  data-bs-toggle="dropdown"
-                  href="#"
-                  role="button"
-                  aria-haspopup="false"
-                  aria-expanded="false"
-                >
-                  <i className="ph-duotone ph-bell"></i>
-                  <span className="badge bg-success pc-h-badge">3</span>
-                </a>
+             
                 <div className="dropdown-menu dropdown-notification dropdown-menu-end pc-h-dropdown">
                   <div className="dropdown-header d-flex align-items-center justify-content-between">
                     <h5 className="m-0">Notifications</h5>
@@ -269,7 +54,7 @@ export const SideBar = () => {
                         <div className="d-flex">
                           <div className="flex-shrink-0">
                             <img
-                              src="https://placehold.co/100x100"
+                              src="/assets/avatar.jpg"
                               alt="user-image"
                               className="user-avtar avtar avtar-s"
                             />
@@ -394,7 +179,7 @@ export const SideBar = () => {
                         <div className="d-flex">
                           <div className="flex-shrink-0">
                             <img
-                              src="https://placehold.co/100x100"
+                              src="/assets/avatar.jpg"
                               alt="user-image"
                               className="user-avtar avtar avtar-s"
                             />
@@ -484,7 +269,7 @@ export const SideBar = () => {
                   aria-expanded="false"
                 >
                   <img
-                    src="https://placehold.co/100x100"
+                    src="/assets/avatar.jpg"
                     alt="user-image"
                     className="user-avtar"
                   />
@@ -503,7 +288,7 @@ export const SideBar = () => {
                           <div className="d-flex align-items-center">
                             <div className="flex-shrink-0">
                               <img
-                                src="https://placehold.co/100x100"
+                                src="/assets/avatar.jpg"
                                 alt="user-image"
                                 className="wid-50 rounded-circle"
                               />
