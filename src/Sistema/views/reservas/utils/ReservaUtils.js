@@ -15,8 +15,8 @@ export const opcionesDeposito = ["50%", "100%"];
 // Opciones para el campo de moneda
 export const opcionesMoneda = ["Colones", "Dólares"];
 
-// Opciones para los tipos de pago
-export const opcionesTipoPago = ["Sinpe móvil", "Depósito"];
+// Opciones para los tipos de pago (incluye opción vacía)
+export const opcionesTipoPago = ["", "Sinpe móvil", "Depósito"];
 
 // Opciones para el tipo de reserva (orden específico solicitado)
 export const opcionesTipoReserva = ["Reserva Local", "Airbnb", "Booking"];
@@ -62,9 +62,9 @@ export const getInitialFormState = (reservaData = null) => ({
   fechaIngreso: reservaData?.fechaIngreso || "",
   fechaSalida: reservaData?.fechaSalida || "",
   
-  // Tipos de pago para depósitos
-  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Sinpe móvil",
-  tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "Sinpe móvil",
+  // Tipos de pago para depósitos (vacíos por defecto)
+  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "",
+  tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "",
   
   // Tipo de reserva
   tipoReserva: reservaData?.tipoReserva || "Reserva Local",
@@ -179,9 +179,19 @@ export const useReservaForm = (reservaData = null) => {
     if (tipo === 'primer') {
       setPrimerDeposito(null);
       setPrimerDepositoPreview(null);
+      // Limpiar el tipo de pago cuando se elimina la imagen
+      setFormData(prev => ({
+        ...prev,
+        tipoPagoPrimerDeposito: ""
+      }));
     } else {
       setSegundoDeposito(null);
       setSegundoDepositoPreview(null);
+      // Limpiar el tipo de pago cuando se elimina la imagen
+      setFormData(prev => ({
+        ...prev,
+        tipoPagoSegundoDeposito: ""
+      }));
     }
   };
 
@@ -277,9 +287,11 @@ export const useReservaForm = (reservaData = null) => {
  * 
  * @param {Object} formData - Datos del formulario
  * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @param {File|null} primerDeposito - Archivo del primer depósito
+ * @param {File|null} segundoDeposito - Archivo del segundo depósito
  * @returns {Array} Array de mensajes de error (vacío si no hay errores)
  */
-export const validateForm = (formData, cabañaSeleccionada) => {
+export const validateForm = (formData, cabañaSeleccionada, primerDeposito = null, segundoDeposito = null) => {
   const errors = [];
 
   // ===== VALIDACIONES OBLIGATORIAS =====
@@ -339,16 +351,16 @@ export const validateForm = (formData, cabañaSeleccionada) => {
     }
   }
 
-  // ===== VALIDACIONES DE TIPOS DE PAGO =====
+  // ===== VALIDACIONES DE TIPOS DE PAGO (CONDICIONALES) =====
   
-  // Validar tipo de pago primer depósito
-  if (!formData.tipoPagoPrimerDeposito) {
-    errors.push("El tipo de pago del primer depósito es requerido");
+  // Validar tipo de pago primer depósito solo si hay imagen
+  if (primerDeposito && !formData.tipoPagoPrimerDeposito) {
+    errors.push("El tipo de pago del primer depósito es requerido cuando hay una imagen seleccionada");
   }
 
-  // Validar tipo de pago segundo depósito
-  if (!formData.tipoPagoSegundoDeposito) {
-    errors.push("El tipo de pago del segundo depósito es requerido");
+  // Validar tipo de pago segundo depósito solo si hay imagen
+  if (segundoDeposito && !formData.tipoPagoSegundoDeposito) {
+    errors.push("El tipo de pago del segundo depósito es requerido cuando hay una imagen seleccionada");
   }
 
   // ===== VALIDACIONES ADICIONALES =====

@@ -18,43 +18,16 @@ import {
   opcionesTipoPago,
   opcionesTipoReserva,
   opcionesExtras,
-  formatReservaData
+  formatReservaData,
+  validateForm
 } from "../utils/ReservaUtils";
 
-/**
- * ========================================
- * COMPONENTE: EditarView
- * ========================================
- * Componente para editar reservas existentes. Renderiza un formulario completo
- * pre-llenado con los datos de la reserva seleccionada, permitiendo al usuario
- * modificar cualquier campo.
- * 
- * CARACTERÍSTICAS:
- * - Formulario responsivo (mobile, tablet, desktop)
- * - Carga de datos existentes de la reserva
- * - Validación de campos obligatorios
- * - Carga de imágenes con preview
- * - Selección múltiple de extras usando Material-UI
- * - Campos condicionales (se muestran solo después de seleccionar cabaña y tipo de reserva)
- * - Estado de carga mientras se obtienen los datos
- * 
- * @returns {JSX.Element} Formulario de edición de reserva
- */
 export const EditarView = () => {
-  // ===== ESTADOS LOCALES =====
-  const { id } = useParams(); // Obtener el ID de la reserva desde la URL
-  
-  // Estado para los datos de la reserva
+  const { id } = useParams();
   const [reservaData, setReservaData] = useState(null);
-  
-  // Estado para controlar la carga
   const [loading, setLoading] = useState(true);
 
-  // ===== EFECTO PARA CARGAR DATOS =====
-  /**
-   * Simula la carga de datos de una reserva existente
-   * En producción, aquí deberías hacer una llamada a tu API
-   */
+  // Simular carga de datos de la reserva (aquí deberías hacer una llamada a tu API)
   useEffect(() => {
     // Simular datos de una reserva existente
     const mockReservaData = {
@@ -78,16 +51,13 @@ export const EditarView = () => {
       segundoDepositoPreview: null // URL de la imagen existente
     };
 
-    // Simular delay de carga para mostrar el spinner
+    // Simular delay de carga
     setTimeout(() => {
       setReservaData(formatReservaData(mockReservaData));
       setLoading(false);
     }, 500);
   }, [id]);
 
-  // ===== HOOK PERSONALIZADO =====
-  // Obtener toda la lógica del formulario desde el hook personalizado
-  // Pasamos los datos de la reserva para pre-llenar el formulario
   const {
     cabañaSeleccionada,
     formData,
@@ -111,15 +81,21 @@ export const EditarView = () => {
    * @param {Event} e - Evento del formulario
    */
   const onSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validar el formulario con los archivos
+    const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
+    if (errors.length > 0) {
+      alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
+      return;
+    }
+    
     handleSubmit(e, true); // true = editar reserva existente
   };
 
-  // ===== CONDICIÓN DE VISUALIZACIÓN =====
-  // Los campos adicionales solo se muestran después de seleccionar cabaña y tipo de reserva
+  // Verificar si ambos campos están seleccionados
   const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
 
-  // ===== ESTADO DE CARGA =====
-  // Mostrar spinner mientras se cargan los datos
   if (loading) {
     return (
       <div className="container-fluid px-3 px-md-4">
@@ -139,13 +115,11 @@ export const EditarView = () => {
     );
   }
 
-  // ===== RENDERIZADO PRINCIPAL =====
   return (
     <div className="container-fluid px-3 px-md-4">
       <div className="row">
         <div className="col-12">
           <div className="card">
-            {/* ===== HEADER DEL CARD ===== */}
             <div className="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
               <h4 className="card-title mb-0">Editar Reserva #{id}</h4>
               <Link to="/reservas/lista" className="btn btn-secondary btn-sm">
@@ -154,14 +128,10 @@ export const EditarView = () => {
                 <span className="d-sm-none">Volver</span>
               </Link>
             </div>
-            
-            {/* ===== CUERPO DEL FORMULARIO ===== */}
             <div className="card-body">
               <form onSubmit={onSubmit}>
-                {/* ===== SECCIÓN 1: SELECCIÓN INICIAL ===== */}
                 {/* Selección de Cabaña y Tipo de Reserva - Ancho completo */}
                 <div className="row mb-4">
-                  {/* Campo: Seleccionar Cabaña */}
                   <div className="col-12 col-md-6 mb-3">
                     <label htmlFor="cabañaId" className="form-label">
                       Seleccionar Cabaña <span className="text-danger">*</span>
@@ -184,8 +154,6 @@ export const EditarView = () => {
                       ))}
                     </select>
                   </div>
-                  
-                  {/* Campo: Tipo de Reserva */}
                   <div className="col-12 col-md-6 mb-3">
                     <label htmlFor="tipoReserva" className="form-label">
                       Tipo de Reserva <span className="text-danger">*</span>
@@ -207,7 +175,6 @@ export const EditarView = () => {
                   </div>
                 </div>
 
-                {/* ===== SECCIÓN 2: ALERT DE CABAÑA SELECCIONADA ===== */}
                 {/* Alert que muestra la cabaña seleccionada con su color */}
                 {cabañaActual && (
                   <div className="row mb-4">
@@ -237,16 +204,14 @@ export const EditarView = () => {
                   </div>
                 )}
 
-                {/* ===== SECCIÓN 3: CAMPOS ADICIONALES (CONDICIONALES) ===== */}
                 {/* Campos adicionales que aparecen después de seleccionar cabaña y tipo de reserva */}
                 {ambosSeleccionados && (
                   <>
                     {/* Formulario en 2 columnas */}
                     <div className="row">
-                      {/* ===== COLUMNA IZQUIERDA ===== */}
+                      {/* COLUMNA IZQUIERDA */}
                       <div className="col-12 col-lg-6">
                         <div className="row">
-                          {/* Campo: Nombre del Cliente */}
                           <div className="col-12 mb-3">
                             <label htmlFor="nombreCliente" className="form-label">
                               Nombre del Cliente <span className="text-danger">*</span>
@@ -261,8 +226,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Correo del Cliente */}
                           <div className="col-12 mb-3">
                             <label htmlFor="emailCliente" className="form-label">
                               Correo del Cliente <span className="text-danger">*</span>
@@ -277,8 +240,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Cantidad de Personas */}
                           <div className="col-12 mb-3">
                             <label htmlFor="cantidadPersonas" className="form-label">
                               Cantidad de Personas <span className="text-danger">*</span>
@@ -294,8 +255,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Depósito */}
                           <div className="col-12 mb-3">
                             <label htmlFor="deposito" className="form-label">
                               Depósito <span className="text-danger">*</span>
@@ -315,8 +274,6 @@ export const EditarView = () => {
                               ))}
                             </select>
                           </div>
-                          
-                          {/* Campo: Moneda */}
                           <div className="col-12 mb-3">
                             <label htmlFor="moneda" className="form-label">
                               Moneda <span className="text-danger">*</span>
@@ -336,8 +293,6 @@ export const EditarView = () => {
                               ))}
                             </select>
                           </div>
-                          
-                          {/* Campo: Total Depositado */}
                           <div className="col-12 mb-3">
                             <label htmlFor="totalDepositado" className="form-label">
                               Total Depositado <span className="text-danger">*</span>
@@ -354,8 +309,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Extras (Selección múltiple con Material-UI) */}
                           <div className="col-12 mb-3">
                             <FormControl fullWidth>
                               <InputLabel id="extras-label">Extras (Selección múltiple)</InputLabel>
@@ -385,10 +338,9 @@ export const EditarView = () => {
                         </div>
                       </div>
 
-                      {/* ===== COLUMNA DERECHA ===== */}
+                      {/* COLUMNA DERECHA */}
                       <div className="col-12 col-lg-6">
                         <div className="row">
-                          {/* Campo: Hora de Ingreso */}
                           <div className="col-12 mb-3">
                             <label htmlFor="horaIngreso" className="form-label">
                               Hora de Ingreso <span className="text-danger">*</span>
@@ -403,8 +355,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Hora de Salida */}
                           <div className="col-12 mb-3">
                             <label htmlFor="horaSalida" className="form-label">
                               Hora de Salida <span className="text-danger">*</span>
@@ -419,8 +369,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Fecha de Ingreso */}
                           <div className="col-12 mb-3">
                             <label htmlFor="fechaIngreso" className="form-label">
                               Fecha de Ingreso <span className="text-danger">*</span>
@@ -435,8 +383,6 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Fecha de Salida */}
                           <div className="col-12 mb-3">
                             <label htmlFor="fechaSalida" className="form-label">
                               Fecha de Salida <span className="text-danger">*</span>
@@ -451,11 +397,9 @@ export const EditarView = () => {
                               required
                             />
                           </div>
-                          
-                          {/* Campo: Tipo de Pago Primer Depósito */}
                           <div className="col-12 mb-3">
                             <label htmlFor="tipoPagoPrimerDeposito" className="form-label">
-                              Tipo de Pago Primer Depósito <span className="text-danger">*</span>
+                              Tipo de Pago Primer Depósito {primerDeposito && <span className="text-danger">*</span>}
                             </label>
                             <select
                               className="form-select"
@@ -463,17 +407,15 @@ export const EditarView = () => {
                               name="tipoPagoPrimerDeposito"
                               value={formData.tipoPagoPrimerDeposito}
                               onChange={handleInputChange}
-                              required
+                              required={!!primerDeposito}
                             >
                               {opcionesTipoPago.map(opcion => (
                                 <option key={opcion} value={opcion}>
-                                  {opcion}
+                                  {opcion || "Seleccione el tipo de depósito"}
                                 </option>
                               ))}
                             </select>
                           </div>
-                          
-                          {/* Campo: Primer Depósito (Imagen) */}
                           <div className="col-12 mb-3">
                             <label htmlFor="primerDeposito" className="form-label">
                               Primer Depósito (Imagen)
@@ -485,7 +427,6 @@ export const EditarView = () => {
                               accept="image/*"
                               onChange={(e) => handleFileChange(e, 'primer')}
                             />
-                            {/* Preview de la imagen del primer depósito */}
                             {primerDepositoPreview && (
                               <div className="mt-3">
                                 <div className="d-flex align-items-start gap-2">
@@ -514,11 +455,9 @@ export const EditarView = () => {
                               </div>
                             )}
                           </div>
-                          
-                          {/* Campo: Tipo de Pago Segundo Depósito */}
                           <div className="col-12 mb-3">
                             <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
-                              Tipo de Pago Segundo Depósito <span className="text-danger">*</span>
+                              Tipo de Pago Segundo Depósito {segundoDeposito && <span className="text-danger">*</span>}
                             </label>
                             <select
                               className="form-select"
@@ -526,17 +465,15 @@ export const EditarView = () => {
                               name="tipoPagoSegundoDeposito"
                               value={formData.tipoPagoSegundoDeposito}
                               onChange={handleInputChange}
-                              required
+                              required={!!segundoDeposito}
                             >
                               {opcionesTipoPago.map(opcion => (
                                 <option key={opcion} value={opcion}>
-                                  {opcion}
+                                  {opcion || "Seleccione el tipo de depósito"}
                                 </option>
                               ))}
                             </select>
                           </div>
-                          
-                          {/* Campo: Segundo Depósito (Imagen) */}
                           <div className="col-12 mb-3">
                             <label htmlFor="segundoDeposito" className="form-label">
                               Segundo Depósito (Imagen)
@@ -548,7 +485,6 @@ export const EditarView = () => {
                               accept="image/*"
                               onChange={(e) => handleFileChange(e, 'segundo')}
                             />
-                            {/* Preview de la imagen del segundo depósito */}
                             {segundoDepositoPreview && (
                               <div className="mt-3">
                                 <div className="d-flex align-items-start gap-2">
@@ -581,7 +517,6 @@ export const EditarView = () => {
                       </div>
                     </div>
 
-                    {/* ===== SECCIÓN 4: BOTONES DE ACCIÓN ===== */}
                     {/* Botones de acción */}
                     <div className="row mt-4">
                       <div className="col-12 d-flex flex-column flex-sm-row gap-2">

@@ -15,7 +15,8 @@ import {
   opcionesMoneda, 
   opcionesTipoPago,
   opcionesTipoReserva,
-  opcionesExtras 
+  opcionesExtras,
+  validateForm
 } from "../utils/ReservaUtils";
 
 /**
@@ -61,6 +62,15 @@ export const CrearView = () => {
    * @param {Event} e - Evento del formulario
    */
   const onSubmit = (e) => {
+    e.preventDefault();
+    
+    // Validar el formulario con los archivos
+    const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
+    if (errors.length > 0) {
+      alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
+      return;
+    }
+    
     handleSubmit(e, false); // false = crear nueva reserva
   };
 
@@ -383,7 +393,7 @@ export const CrearView = () => {
                           {/* Campo: Tipo de Pago Primer Depósito */}
                           <div className="col-12 mb-3">
                             <label htmlFor="tipoPagoPrimerDeposito" className="form-label">
-                              Tipo de Pago Primer Depósito <span className="text-danger">*</span>
+                              Tipo de Pago Primer Depósito {primerDeposito && <span className="text-danger">*</span>}
                             </label>
                             <select
                               className="form-select"
@@ -391,11 +401,11 @@ export const CrearView = () => {
                               name="tipoPagoPrimerDeposito"
                               value={formData.tipoPagoPrimerDeposito}
                               onChange={handleInputChange}
-                              required
+                              required={!!primerDeposito}
                             >
                               {opcionesTipoPago.map(opcion => (
                                 <option key={opcion} value={opcion}>
-                                  {opcion}
+                                  {opcion || "Seleccione el tipo de depósito"}
                                 </option>
                               ))}
                             </select>
@@ -446,7 +456,7 @@ export const CrearView = () => {
                           {/* Campo: Tipo de Pago Segundo Depósito */}
                           <div className="col-12 mb-3">
                             <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
-                              Tipo de Pago Segundo Depósito <span className="text-danger">*</span>
+                              Tipo de Pago Segundo Depósito {segundoDeposito && <span className="text-danger">*</span>}
                             </label>
                             <select
                               className="form-select"
@@ -454,11 +464,11 @@ export const CrearView = () => {
                               name="tipoPagoSegundoDeposito"
                               value={formData.tipoPagoSegundoDeposito}
                               onChange={handleInputChange}
-                              required
+                              required={!!segundoDeposito}
                             >
                               {opcionesTipoPago.map(opcion => (
                                 <option key={opcion} value={opcion}>
-                                  {opcion}
+                                  {opcion || "Seleccione el tipo de depósito"}
                                 </option>
                               ))}
                             </select>
