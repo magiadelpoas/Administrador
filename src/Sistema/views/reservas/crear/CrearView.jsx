@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
 import { 
   Select, 
   MenuItem, 
@@ -10,156 +9,34 @@ import {
   Box,
   OutlinedInput
 } from '@mui/material';
+import { 
+  useReservaForm, 
+  opcionesDeposito, 
+  opcionesMoneda, 
+  opcionesExtras 
+} from "../utils/ReservaUtils";
 
 export const CrearView = () => {
-  const [cabañaSeleccionada, setCabañaSeleccionada] = useState("");
-  const [formData, setFormData] = useState({
-    nombreCliente: "",
-    cantidadPersonas: 1,
-    deposito: "50%",
-    moneda: "Colones",
-    totalDepositado: "",
-    horaIngreso: "15:00",
-    horaSalida: "11:00",
-    fechaIngreso: "",
-    fechaSalida: "",
-    extras: []
-  });
+  const {
+    cabañaSeleccionada,
+    formData,
+    primerDeposito,
+    segundoDeposito,
+    primerDepositoPreview,
+    segundoDepositoPreview,
+    cabañas,
+    cabañaActual,
+    handleCabañaChange,
+    handleInputChange,
+    handleExtrasChange,
+    handleFileChange,
+    handleRemoveFile,
+    handleSubmit
+  } = useReservaForm();
 
-  // Estados para los archivos y previews
-  const [primerDeposito, setPrimerDeposito] = useState(null);
-  const [segundoDeposito, setSegundoDeposito] = useState(null);
-  const [primerDepositoPreview, setPrimerDepositoPreview] = useState(null);
-  const [segundoDepositoPreview, setSegundoDepositoPreview] = useState(null);
-
-  const cabañas = getCabañasColores();
-
-  // Opciones para los selects
-  const opcionesDeposito = ["50%", "100%"];
-  const opcionesMoneda = ["Colones", "Dólares"];
-  const opcionesExtras = [
-    "WiFi",
-    "Aire acondicionado", 
-    "Cocina equipada",
-    "Estacionamiento",
-    "Servicio de limpieza",
-    "Desayuno incluido",
-    "Parrilla",
-    "Jacuzzi"
-  ];
-
-  const handleCabañaChange = (e) => {
-    const cabañaId = e.target.value;
-    setCabañaSeleccionada(cabañaId);
-    
-    // Crear FormData
-    const newFormData = new FormData();
-    newFormData.append('cabañaId', cabañaId);
-    
-    // Obtener información adicional de la cabaña seleccionada
-    const cabaña = cabañas.find(c => c.id === parseInt(cabañaId));
-    if (cabaña) {
-      newFormData.append('cabañaNombre', cabaña.nombre);
-      newFormData.append('cabañaColor', cabaña.color);
-    }
+  const onSubmit = (e) => {
+    handleSubmit(e, false); // false = crear nueva reserva
   };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleExtrasChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setFormData(prev => ({
-      ...prev,
-      extras: typeof value === 'string' ? value.split(',') : value,
-    }));
-  };
-
-  // Función para manejar la carga de archivos con preview
-  const handleFileChange = (e, tipo) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Validar que sea una imagen
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona solo archivos de imagen');
-        return;
-      }
-
-      // Crear preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (tipo === 'primer') {
-          setPrimerDeposito(file);
-          setPrimerDepositoPreview(e.target.result);
-        } else {
-          setSegundoDeposito(file);
-          setSegundoDepositoPreview(e.target.result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Función para eliminar archivo y preview
-  const handleRemoveFile = (tipo) => {
-    if (tipo === 'primer') {
-      setPrimerDeposito(null);
-      setPrimerDepositoPreview(null);
-    } else {
-      setSegundoDeposito(null);
-      setSegundoDepositoPreview(null);
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // Crear FormData con todos los datos
-    const submitFormData = new FormData();
-    
-    // Datos de la cabaña
-    submitFormData.append('cabañaId', cabañaSeleccionada);
-    const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
-    if (cabaña) {
-      submitFormData.append('cabañaNombre', cabaña.nombre);
-      submitFormData.append('cabañaColor', cabaña.color);
-    }
-    
-    // Datos del formulario
-    Object.keys(formData).forEach(key => {
-      if (key === 'extras') {
-        submitFormData.append('extras', JSON.stringify(formData[key]));
-      } else {
-        submitFormData.append(key, formData[key]);
-      }
-    });
-
-    // Agregar archivos
-    if (primerDeposito) {
-      submitFormData.append('primerDeposito', primerDeposito);
-    }
-    if (segundoDeposito) {
-      submitFormData.append('segundoDeposito', segundoDeposito);
-    }
-    
-    // Aquí puedes enviar el FormData al servidor
-    console.log('FormData creado:', submitFormData);
-    
-    // Mostrar los datos en consola para verificación
-    for (let [key, value] of submitFormData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-  };
-
-  // Obtener la cabaña seleccionada para mostrar en el alert
-  const cabañaActual = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
 
   return (
     <div className="container-fluid px-3 px-md-4">
@@ -175,7 +52,7 @@ export const CrearView = () => {
               </Link>
             </div>
             <div className="card-body">
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={onSubmit}>
                 {/* Selección de Cabaña - Ancho completo */}
                 <div className="row mb-4">
                   <div className="col-12">
