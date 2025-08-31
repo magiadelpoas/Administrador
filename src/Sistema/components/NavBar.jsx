@@ -87,6 +87,16 @@ export const NavBar = () => {
                 <i className="ph-duotone ph-gauge"></i>
               </li>
               <li className="pc-item">
+                <Link to="/" className="pc-link">
+                  <span className="pc-micon">
+                    <i className="ph-duotone ph-house"></i>
+                  </span>
+                  <span className="pc-mtext" data-i18n="Statistics">
+                    Inicio
+                  </span>
+                </Link>
+              </li>
+              <li className="pc-item">
                 <Link to="/reservas/listar" className="pc-link">
                   <span className="pc-micon">
                     <i className="ph-duotone ph-projector-screen-chart"></i>
@@ -98,6 +108,8 @@ export const NavBar = () => {
               </li>
             </ul>
 
+            <br />
+            <br />
             <div className="card pc-user-card">
               <div className="card-body">
                 <div className="d-flex align-items-center">
