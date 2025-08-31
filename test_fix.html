@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fix - API Magia del Poas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #28a745;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #17a2b8;
+            background: #d1ecf1;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Fix - Error bindParam</h1>
+        
+        <div class="info">
+            <strong>Problema:</strong> Error "PDOStatement::bindParam(): Argument #2 ($var) cannot be passed by reference"<br>
+            <strong>Solución:</strong> Variables preparadas antes de bindParam
+        </div>
+
+        <h2>Pruebas de Endpoints</h2>
+        
+        <button onclick="testHealth()">Test Health Check</button>
+        <button onclick="testAdmins()">Test GET /api/admins</button>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="testCreateAdmin()">Test Create Admin</button>
+        
+        <div id="results"></div>
+        
+        <h2>Cambios Realizados</h2>
+        <div class="info">
+            <h3>Problema Original:</h3>
+            <pre>// ❌ Incorrecto - bindParam con expresiones
+$stmt->bindParam(':phone_admin', $data['phone_admin'] ?? null);
+$stmt->bindParam(':status_admin', $data['status_admin'] ?? Config::ADMIN_STATUS_ACTIVE, PDO::PARAM_INT);</pre>
+            
+            <h3>Solución Aplicada:</h3>
+            <pre>// ✅ Correcto - Usando bindValue en lugar de bindParam
+$stmt->bindValue(':phone_admin', $data['phone_admin'] ?? null);
+$stmt->bindValue(':status_admin', $data['status_admin'] ?? Config::ADMIN_STATUS_ACTIVE, PDO::PARAM_INT);</pre>
+        </div>
+        
+        <h2>Archivos Modificados</h2>
+        <div class="info">
+            <ul>
+                <li><strong>models/Admin.php</strong> - Corregidos todos los bindParam problemáticos</li>
+                <li><strong>Líneas corregidas:</strong> 187, 188, 189, 296, 330</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testHealth() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                showResult('Health Check', data, response.ok);
+            } catch (error) {
+                showResult('Health Check', { error: error.message }, false);
+            }
+        }
+
+        async function testAdmins() {
+            try {
+                const response = await fetch('/api/admins');
+                const data = await response.json();
+                showResult('GET /api/admins', data, response.ok);
+            } catch (error) {
+                showResult('GET /api/admins', { error: error.message }, false);
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'test@ejemplo.com',
+                        password: 'test123'
+                    })
+                });
+                const data = await response.json();
+                showResult('Login Test', data, response.ok);
+            } catch (error) {
+                showResult('Login Test', { error: error.message }, false);
+            }
+        }
+
+        async function testCreateAdmin() {
+            try {
+                const response = await fetch('/api/admins', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name_admin: 'Test Admin',
+                        email_admin: 'testadmin@ejemplo.com',
+                        password_admin: 'password123',
+                        phone_admin: '123456789'
+                    })
+                });
+                const data = await response.json();
+                showResult('Create Admin Test', data, response.ok);
+            } catch (error) {
+                showResult('Create Admin Test', { error: error.message }, false);
+            }
+        }
+
+        function showResult(testName, data, success) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = success ? 'success' : 'error';
+            resultDiv.innerHTML = `
+                <strong>${testName}:</strong> ${success ? '✅ Exitoso' : '❌ Falló'}<br>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        // Auto-test al cargar la página
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

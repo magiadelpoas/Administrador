@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba API Magia del Poas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Prueba API Magia del Poas</h1>
+        
+        <div class="test-section">
+            <h3>1. Prueba de Conectividad</h3>
+            <button onclick="testHealth()">Probar /api/health</button>
+            <div id="health-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Autenticación</h3>
+            <input type="email" id="email" placeholder="Email" value="admin@magiadelpoas.com">
+            <input type="password" id="password" placeholder="Password" value="password">
+            <button onclick="testLogin()">Probar Login</button>
+            <div id="login-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Listar Administradores</h3>
+            <button onclick="testGetAdmins()">Obtener Administradores</button>
+            <div id="admins-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>4. Crear Administrador</h3>
+            <input type="text" id="new-name" placeholder="Nombre" value="Admin Prueba">
+            <input type="email" id="new-email" placeholder="Email" value="test@test.com">
+            <input type="password" id="new-password" placeholder="Password" value="password123">
+            <button onclick="testCreateAdmin()">Crear Administrador</button>
+            <div id="create-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>5. Documentación</h3>
+            <button onclick="testDocs()">Ver Documentación</button>
+            <div id="docs-result"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+        const API_BASE = 'http://localhost/ApiMagia/api';
+
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                const url = API_BASE + endpoint;
+                const config = {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                };
+
+                if (authToken) {
+                    config.headers.Authorization = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data: data
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResult(elementId, result, title) {
+            const element = document.getElementById(elementId);
+            const isSuccess = result.success && (!result.data || result.data.success !== false);
+            
+            element.className = isSuccess ? 'success' : 'error';
+            element.innerHTML = `
+                <h4>${title}</h4>
+                <pre>${JSON.stringify(result, null, 2)}</pre>
+            `;
+        }
+
+        async function testHealth() {
+            const result = await makeRequest('/health');
+            displayResult('health-result', result, 'Resultado Health Check');
+        }
+
+        async function testLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await makeRequest('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+            
+            if (result.success && result.data.success && result.data.data.token) {
+                authToken = result.data.data.token;
+                displayResult('login-result', result, '✅ Login Exitoso - Token Guardado');
+            } else {
+                displayResult('login-result', result, '❌ Error en Login');
+            }
+        }
+
+        async function testGetAdmins() {
+            if (!authToken) {
+                displayResult('admins-result', { error: 'Necesitas hacer login primero' }, '❌ Sin Autenticación');
+                return;
+            }
+
+            const result = await makeRequest('/admins?page=1&limit=5');
+            displayResult('admins-result', result, 'Lista de Administradores');
+        }
+
+        async function testCreateAdmin() {
+            if (!authToken) {
+                displayResult('create-result', { error: 'Necesitas hacer login primero' }, '❌ Sin Autenticación');
+                return;
+            }
+
+            const name = document.getElementById('new-name').value;
+            const email = document.getElementById('new-email').value;
+            const password = document.getElementById('new-password').value;
+            
+            const result = await makeRequest('/admins', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name_admin: name,
+                    email_admin: email,
+                    password_admin: password,
+                    status_admin: 1
+                })
+            });
+            
+            displayResult('create-result', result, 'Crear Administrador');
+        }
+
+        async function testDocs() {
+            const result = await makeRequest('/docs');
+            displayResult('docs-result', result, 'Documentación API');
+        }
+
+        // Auto-test de conectividad al cargar
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 1000);
+        });
+    </script>
+</body>
+</html>
