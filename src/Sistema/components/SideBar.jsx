@@ -131,7 +131,6 @@ export const SideBar = () => {
                   <a
                     href="#!"
                     className="dropdown-item"
-                    onclick="layout_change('dark')"
                   >
                     <i className="ph-duotone ph-moon"></i>
                     <span>Dark</span>
@@ -139,7 +138,6 @@ export const SideBar = () => {
                   <a
                     href="#!"
                     className="dropdown-item"
-                    onclick="layout_change('light')"
                   >
                     <i className="ph-duotone ph-sun-dim"></i>
                     <span>Light</span>
@@ -147,7 +145,6 @@ export const SideBar = () => {
                   <a
                     href="#!"
                     className="dropdown-item"
-                    onclick="layout_change_default()"
                   >
                     <i className="ph-duotone ph-cpu"></i>
                     <span>Default</span>

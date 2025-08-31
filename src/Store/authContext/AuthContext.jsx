@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }) => {
           setUser(null);
         }
       } catch (error) {
-        console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
         setUser(null);
       } finally {
@@ -84,7 +83,6 @@ export const AuthProvider = ({ children }) => {
         };
       }
     } catch (error) {
-      console.error('Login error:', error);
       return {
         success: false,
         message: "Error de conexión. Intente nuevamente."
@@ -97,7 +95,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await logoutThunk()();
     } catch (error) {
-      console.error('Logout error:', error);
+      // Error silencioso en logout
     } finally {
       setIsAuthenticated(false);
       setUser(null);

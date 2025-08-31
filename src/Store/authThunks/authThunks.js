@@ -100,7 +100,6 @@ export const checkAuthThunk = () => async (dispatch) => {
       };
     }
   } catch (error) {
-    console.error('Check auth error:', error);
     return {
       success: false,
       message: "Error al verificar autenticación"

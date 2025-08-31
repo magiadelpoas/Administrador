@@ -53,7 +53,6 @@ export const LoginPage = () => {
         setError(result.message);
       }
     } catch (error) {
-      console.error("Error en login:", error);
       setError("Error de conexión. Intente nuevamente.");
     } finally {
       setLoading(false);

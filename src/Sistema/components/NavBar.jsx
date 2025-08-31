@@ -18,7 +18,6 @@ export const NavBar = () => {
           email: parsedData.email_admin || "admin@admin.com",
         });
       } catch (error) {
-        console.error("Error parsing admin data from localStorage:", error);
         // Mantener valores por defecto si hay error al parsear
       }
     }
