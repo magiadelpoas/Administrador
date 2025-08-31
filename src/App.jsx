@@ -1,10 +1,12 @@
-import { useState } from "react";
+
+import { AppRouter } from "./Router/AppRouter";
+import { AuthProvider } from "./Store/authContext/AuthContext";
 
 function App() {
   return (
-    <>
-      <h1>Administrador</h1>
-    </>
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
   );
 }
 
