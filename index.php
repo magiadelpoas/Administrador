@@ -30,15 +30,31 @@ require_once __DIR__ . '/utils/Response.php';
 // Inicializar configuración
 Config::init();
 
-// Configurar headers CORS según el entorno
-$corsConfig = Environment::getCorsConfig();
-header('Access-Control-Allow-Origin: ' . $corsConfig['origin']);
-header('Access-Control-Allow-Methods: ' . $corsConfig['methods']);
-header('Access-Control-Allow-Headers: ' . $corsConfig['headers']);
+// Configuración CORS simplificada para desarrollo
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://sistema.magiadelpoas.com'
+];
 
-// Manejar peticiones OPTIONS (preflight CORS)
+if (in_array($origin, $allowedOrigins)) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+} else {
+    header('Access-Control-Allow-Origin: http://localhost:5173');
+}
+
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Credentials: true');
+
+// Manejar peticiones OPTIONS (preflight CORS) - ANTES de cualquier otra lógica
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'OK', 'message' => 'Preflight request handled']);
     exit;
 }
 

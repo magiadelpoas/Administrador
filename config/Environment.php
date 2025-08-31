@@ -40,7 +40,7 @@ class Environment {
      */
     public static function isLocal() {
         $host = $_SERVER['HTTP_HOST'] ?? '';
-        return $host === self::DOMAIN_LOCAL;
+        return $host === self::DOMAIN_LOCAL || $host === 'localhost' || $host === '127.0.0.1';
     }
     
     /**
@@ -59,7 +59,7 @@ class Environment {
     public static function getCorsConfig() {
         if (self::isLocal()) {
             return [
-                'origin' => '*',
+                'origin' => 'http://localhost:5173, http://127.0.0.1:5173, http://localhost:3000, http://127.0.0.1:3000',
                 'methods' => 'GET, POST, PUT, DELETE, OPTIONS',
                 'headers' => 'Content-Type, Authorization, X-Requested-With'
             ];
@@ -67,7 +67,7 @@ class Environment {
         
         // En producción, especificar dominios permitidos
         return [
-            'origin' => 'https://magiadelpoas.com, https://www.magiadelpoas.com',
+            'origin' => 'https://sistema.magiadelpoas.com, https://magiadelpoas.com, https://www.magiadelpoas.com',
             'methods' => 'GET, POST, PUT, DELETE, OPTIONS',
             'headers' => 'Content-Type, Authorization, X-Requested-With'
         ];
