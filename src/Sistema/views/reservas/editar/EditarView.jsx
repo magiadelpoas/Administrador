@@ -21,7 +21,13 @@ import {
   validateForm,
   getValidationClasses
 } from "../utils/ReservaUtils";
-import { actualizarReserva, obtenerReservaPorId } from "../../../../Store/reservaThunks/reservaThunks";
+import { 
+  actualizarReserva, 
+  obtenerReservaPorId, 
+  confirmarReserva, 
+  cancelarReserva, 
+  reactivarReserva 
+} from "../../../../Store/reservaThunks/reservaThunks";
 import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
@@ -78,6 +84,7 @@ export const EditarView = () => {
             tipoPagoSegundoDeposito: result.data.tipoPagoSegundoDeposito_reserva,
             tipoReserva: result.data.tipoReserva_reserva,
             extras: result.data.extras_reserva ? JSON.parse(result.data.extras_reserva) : [],
+            estado: result.data.estado_reserva || 'pendiente',
             primerDepositoPreview: result.data.primerDeposito_reserva ? 
               `https://apimagia.magiadelpoas.com/imgComprobantes/${result.data.primerDeposito_reserva}` : null,
             segundoDepositoPreview: result.data.segundoDeposito_reserva ? 
@@ -123,6 +130,141 @@ export const EditarView = () => {
     handleRemoveFile,
     handleSubmit
   } = useReservaForm(reservaData);
+
+  // ===== MANEJADORES DE CAMBIO DE ESTADO =====
+  
+  /**
+   * Maneja la confirmación de una reserva
+   */
+  const handleConfirmarReserva = async () => {
+    const confirmResult = await swalHelpers.showConfirmation(
+      '¿Confirmar esta reserva?',
+      `
+        <div class="text-start">
+          <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+          <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+          <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
+          <p><strong>ID de Reserva:</strong> ${id}</p>
+          <p class="text-warning mt-2"><i class="fas fa-exclamation-triangle me-1"></i>Una vez confirmada, no se podrá cancelar.</p>
+        </div>
+      `,
+      'Sí, confirmar reserva'
+    );
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
+    try {
+      swalHelpers.showLoading('Confirmando reserva...', 'Procesando confirmación');
+      
+      const result = await confirmarReserva(id);
+      
+      if (result.success) {
+        await swalHelpers.showSuccess(
+          '¡Reserva confirmada exitosamente!',
+          `La reserva de ${cabañaActual?.nombre} ha sido confirmada.`
+        );
+        
+        // Recargar los datos de la reserva
+        window.location.reload();
+      } else {
+        swalHelpers.showError('Error al confirmar la reserva', result.message);
+      }
+    } catch (error) {
+      console.error('Error al confirmar reserva:', error);
+      swalHelpers.showError('Error inesperado', 'Ocurrió un error al confirmar la reserva.');
+    }
+  };
+
+  /**
+   * Maneja la cancelación de una reserva
+   */
+  const handleCancelarReserva = async () => {
+    const confirmResult = await swalHelpers.showConfirmation(
+      '¿Cancelar esta reserva?',
+      `
+        <div class="text-start">
+          <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+          <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+          <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
+          <p><strong>ID de Reserva:</strong> ${id}</p>
+          <p class="text-warning mt-2"><i class="fas fa-exclamation-triangle me-1"></i>Esta acción se puede revertir más tarde.</p>
+        </div>
+      `,
+      'Sí, cancelar reserva',
+      'btn-danger'
+    );
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
+    try {
+      swalHelpers.showLoading('Cancelando reserva...', 'Procesando cancelación');
+      
+      const result = await cancelarReserva(id);
+      
+      if (result.success) {
+        await swalHelpers.showSuccess(
+          '¡Reserva cancelada exitosamente!',
+          `La reserva de ${cabañaActual?.nombre} ha sido cancelada.`
+        );
+        
+        // Recargar los datos de la reserva
+        window.location.reload();
+      } else {
+        swalHelpers.showError('Error al cancelar la reserva', result.message);
+      }
+    } catch (error) {
+      console.error('Error al cancelar reserva:', error);
+      swalHelpers.showError('Error inesperado', 'Ocurrió un error al cancelar la reserva.');
+    }
+  };
+
+  /**
+   * Maneja la reactivación de una reserva cancelada
+   */
+  const handleReactivarReserva = async () => {
+    const confirmResult = await swalHelpers.showConfirmation(
+      '¿Reactivar esta reserva?',
+      `
+        <div class="text-start">
+          <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+          <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+          <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
+          <p><strong>ID de Reserva:</strong> ${id}</p>
+          <p class="text-info mt-2"><i class="fas fa-info-circle me-1"></i>La reserva volverá al estado pendiente.</p>
+        </div>
+      `,
+      'Sí, reactivar reserva'
+    );
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+
+    try {
+      swalHelpers.showLoading('Reactivando reserva...', 'Procesando reactivación');
+      
+      const result = await reactivarReserva(id);
+      
+      if (result.success) {
+        await swalHelpers.showSuccess(
+          '¡Reserva reactivada exitosamente!',
+          `La reserva de ${cabañaActual?.nombre} ha sido reactivada.`
+        );
+        
+        // Recargar los datos de la reserva
+        window.location.reload();
+      } else {
+        swalHelpers.showError('Error al reactivar la reserva', result.message);
+      }
+    } catch (error) {
+      console.error('Error al reactivar reserva:', error);
+      swalHelpers.showError('Error inesperado', 'Ocurrió un error al reactivar la reserva.');
+    }
+  };
 
   // ===== MANEJADOR DE ENVÍO =====
   /**
@@ -264,6 +406,9 @@ export const EditarView = () => {
   
   // Condición para mostrar campos del segundo depósito (solo si depósito es 50%)
   const mostrarSegundoDeposito = formData.deposito === "50%";
+  
+  // Condición para deshabilitar el formulario si la reserva está confirmada
+  const isFormDisabled = reservaData?.estado === 'confirmado';
 
   return (
     <div className="container-fluid px-3 px-md-4">
@@ -272,7 +417,24 @@ export const EditarView = () => {
           <div className="card">
             {/* ===== HEADER DEL CARD ===== */}
             <div className="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-              <h4 className="card-title mb-0">Editar Reserva #{id}</h4>
+              <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2">
+                <h4 className="card-title mb-0">Editar Reserva #{id}</h4>
+                {/* Indicador de estado */}
+                {reservaData && (
+                  <span className={`badge ${
+                    reservaData.estado === 'pendiente' ? 'bg-warning text-dark' :
+                    reservaData.estado === 'confirmado' ? 'bg-success' :
+                    reservaData.estado === 'cancelado' ? 'bg-danger' : 'bg-secondary'
+                  } fs-6`}>
+                    <i className={`fas ${
+                      reservaData.estado === 'pendiente' ? 'fa-clock' :
+                      reservaData.estado === 'confirmado' ? 'fa-check-circle' :
+                      reservaData.estado === 'cancelado' ? 'fa-times-circle' : 'fa-question-circle'
+                    } me-1`}></i>
+                    {reservaData.estado.charAt(0).toUpperCase() + reservaData.estado.slice(1)}
+                  </span>
+                )}
+              </div>
               <Link to="/reservas/listar" className="btn btn-secondary btn-sm">
                 <i className="fas fa-arrow-left"></i> 
                 <span className="d-none d-sm-inline ms-1">Volver a Lista</span>
@@ -297,6 +459,7 @@ export const EditarView = () => {
                       value={cabañaSeleccionada}
                       onChange={handleCabañaChange}
                       required
+                      disabled={isFormDisabled}
                     >
                       <option value="">Seleccione una cabaña</option>
                       {cabañas.map((cabaña) => (
@@ -322,6 +485,7 @@ export const EditarView = () => {
                       value={formData.tipoReserva}
                       onChange={handleInputChange}
                       required
+                      disabled={isFormDisabled}
                     >
                       {opcionesTipoReserva.map(opcion => (
                         <option key={opcion} value={opcion}>
@@ -362,6 +526,61 @@ export const EditarView = () => {
                   </div>
                 )}
 
+                {/* ===== BOTONES DE ESTADO (ARRIBA) ===== */}
+                {ambosSeleccionados && reservaData && (
+                  <div className="row mb-4">
+                    <div className="col-12">
+                      {/* Botones de estado para reserva pendiente */}
+                      {reservaData.estado === 'pendiente' && (
+                        <div className="d-flex flex-column flex-sm-row gap-2 mb-3">
+                          <button 
+                            type="button" 
+                            className="btn btn-success"
+                            onClick={handleConfirmarReserva}
+                          >
+                            <i className="fas fa-check"></i> 
+                            <span className="ms-1">Confirmar Reserva</span>
+                          </button>
+                          <button 
+                            type="button" 
+                            className="btn btn-danger"
+                            onClick={handleCancelarReserva}
+                          >
+                            <i className="fas fa-times"></i> 
+                            <span className="ms-1">Cancelar Reserva</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Botón de reactivar para reserva cancelada */}
+                      {reservaData.estado === 'cancelado' && (
+                        <div className="d-flex flex-column flex-sm-row gap-2 mb-3">
+                          <div className="alert alert-warning mb-2 w-100">
+                            <i className="fas fa-exclamation-triangle me-2"></i>
+                            Esta reserva está <strong>cancelada</strong>. Solo puedes reactivarla.
+                          </div>
+                          <button 
+                            type="button" 
+                            className="btn btn-primary"
+                            onClick={handleReactivarReserva}
+                          >
+                            <i className="fas fa-undo"></i> 
+                            <span className="ms-1">Reactivar Reserva</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Mensaje para reserva confirmada */}
+                      {reservaData.estado === 'confirmado' && (
+                        <div className="alert alert-success mb-3">
+                          <i className="fas fa-check-circle me-2"></i>
+                          Esta reserva ya está <strong>confirmada</strong>. No se pueden realizar más cambios.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 {/* ===== SECCIÓN 3: CAMPOS ADICIONALES (CONDICIONALES) ===== */}
                 {ambosSeleccionados && (
                   <>
@@ -372,10 +591,17 @@ export const EditarView = () => {
                           <i className="fas fa-edit me-2"></i>
                           Información Requerida
                         </h5>
-                        <div className="alert alert-info">
-                          <i className="fas fa-info-circle me-2"></i>
-                          Complete los siguientes campos para actualizar la reserva
-                        </div>
+                        {isFormDisabled ? (
+                          <div className="alert alert-warning">
+                            <i className="fas fa-lock me-2"></i>
+                            Esta reserva está <strong>confirmada</strong> y no se pueden modificar sus datos.
+                          </div>
+                        ) : (
+                          <div className="alert alert-info">
+                            <i className="fas fa-info-circle me-2"></i>
+                            Complete los siguientes campos para actualizar la reserva
+                          </div>
+                        )}
                       </div>
                     </div>
                     
@@ -825,18 +1051,24 @@ export const EditarView = () => {
                       </div>
                     </div>
 
-                    {/* ===== SECCIÓN 4: BOTONES DE ACCIÓN ===== */}
-                    {/* Botones de acción */}
+                    {/* ===== SECCIÓN 4: BOTONES DE ACCIÓN (PARTE INFERIOR) ===== */}
                     <div className="row mt-4">
-                      <div className="col-12 d-flex flex-column flex-sm-row gap-2">
-                        <button type="submit" className="btn btn-primary">
-                          <i className="fas fa-save"></i> 
-                          <span className="ms-1">Actualizar Reserva</span>
-                        </button>
-                        <Link to="/reservas/listar" className="btn btn-secondary">
-                          <i className="fas fa-times"></i> 
-                          <span className="ms-1">Cancelar</span>
-                        </Link>
+                      <div className="col-12">
+                        <div className="d-flex flex-column flex-sm-row gap-2">
+                          {/* Botón Actualizar - Solo visible si no está confirmado */}
+                          {reservaData?.estado !== 'confirmado' && (
+                            <button type="submit" className="btn btn-primary">
+                              <i className="fas fa-save"></i> 
+                              <span className="ms-1">Actualizar Reserva</span>
+                            </button>
+                          )}
+                          
+                          {/* Botón Volver - Siempre visible */}
+                          <Link to="/reservas/listar" className="btn btn-secondary">
+                            <i className="fas fa-arrow-left"></i> 
+                            <span className="ms-1">Volver a Lista</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </>

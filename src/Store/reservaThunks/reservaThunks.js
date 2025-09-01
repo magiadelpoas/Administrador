@@ -267,3 +267,120 @@ export const eliminarReserva = async (id) => {
     };
   }
 };
+
+/**
+ * Confirmar una reserva (cambiar estado a confirmado)
+ * @param {number} id - ID de la reserva
+ * @returns {Promise} Resultado de la operación
+ */
+export const confirmarReserva = async (id) => {
+  try {
+    // Obtener token de autenticación
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Configurar headers
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+    
+    // Realizar petición PATCH para cambiar solo el estado
+    const response = await api.patch(`/reservas/${id}/confirmar`, {}, { headers });
+    
+    return {
+      success: true,
+      data: response.data,
+      message: response.message || 'Reserva confirmada exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('Error al confirmar reserva:', error);
+    
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Error al confirmar la reserva',
+      error: error
+    };
+  }
+};
+
+/**
+ * Cancelar una reserva (cambiar estado a cancelado)
+ * @param {number} id - ID de la reserva
+ * @returns {Promise} Resultado de la operación
+ */
+export const cancelarReserva = async (id) => {
+  try {
+    // Obtener token de autenticación
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Configurar headers
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+    
+    // Realizar petición PATCH para cambiar solo el estado
+    const response = await api.patch(`/reservas/${id}/cancelar`, {}, { headers });
+    
+    return {
+      success: true,
+      data: response.data,
+      message: response.message || 'Reserva cancelada exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('Error al cancelar reserva:', error);
+    
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Error al cancelar la reserva',
+      error: error
+    };
+  }
+};
+
+/**
+ * Reactivar una reserva (cambiar estado de cancelado a pendiente)
+ * @param {number} id - ID de la reserva
+ * @returns {Promise} Resultado de la operación
+ */
+export const reactivarReserva = async (id) => {
+  try {
+    // Obtener token de autenticación
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Configurar headers
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+    
+    // Realizar petición PATCH para cambiar solo el estado
+    const response = await api.patch(`/reservas/${id}/reactivar`, {}, { headers });
+    
+    return {
+      success: true,
+      data: response.data,
+      message: response.message || 'Reserva reactivada exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('Error al reactivar reserva:', error);
+    
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Error al reactivar la reserva',
+      error: error
+    };
+  }
+};

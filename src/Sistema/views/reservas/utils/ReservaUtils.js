@@ -345,6 +345,9 @@ export const getInitialFormState = (reservaData = null) => ({
   // Tipo de reserva
   tipoReserva: reservaData?.tipoReserva || "WhatsApp",
   
+  // Estado de la reserva
+  estado: reservaData?.estado || "pendiente",
+  
   // Extras seleccionados (array)
   extras: reservaData?.extras || []
 });
