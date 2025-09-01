@@ -25,6 +25,7 @@ require_once __DIR__ . '/config/Database.php';
 require_once __DIR__ . '/config/Environment.php';
 require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/controllers/AdminController.php';
+require_once __DIR__ . '/controllers/ReservaController.php';
 require_once __DIR__ . '/utils/Response.php';
 
 // Inicializar configuración
@@ -96,6 +97,25 @@ try {
     
     // DELETE /api/admins/{id} - Eliminar administrador
     $router->delete('/api/admins/{id}', ['AdminController', 'destroy']);
+    
+    // ========================================
+    // RUTAS DE RESERVAS (CRUD)
+    // ========================================
+    
+    // GET /api/reservas - Listar reservas con paginación
+    $router->get('/api/reservas', ['ReservaController', 'index']);
+    
+    // GET /api/reservas/{id} - Obtener reserva específica
+    $router->get('/api/reservas/{id}', ['ReservaController', 'show']);
+    
+    // POST /api/reservas - Crear nueva reserva
+    $router->post('/api/reservas', ['ReservaController', 'store']);
+    
+    // PUT /api/reservas/{id} - Actualizar reserva
+    $router->put('/api/reservas/{id}', ['ReservaController', 'update']);
+    
+    // DELETE /api/reservas/{id} - Eliminar reserva (cambiar estado a cancelado)
+    $router->delete('/api/reservas/{id}', ['ReservaController', 'destroy']);
     
     // ========================================
     // RUTAS UTILITARIAS
