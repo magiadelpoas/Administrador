@@ -114,6 +114,28 @@ class Api {
     }
   }
 
+  // Método genérico para peticiones PATCH
+  async patch(endpoint, data = {}, config = {}) {
+    try {
+      // Si los datos son FormData, no establecer Content-Type para que se establezca automáticamente
+      if (data instanceof FormData) {
+        // Remover Content-Type si existe para que se establezca automáticamente
+        if (config.headers && config.headers['Content-Type']) {
+          delete config.headers['Content-Type'];
+        }
+      } else {
+        // Para datos JSON, establecer Content-Type
+        if (!config.headers) config.headers = {};
+        config.headers['Content-Type'] = 'application/json';
+      }
+      
+      const response = await this.client.patch(endpoint, data, config);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Método para establecer el token de autenticación
   setAuthToken(token) {
     if (token) {
