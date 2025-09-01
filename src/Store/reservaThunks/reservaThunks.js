@@ -31,12 +31,26 @@ export const crearReserva = async (reservaData, primerDeposito = null, segundoDe
     });
     
     // Agregar archivos si existen
+    console.log("=== DEBUG ARCHIVOS EN THUNK ===");
+    console.log("primerDeposito:", primerDeposito);
+    console.log("segundoDeposito:", segundoDeposito);
+    console.log("primerDeposito type:", typeof primerDeposito);
+    console.log("segundoDeposito type:", typeof segundoDeposito);
+    
     if (primerDeposito) {
+      console.log("Agregando primerDeposito al FormData:", primerDeposito.name, primerDeposito.size);
       formData.append('primerDeposito', primerDeposito);
     }
     
     if (segundoDeposito) {
+      console.log("Agregando segundoDeposito al FormData:", segundoDeposito.name, segundoDeposito.size);
       formData.append('segundoDeposito', segundoDeposito);
+    }
+    
+    // Debug: Verificar qué hay en el FormData
+    console.log("=== DEBUG FORMDATA ===");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
     }
     
     // Obtener token de autenticación
