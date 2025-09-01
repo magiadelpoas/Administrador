@@ -74,17 +74,15 @@ class ReservaController {
      */
     public function store() {
         AuthMiddleware::requireAuth(function() {
-                        // Verificar si es una petición multipart/form-data
+            // Verificar si es una petición multipart/form-data
             if (isset($_FILES) && !empty($_FILES)) {
                 // Procesar datos de formulario con archivos
                 $data = $_POST;
                 $files = $_FILES;
                 
-                // Debug: Log de archivos recibidos
-                error_log("=== DEBUG ARCHIVOS EN CONTROLADOR ===");
-                error_log("Archivos recibidos: " . json_encode($_FILES));
-                error_log("Datos POST: " . json_encode($_POST));
-                error_log("Content-Type: " . $_SERVER['CONTENT_TYPE'] ?? 'No definido');
+
+                
+
 
             } else {
                 // Procesar datos JSON
