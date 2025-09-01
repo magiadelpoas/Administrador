@@ -79,6 +79,8 @@ class ReservaController {
                 // Procesar datos de formulario con archivos
                 $data = $_POST;
                 $files = $_FILES;
+                
+
             } else {
                 // Procesar datos JSON
                 $input = json_decode(file_get_contents('php://input'), true);
@@ -90,6 +92,8 @@ class ReservaController {
                 
                 $data = $input;
                 $files = [];
+                
+
             }
             
             // Mapear campos del frontend a la base de datos
@@ -227,7 +231,6 @@ class ReservaController {
         foreach ($fieldMapping as $frontendField => $dbField) {
             if (isset($data[$frontendField])) {
                 $mapped[$dbField] = $data[$frontendField];
-                error_log("Mapeando campo: {$frontendField} -> {$dbField} = {$data[$frontendField]}");
             }
         }
         

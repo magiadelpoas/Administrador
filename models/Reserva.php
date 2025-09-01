@@ -370,14 +370,41 @@ class Reserva {
      */
     private function uploadFile($file, $tipo) {
         try {
+            // Validar que el archivo existe y no hay errores
+            if (!isset($file) || empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
+                return '';
+            }
+            
+            // Validar que el archivo no esté vacío
+            if ($file['size'] === 0) {
+                return '';
+            }
+            
             // Crear directorio si no existe
             $uploadDir = __DIR__ . '/../imgComprobantes/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
             
+            // Validar tipos de archivo permitidos
+            $allowedTypes = [
+                'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+                'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            ];
+            
+            // Obtener tipo MIME del archivo
+            $fileType = mime_content_type($file['tmp_name']);
+            
+            // Validar extensión del archivo como respaldo
+            $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf', 'doc', 'docx'];
+            
+            if (!in_array($fileType, $allowedTypes) && !in_array($extension, $allowedExtensions)) {
+                return '';
+            }
+            
             // Generar nombre único para el archivo
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $randomId = uniqid() . '_' . time();
             $fileName = "{$tipo}_deposito_{$randomId}.{$extension}";
             $filePath = $uploadDir . $fileName;
