@@ -128,23 +128,52 @@ class ReservaController {
                 return;
             }
             
-            // Verificar si es una petición multipart/form-data
-            if (isset($_FILES) && !empty($_FILES)) {
-                // Procesar datos de formulario con archivos
+            // Obtener el Content-Type
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            
+            // Debug logging
+            error_log("=== RESERVA UPDATE DEBUG ===");
+            error_log("Content-Type: " . $contentType);
+            error_log("POST data: " . print_r($_POST, true));
+            error_log("FILES data: " . print_r($_FILES, true));
+            
+            // Determinar si es FormData o JSON basado en Content-Type
+            if (strpos($contentType, 'multipart/form-data') !== false) {
+                // Es FormData multipart
                 $data = $_POST;
                 $files = $_FILES;
+                error_log("Procesando como FormData multipart");
+            } else if (strpos($contentType, 'application/x-www-form-urlencoded') !== false && !empty($_POST)) {
+                // Es FormData URL-encoded (cuando FormData se convierte automáticamente)
+                $data = $_POST;
+                $files = $_FILES;
+                error_log("Procesando como FormData URL-encoded");
             } else {
-                // Procesar datos JSON
-                $input = json_decode(file_get_contents('php://input'), true);
+                // Es JSON
+                $rawInput = file_get_contents('php://input');
+                error_log("Raw JSON input: " . $rawInput);
                 
-                if (!$input) {
-                    Response::error('Datos JSON inválidos', 400);
+                if (empty($rawInput)) {
+                    Response::error('No se recibieron datos', 400);
+                    return;
+                }
+                
+                $input = json_decode($rawInput, true);
+                
+                if ($input === null) {
+                    error_log("JSON decode error: " . json_last_error_msg());
+                    Response::error('Datos JSON inválidos: ' . json_last_error_msg(), 400);
                     return;
                 }
                 
                 $data = $input;
                 $files = [];
+                error_log("Procesando como JSON");
             }
+            
+            error_log("Final data: " . print_r($data, true));
+            error_log("Final files: " . print_r($files, true));
+            error_log("=== END DEBUG ===");
             
             // Mapear campos del frontend a la base de datos
             $mappedData = $this->mapFrontendToDatabase($data);
