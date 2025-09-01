@@ -160,7 +160,11 @@ class ReservaController {
             $result = $this->reservaModel->update($id, $mappedData, $files);
             
             if ($result['success']) {
-                Response::success(null, $result['message']);
+                $responseData = [
+                    'message' => $result['message'],
+                    'changes' => $result['changes'] ?? 0
+                ];
+                Response::success($responseData, $result['message']);
             } else {
                 $statusCode = strpos($result['message'], 'no encontrada') !== false ? 404 : 400;
                 Response::error($result['message'], $statusCode);

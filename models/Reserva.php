@@ -259,19 +259,38 @@ class Reserva {
                 return $existingReserva;
             }
             
-            // Procesar archivos si existen
-            $primerDeposito = $existingReserva['data']['primerDeposito_reserva'];
-            $segundoDeposito = $existingReserva['data']['segundoDeposito_reserva'];
+            $reservaActual = $existingReserva['data'];
             
+            // Procesar archivos con detección de cambios
+            $primerDeposito = $reservaActual['primerDeposito_reserva'];
+            $segundoDeposito = $reservaActual['segundoDeposito_reserva'];
+            $archivosEliminados = [];
+            
+            // Manejar primer depósito
             if (!empty($files['primerDeposito'])) {
-                $primerDeposito = $this->uploadFile($files['primerDeposito'], 'primer');
+                $nuevoArchivo = $this->uploadFile($files['primerDeposito'], 'primer');
+                if ($nuevoArchivo && $nuevoArchivo !== $primerDeposito) {
+                    // Si hay un archivo anterior diferente, marcarlo para eliminación
+                    if (!empty($primerDeposito) && $primerDeposito !== $nuevoArchivo) {
+                        $archivosEliminados[] = $primerDeposito;
+                    }
+                    $primerDeposito = $nuevoArchivo;
+                }
             }
             
+            // Manejar segundo depósito
             if (!empty($files['segundoDeposito'])) {
-                $segundoDeposito = $this->uploadFile($files['segundoDeposito'], 'segundo');
+                $nuevoArchivo = $this->uploadFile($files['segundoDeposito'], 'segundo');
+                if ($nuevoArchivo && $nuevoArchivo !== $segundoDeposito) {
+                    // Si hay un archivo anterior diferente, marcarlo para eliminación
+                    if (!empty($segundoDeposito) && $segundoDeposito !== $nuevoArchivo) {
+                        $archivosEliminados[] = $segundoDeposito;
+                    }
+                    $segundoDeposito = $nuevoArchivo;
+                }
             }
             
-            // Construir query dinámicamente
+            // Construir query dinámicamente solo con campos que han cambiado
             $updateFields = [];
             $params = [':id' => $id];
             
@@ -285,23 +304,30 @@ class Reserva {
                 'tipoReserva_reserva', 'extras_reserva', 'estado_reserva'
             ];
             
+            // Solo actualizar campos que han cambiado
             foreach ($allowedFields as $field) {
-                if (isset($data[$field])) {
+                if (isset($data[$field]) && $data[$field] != $reservaActual[$field]) {
                     $updateFields[] = "{$field} = :{$field}";
                     $params[":{$field}"] = $data[$field];
                 }
             }
             
-            // Agregar campos de archivos
-            $updateFields[] = "primerDeposito_reserva = :primerDeposito";
-            $updateFields[] = "segundoDeposito_reserva = :segundoDeposito";
-            $params[':primerDeposito'] = $primerDeposito;
-            $params[':segundoDeposito'] = $segundoDeposito;
+            // Solo actualizar archivos si han cambiado
+            if ($primerDeposito !== $reservaActual['primerDeposito_reserva']) {
+                $updateFields[] = "primerDeposito_reserva = :primerDeposito";
+                $params[':primerDeposito'] = $primerDeposito;
+            }
             
+            if ($segundoDeposito !== $reservaActual['segundoDeposito_reserva']) {
+                $updateFields[] = "segundoDeposito_reserva = :segundoDeposito";
+                $params[':segundoDeposito'] = $segundoDeposito;
+            }
+            
+            // Si no hay campos para actualizar, retornar éxito sin hacer cambios
             if (empty($updateFields)) {
                 return [
-                    'success' => false,
-                    'message' => 'No hay campos para actualizar'
+                    'success' => true,
+                    'message' => 'No se detectaron cambios en la reserva'
                 ];
             }
             
@@ -310,9 +336,20 @@ class Reserva {
             $stmt = $this->db->prepare($query);
             
             if ($stmt->execute($params)) {
+                // Eliminar archivos antiguos después de actualización exitosa
+                foreach ($archivosEliminados as $archivo) {
+                    $this->deleteFile($archivo);
+                }
+                
                 return [
                     'success' => true,
-                    'message' => 'Reserva actualizada exitosamente'
+                    'message' => 'Reserva actualizada exitosamente',
+                    'changes' => count($updateFields)
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Error al ejecutar la actualización'
                 ];
             }
             
@@ -485,6 +522,37 @@ class Reserva {
     }
     
     /**
+     * Elimina un archivo del servidor
+     * @param string $fileName Nombre del archivo a eliminar
+     * @return bool True si se eliminó exitosamente, false en caso contrario
+     */
+    private function deleteFile($fileName) {
+        try {
+            if (empty($fileName)) {
+                return true; // No hay archivo que eliminar
+            }
+            
+            $filePath = __DIR__ . '/../imgComprobantes/' . $fileName;
+            
+            if (file_exists($filePath)) {
+                if (unlink($filePath)) {
+                    error_log("Archivo eliminado exitosamente: {$fileName}");
+                    return true;
+                } else {
+                    error_log("Error al eliminar archivo: {$fileName}");
+                    return false;
+                }
+            } else {
+                error_log("Archivo no encontrado para eliminar: {$fileName}");
+                return true; // Consideramos éxito si el archivo ya no existe
+            }
+        } catch (Exception $e) {
+            error_log("Error en deleteFile(): " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
      * Sube un archivo al servidor
      * @param array $file Archivo subido
      * @param string $tipo Tipo de depósito ('primer' o 'segundo')
@@ -525,6 +593,17 @@ class Reserva {
                 return '';
             }
             
+            // Generar hash del archivo para detectar duplicados
+            $fileHash = md5_file($file['tmp_name']);
+            $fileSize = filesize($file['tmp_name']);
+            
+            // Buscar si ya existe un archivo idéntico
+            $existingFile = $this->findExistingFile($uploadDir, $fileHash, $fileSize);
+            if ($existingFile) {
+                error_log("Archivo idéntico encontrado, reutilizando: {$existingFile}");
+                return $existingFile;
+            }
+            
             // Generar nombre único para el archivo
             $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
             $randomId = uniqid() . '_' . time();
@@ -534,10 +613,12 @@ class Reserva {
             // Mover archivo
             // Intentar move_uploaded_file primero (para archivos reales)
             if (move_uploaded_file($file['tmp_name'], $filePath)) {
+                error_log("Archivo subido exitosamente: {$fileName}");
                 return $fileName;
             } 
             // Si falla, intentar copy (para archivos de prueba o archivos que ya existen)
             else if (copy($file['tmp_name'], $filePath)) {
+                error_log("Archivo copiado exitosamente: {$fileName}");
                 return $fileName;
             } else {
                 throw new Exception('Error al mover el archivo');
@@ -546,6 +627,36 @@ class Reserva {
         } catch (Exception $e) {
             error_log("Error en uploadFile(): " . $e->getMessage());
             return '';
+        }
+    }
+    
+    /**
+     * Busca si ya existe un archivo idéntico en el directorio
+     * @param string $uploadDir Directorio de archivos
+     * @param string $fileHash Hash MD5 del archivo
+     * @param int $fileSize Tamaño del archivo
+     * @return string|null Nombre del archivo existente o null si no existe
+     */
+    private function findExistingFile($uploadDir, $fileHash, $fileSize) {
+        try {
+            $files = glob($uploadDir . '*');
+            
+            foreach ($files as $existingFilePath) {
+                if (is_file($existingFilePath)) {
+                    $existingFileHash = md5_file($existingFilePath);
+                    $existingFileSize = filesize($existingFilePath);
+                    
+                    // Comparar hash y tamaño para determinar si son idénticos
+                    if ($existingFileHash === $fileHash && $existingFileSize === $fileSize) {
+                        return basename($existingFilePath);
+                    }
+                }
+            }
+            
+            return null;
+        } catch (Exception $e) {
+            error_log("Error en findExistingFile(): " . $e->getMessage());
+            return null;
         }
     }
 }
