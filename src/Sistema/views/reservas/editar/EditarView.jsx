@@ -21,6 +21,7 @@ import {
   validateForm,
   getValidationClasses
 } from "../utils/ReservaUtils";
+import { actualizarReserva } from "../../../../Store/reservaThunks/reservaThunks";
 
 /**
  * ========================================
@@ -65,31 +66,134 @@ export const EditarView = () => {
    * Maneja el envío del formulario para actualizar una reserva existente
    * @param {Event} e - Evento del formulario
    */
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     
     // Validar el formulario con los archivos
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
-      alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
+      Swal.fire({
+        icon: 'error',
+        title: 'Errores de validación',
+        html: errors.join('<br>'),
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
     
-    // ===== CONSOLE LOG DE TODOS LOS DATOS =====
-    console.log("=== DATOS DEL FORMULARIO DE EDITAR RESERVA ===");
-    console.log("Cabaña Seleccionada:", cabañaSeleccionada);
-    console.log("Cabaña Actual:", cabañaActual);
-    console.log("Capacidad Máxima:", capacidadMaxima);
-    console.log("Form Data:", formData);
-    console.log("Primer Depósito:", primerDeposito);
-    console.log("Segundo Depósito:", segundoDeposito);
-    console.log("Primer Depósito Preview:", primerDepositoPreview);
-    console.log("Segundo Depósito Preview:", segundoDepositoPreview);
-    console.log("Touched Fields:", touchedFields);
-    console.log("Mostrar Segundo Depósito:", mostrarSegundoDeposito);
-    console.log("=============================================");
+    // ===== DATOS COMPLETOS QUE SE ENVIARÁN =====
+    const datosCompletos = {
+      // Datos de la cabaña (usar nombres sin caracteres especiales)
+      cabanaId: cabañaSeleccionada,
+      cabanaNombre: cabañaActual?.nombre || "",
+      cabanaColor: cabañaActual?.color || "",
+      
+      // Todos los campos del formData
+      ...formData,
+      
+      // Flag de edición
+      isEdit: true
+    };
+
+    // Obtener el ID de la reserva desde la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const reservaId = urlParams.get('id');
     
-    handleSubmit(e, true); // true = editar reserva existente
+    if (!reservaId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se encontró el ID de la reserva',
+        confirmButtonText: 'Entendido'
+      });
+      return;
+    }
+
+    // Confirmar actualización de la reserva
+    const confirmResult = await Swal.fire({
+      icon: 'question',
+      title: '¿Confirmar actualización de reserva?',
+      html: `
+        <div class="text-start">
+          <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+          <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+          <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
+          <p><strong>Total:</strong> ${formData.totalDepositado} ${formData.moneda}</p>
+          <p><strong>ID de Reserva:</strong> ${reservaId}</p>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Sí, actualizar reserva',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      reverseButtons: true
+    });
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
+    
+    try {
+      // Mostrar loading con SweetAlert
+      Swal.fire({
+        title: 'Actualizando reserva...',
+        html: `
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p>Procesando cambios para la reserva de <strong>${cabañaActual?.nombre}</strong></p>
+          </div>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+      
+      // Llamar a la API para actualizar la reserva
+      const result = await actualizarReserva(reservaId, datosCompletos, primerDeposito, segundoDeposito);
+      
+      if (result.success) {
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva actualizada exitosamente!',
+          html: `
+            <div class="text-start">
+              <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+              <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+              <p><strong>ID de Reserva:</strong> ${reservaId}</p>
+            </div>
+          `,
+          confirmButtonText: 'Ver lista de reservas',
+          confirmButtonColor: '#28a745'
+        });
+        
+        // Redirigir a la lista de reservas
+        window.location.href = '/reservas/lista';
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al actualizar la reserva',
+          text: result.message,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#dc3545'
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error al actualizar reserva:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error inesperado',
+        text: 'Ocurrió un error inesperado al actualizar la reserva. Por favor, inténtelo de nuevo.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#dc3545'
+      });
+    }
   };
 
   // ===== CONDICIÓN DE VISUALIZACIÓN =====
@@ -382,13 +486,13 @@ export const EditarView = () => {
                             <label htmlFor="primerDeposito" className="form-label">
                               Primer Depósito (Imagen)
                             </label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              id="primerDeposito"
-                              accept="image/*"
-                              onChange={(e) => handleFileChange(e, 'primer')}
-                            />
+                                                          <input
+                                type="file"
+                                className="form-control"
+                                id="primerDeposito"
+                                accept="image/*,.pdf,.doc,.docx"
+                                onChange={(e) => handleFileChange(e, 'primer')}
+                              />
                             {/* Preview de la imagen del primer depósito */}
                             {primerDepositoPreview && (
                               <div className="mt-3">
@@ -429,7 +533,7 @@ export const EditarView = () => {
                                 type="file"
                                 className="form-control"
                                 id="segundoDeposito"
-                                accept="image/*"
+                                accept="image/*,.pdf,.doc,.docx"
                                 onChange={(e) => handleFileChange(e, 'segundo')}
                               />
                               {/* Preview de la imagen del segundo depósito */}

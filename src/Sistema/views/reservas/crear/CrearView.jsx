@@ -22,6 +22,7 @@ import {
   getValidationClasses
 } from "../utils/ReservaUtils";
 import { crearReserva } from "../../../../Store/reservaThunks/reservaThunks";
+import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
  * ========================================
@@ -73,7 +74,7 @@ export const CrearView = () => {
     // Validar el formulario con los archivos
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
-      alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
+      await swalHelpers.showValidationError(errors);
       return;
     }
     
@@ -90,34 +91,78 @@ export const CrearView = () => {
       // Flag de edición
       isEdit: false
     };
-    console.log("=== DATOS COMPLETOS QUE SE ENVIARÁN ===", datosCompletos);
+
+    // Confirmar creación de la reserva
+    const confirmResult = await swalHelpers.showConfirmation(
+      '¿Confirmar creación de reserva?',
+      `
+        <div class="text-start">
+          <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+          <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+          <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
+          <p><strong>Total:</strong> ${formData.totalDepositado} ${formData.moneda}</p>
+        </div>
+      `,
+      'Sí, crear reserva'
+    );
+
+    if (!confirmResult.isConfirmed) {
+      return;
+    }
     
     try {
-      // Mostrar indicador de carga
-      const submitButton = e.target.querySelector('button[type="submit"]');
-      const originalText = submitButton.innerHTML;
-      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="ms-1">Creando...</span>';
-      submitButton.disabled = true;
+      // Mostrar loading con SweetAlert
+      swalHelpers.showLoading(
+        'Creando reserva...',
+        `
+          <div class="text-center">
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p>Procesando datos de la reserva para <strong>${cabañaActual?.nombre}</strong></p>
+          </div>
+        `
+      );
       
       // Llamar a la API para crear la reserva
       const result = await crearReserva(datosCompletos, primerDeposito, segundoDeposito);
       
       if (result.success) {
-        alert('¡Reserva creada exitosamente!');
+        await Swal.fire({
+          icon: 'success',
+          title: '¡Reserva creada exitosamente!',
+          html: `
+            <div class="text-start">
+              <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
+              <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
+              <p><strong>ID de Reserva:</strong> ${result.data?.id_reserva || 'N/A'}</p>
+            </div>
+          `,
+          confirmButtonText: 'Ver lista de reservas',
+          confirmButtonColor: '#28a745'
+        });
+        
         // Redirigir a la lista de reservas
         window.location.href = '/reservas/lista';
       } else {
-        alert(`Error al crear la reserva: ${result.message}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error al crear la reserva',
+          text: result.message,
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#dc3545'
+        });
       }
       
     } catch (error) {
       console.error('Error al crear reserva:', error);
-      alert('Error inesperado al crear la reserva');
-    } finally {
-      // Restaurar botón
-      const submitButton = e.target.querySelector('button[type="submit"]');
-      submitButton.innerHTML = '<i class="fas fa-save"></i> <span class="ms-1">Crear Reserva</span>';
-      submitButton.disabled = false;
+      Swal.fire({
+        icon: 'error',
+        title: 'Error inesperado',
+        text: 'Ocurrió un error inesperado al crear la reserva. Por favor, inténtelo de nuevo.',
+        confirmButtonText: 'Entendido',
+        confirmButtonColor: '#dc3545'
+      });
     }
   };
 

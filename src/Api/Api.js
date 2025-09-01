@@ -9,9 +9,6 @@ class Api {
     this.client = axios.create({
       baseURL: this.baseURL,
       timeout: 10000,
-      headers: {
-        'Content-Type': 'application/json'
-      },
       withCredentials: false // Importante para CORS
     });
 
@@ -66,6 +63,18 @@ class Api {
   // Método genérico para peticiones POST
   async post(endpoint, data = {}, config = {}) {
     try {
+      // Si los datos son FormData, no establecer Content-Type para que se establezca automáticamente
+      if (data instanceof FormData) {
+        // Remover Content-Type si existe para que se establezca automáticamente
+        if (config.headers && config.headers['Content-Type']) {
+          delete config.headers['Content-Type'];
+        }
+      } else {
+        // Para datos JSON, establecer Content-Type
+        if (!config.headers) config.headers = {};
+        config.headers['Content-Type'] = 'application/json';
+      }
+      
       const response = await this.client.post(endpoint, data, config);
       return response.data;
     } catch (error) {
@@ -76,6 +85,18 @@ class Api {
   // Método genérico para peticiones PUT
   async put(endpoint, data = {}, config = {}) {
     try {
+      // Si los datos son FormData, no establecer Content-Type para que se establezca automáticamente
+      if (data instanceof FormData) {
+        // Remover Content-Type si existe para que se establezca automáticamente
+        if (config.headers && config.headers['Content-Type']) {
+          delete config.headers['Content-Type'];
+        }
+      } else {
+        // Para datos JSON, establecer Content-Type
+        if (!config.headers) config.headers = {};
+        config.headers['Content-Type'] = 'application/json';
+      }
+      
       const response = await this.client.put(endpoint, data, config);
       return response.data;
     } catch (error) {

@@ -439,16 +439,27 @@ export const useReservaForm = (reservaData = null) => {
   };
 
   /**
-   * Maneja la carga de archivos de imagen con preview
+   * Maneja la carga de archivos con preview
    * @param {Event} e - Evento del input file
    * @param {string} tipo - Tipo de depósito ('primer' o 'segundo')
    */
   const handleFileChange = (e, tipo) => {
     const file = e.target.files[0];
     if (file) {
-      // Validar que sea una imagen
-      if (!file.type.startsWith('image/')) {
-        alert('Por favor selecciona solo archivos de imagen');
+      // Validar tipos de archivo permitidos
+      const allowedTypes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+        'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      
+      if (!allowedTypes.includes(file.type)) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Tipo de archivo no válido',
+          text: 'Por favor selecciona solo archivos de imagen, PDF o documentos Word',
+          confirmButtonText: 'Entendido',
+          confirmButtonColor: '#ffc107'
+        });
         return;
       }
 

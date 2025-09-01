@@ -1,0 +1,195 @@
+/* Estilos personalizados para SweetAlert2 */
+
+/* Personalización del popup principal */
+.swal2-popup {
+  border-radius: 12px !important;
+  font-family: 'Public Sans', sans-serif !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Personalización del título */
+.swal2-title {
+  color: #2c3e50 !important;
+  font-weight: 600 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Personalización del contenido */
+.swal2-html-container {
+  color: #5a6c7d !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  margin: 1rem 0 !important;
+}
+
+/* Personalización de los botones */
+.swal2-confirm {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  padding: 12px 24px !important;
+  font-size: 0.95rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.swal2-cancel {
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  padding: 12px 24px !important;
+  font-size: 0.95rem !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Efectos hover para botones */
+.swal2-confirm:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.swal2-cancel:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Personalización del icono */
+.swal2-icon {
+  margin: 1rem auto !important;
+}
+
+/* Personalización del loading spinner */
+.swal2-loading {
+  border-color: #007bff !important;
+  border-top-color: transparent !important;
+}
+
+/* Personalización para alerts de confirmación */
+.swal2-popup.swal2-confirm {
+  border-left: 4px solid #007bff !important;
+}
+
+/* Personalización para alerts de error */
+.swal2-popup.swal2-error {
+  border-left: 4px solid #dc3545 !important;
+}
+
+/* Personalización para alerts de éxito */
+.swal2-popup.swal2-success {
+  border-left: 4px solid #28a745 !important;
+}
+
+/* Personalización para alerts de advertencia */
+.swal2-popup.swal2-warning {
+  border-left: 4px solid #ffc107 !important;
+}
+
+/* Personalización para alerts de pregunta */
+.swal2-popup.swal2-question {
+  border-left: 4px solid #17a2b8 !important;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .swal2-popup {
+    margin: 1rem !important;
+    width: calc(100% - 2rem) !important;
+  }
+  
+  .swal2-title {
+    font-size: 1.25rem !important;
+  }
+  
+  .swal2-html-container {
+    font-size: 0.9rem !important;
+  }
+  
+  .swal2-confirm,
+  .swal2-cancel {
+    padding: 10px 20px !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Animaciones personalizadas */
+@keyframes swal2-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes swal2-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8) translateY(-20px);
+  }
+}
+
+.swal2-show {
+  animation: swal2-fade-in 0.3s ease-out !important;
+}
+
+.swal2-hide {
+  animation: swal2-fade-out 0.3s ease-in !important;
+}
+
+/* Personalización del overlay */
+.swal2-backdrop-show {
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Personalización para contenido HTML */
+.swal2-html-container .text-start {
+  text-align: left !important;
+}
+
+.swal2-html-container .text-center {
+  text-align: center !important;
+}
+
+.swal2-html-container p {
+  margin-bottom: 0.5rem !important;
+}
+
+.swal2-html-container p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.swal2-html-container strong {
+  color: #2c3e50 !important;
+  font-weight: 600 !important;
+}
+
+/* Personalización del spinner de carga */
+.swal2-loading .spinner-border {
+  width: 3rem !important;
+  height: 3rem !important;
+  border-width: 0.25em !important;
+}
+
+/* Personalización para alerts con información detallada */
+.swal2-popup .reservation-details {
+  background-color: #f8f9fa !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  margin: 1rem 0 !important;
+  border-left: 4px solid #007bff !important;
+}
+
+.swal2-popup .reservation-details p {
+  margin-bottom: 0.25rem !important;
+  font-size: 0.9rem !important;
+}
+
+.swal2-popup .reservation-details strong {
+  color: #007bff !important;
+  font-weight: 600 !important;
+}
