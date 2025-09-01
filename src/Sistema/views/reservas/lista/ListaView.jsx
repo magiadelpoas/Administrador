@@ -297,14 +297,6 @@ export const ListaView = () => {
                                >
                                  <i className="fas fa-edit"></i>
                                </Link>
-                               <button 
-                                 className="btn btn-sm btn-danger"
-                                 onClick={() => handleEliminar(reserva.id_reserva, reserva.nombreCliente_reserva)}
-                                 title="Cancelar"
-                                 disabled={reserva.estado_reserva === 'cancelado'}
-                               >
-                                 <i className="fas fa-trash"></i>
-                               </button>
                              </div>
                            </td>
                         </tr>

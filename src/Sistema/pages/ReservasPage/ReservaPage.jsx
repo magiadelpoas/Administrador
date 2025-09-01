@@ -9,7 +9,7 @@ export const ReservaPage = () => {
     <Routes>
       <Route path="/listar" element={<ListaView />} />
       <Route path="/crear" element={<CrearView />} />
-      <Route path="/editar" element={<EditarView />} />
+      <Route path="/editar/:id" element={<EditarView />} />
     </Routes>
   )
 }
