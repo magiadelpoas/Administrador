@@ -554,14 +554,19 @@ export const useReservaForm = (reservaData = null) => {
     if (!isEdit || hasFileChanges) {
       const submitFormData = new FormData();
       
+      console.log('Usando FormData - hasFileChanges:', hasFileChanges);
+      console.log('primerDeposito:', primerDeposito);
+      console.log('segundoDeposito:', segundoDeposito);
+      console.log('touchedFields:', touchedFields);
+      
       // ===== DATOS DE LA CABAÑA =====
-      submitFormData.append('cabañaId', cabañaSeleccionada);
+      submitFormData.append('cabanaId', cabañaSeleccionada);
       
       // Buscar información adicional de la cabaña
       const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
       if (cabaña) {
-        submitFormData.append('cabañaNombre', cabaña.nombre);
-        submitFormData.append('cabañaColor', cabaña.color);
+        submitFormData.append('cabanaNombre', cabaña.nombre);
+        submitFormData.append('cabanaColor', cabaña.color);
       }
       
       // ===== DATOS DEL FORMULARIO =====
@@ -578,9 +583,11 @@ export const useReservaForm = (reservaData = null) => {
       if (isEdit) {
         // Solo agregar archivos que han cambiado
         if (primerDeposito && touchedFields.primerDepositoChanged) {
+          console.log('Agregando primer depósito:', primerDeposito.name);
           submitFormData.append('primerDeposito', primerDeposito);
         }
         if (segundoDeposito && touchedFields.segundoDepositoChanged) {
+          console.log('Agregando segundo depósito:', segundoDeposito.name);
           submitFormData.append('segundoDeposito', segundoDeposito);
         }
       } else {
@@ -598,18 +605,27 @@ export const useReservaForm = (reservaData = null) => {
         submitFormData.append('isEdit', 'true');
       }
 
+      // Debug: mostrar contenido del FormData
+      console.log('FormData entries:');
+      for (let pair of submitFormData.entries()) {
+        console.log(pair[0] + ': ' + (pair[1] instanceof File ? `File(${pair[1].name})` : pair[1]));
+      }
+
       return submitFormData;
     } else {
       // Para edición sin archivos, usar objeto JSON
+      console.log('Usando JSON Object - sin cambios de archivos');
+      console.log('formData:', formData);
+      
       const submitData = {
         // ===== DATOS DE LA CABAÑA =====
-        cabañaId: cabañaSeleccionada,
+        cabanaId: cabañaSeleccionada,
         
         // Buscar información adicional de la cabaña
         ...((() => {
           const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
           return cabaña ? {
-            cabañaNombre: cabaña.nombre,
+            cabanaNombre: cabaña.nombre,
             cabañaColor: cabaña.color
           } : {};
         })()),
@@ -621,6 +637,7 @@ export const useReservaForm = (reservaData = null) => {
         isEdit: true
       };
 
+      console.log('submitData JSON:', submitData);
       return submitData;
     }
   };
