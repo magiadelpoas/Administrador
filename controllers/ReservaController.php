@@ -92,15 +92,8 @@ class ReservaController {
                 $files = [];
             }
             
-            // Debug: Log de datos recibidos
-            error_log("=== DATOS RECIBIDOS EN STORE ===");
-            error_log("Datos originales: " . json_encode($data));
-            
             // Mapear campos del frontend a la base de datos
             $mappedData = $this->mapFrontendToDatabase($data);
-            
-            // Debug: Log de datos mapeados
-            error_log("Datos mapeados: " . json_encode($mappedData));
             
             // Validar datos
             $validationErrors = $this->validateReservaData($mappedData);
