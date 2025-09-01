@@ -91,11 +91,6 @@ export const CrearView = () => {
       isEdit: false
     };
     console.log("=== DATOS COMPLETOS QUE SE ENVIARÁN ===", datosCompletos);
-    console.log("=== ARCHIVOS A ENVIAR ===");
-    console.log("Primer Depósito:", primerDeposito);
-    console.log("Segundo Depósito:", segundoDeposito);
-    console.log("Primer Depósito Preview:", primerDepositoPreview);
-    console.log("Segundo Depósito Preview:", segundoDepositoPreview);
     
     try {
       // Mostrar indicador de carga
