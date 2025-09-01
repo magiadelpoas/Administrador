@@ -328,8 +328,11 @@ export const EditarView = () => {
         `
       );
       
+      // Preparar datos para envío usando el hook
+      const submitData = handleSubmit(e, true);
+      
       // Llamar a la API para actualizar la reserva
-      const result = await actualizarReserva(id, datosCompletos, primerDeposito, segundoDeposito);
+      const result = await actualizarReserva(id, submitData);
       
       if (result.success) {
         await swalHelpers.showSuccess(
@@ -339,6 +342,7 @@ export const EditarView = () => {
               <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
               <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
               <p><strong>ID de Reserva:</strong> ${id}</p>
+              ${result.changes ? `<p><strong>Campos actualizados:</strong> ${result.changes}</p>` : ''}
             </div>
           `
         );
@@ -780,29 +784,55 @@ export const EditarView = () => {
                               id="primerDeposito"
                               accept="image/*,.pdf,.doc,.docx"
                               onChange={(e) => handleFileChange(e, 'primer')}
+                              disabled={isFormDisabled}
                             />
                             {/* Preview de la imagen del primer depósito */}
                             {primerDepositoPreview && (
                               <div className="mt-3">
                                 <div className="d-flex align-items-start gap-2">
-                                  <img
-                                    src={primerDepositoPreview}
-                                    alt="Preview Primer Depósito"
-                                    className="img-thumbnail"
-                                    style={{ maxWidth: '150px', maxHeight: '150px' }}
-                                  />
+                                  <div className="position-relative">
+                                    <img
+                                      src={primerDepositoPreview}
+                                      alt="Preview Primer Depósito"
+                                      className="img-thumbnail"
+                                      style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                    />
+                                    {/* Indicador de cambio */}
+                                    {touchedFields.primerDepositoChanged && (
+                                      <span 
+                                        className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning"
+                                        title="Archivo modificado"
+                                      >
+                                        <i className="fas fa-edit"></i>
+                                      </span>
+                                    )}
+                                  </div>
                                   <div className="flex-grow-1">
                                     <button
                                       type="button"
                                       className="btn btn-danger btn-sm"
                                       onClick={() => handleRemoveFile('primer')}
+                                      disabled={isFormDisabled}
                                     >
                                       <i className="fas fa-times me-1"></i>
                                       Eliminar
                                     </button>
                                     <div className="mt-1">
                                       <small className="text-muted">
-                                        Archivo: {primerDeposito?.name || 'Archivo existente'}
+                                        {primerDeposito?.name ? (
+                                          <>
+                                            <i className="fas fa-file me-1"></i>
+                                            {primerDeposito.name}
+                                            {touchedFields.primerDepositoChanged && (
+                                              <span className="text-warning ms-1">(Modificado)</span>
+                                            )}
+                                          </>
+                                        ) : (
+                                          <>
+                                            <i className="fas fa-cloud me-1"></i>
+                                            Archivo existente
+                                          </>
+                                        )}
                                       </small>
                                     </div>
                                   </div>
@@ -823,29 +853,55 @@ export const EditarView = () => {
                                 id="segundoDeposito"
                                 accept="image/*,.pdf,.doc,.docx"
                                 onChange={(e) => handleFileChange(e, 'segundo')}
+                                disabled={isFormDisabled}
                               />
                               {/* Preview de la imagen del segundo depósito */}
                               {segundoDepositoPreview && (
                                 <div className="mt-3">
                                   <div className="d-flex align-items-start gap-2">
-                                    <img
-                                      src={segundoDepositoPreview}
-                                      alt="Preview Segundo Depósito"
-                                      className="img-thumbnail"
-                                      style={{ maxWidth: '150px', maxHeight: '150px' }}
-                                    />
+                                    <div className="position-relative">
+                                      <img
+                                        src={segundoDepositoPreview}
+                                        alt="Preview Segundo Depósito"
+                                        className="img-thumbnail"
+                                        style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                      />
+                                      {/* Indicador de cambio */}
+                                      {touchedFields.segundoDepositoChanged && (
+                                        <span 
+                                          className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning"
+                                          title="Archivo modificado"
+                                        >
+                                          <i className="fas fa-edit"></i>
+                                        </span>
+                                      )}
+                                    </div>
                                     <div className="flex-grow-1">
                                       <button
                                         type="button"
                                         className="btn btn-danger btn-sm"
                                         onClick={() => handleRemoveFile('segundo')}
+                                        disabled={isFormDisabled}
                                       >
                                         <i className="fas fa-times me-1"></i>
                                         Eliminar
                                       </button>
                                       <div className="mt-1">
                                         <small className="text-muted">
-                                          Archivo: {segundoDeposito?.name || 'Archivo existente'}
+                                          {segundoDeposito?.name ? (
+                                            <>
+                                              <i className="fas fa-file me-1"></i>
+                                              {segundoDeposito.name}
+                                              {touchedFields.segundoDepositoChanged && (
+                                                <span className="text-warning ms-1">(Modificado)</span>
+                                              )}
+                                            </>
+                                          ) : (
+                                            <>
+                                              <i className="fas fa-cloud me-1"></i>
+                                              Archivo existente
+                                            </>
+                                          )}
                                         </small>
                                       </div>
                                     </div>

@@ -453,7 +453,7 @@ export const useReservaForm = (reservaData = null) => {
   };
 
   /**
-   * Maneja la carga de archivos con preview
+   * Maneja la carga de archivos con preview y detección de cambios
    * @param {Event} e - Evento del input file
    * @param {string} tipo - Tipo de depósito ('primer' o 'segundo')
    */
@@ -477,12 +477,34 @@ export const useReservaForm = (reservaData = null) => {
       // Crear preview usando FileReader
       const reader = new FileReader();
       reader.onload = (e) => {
+        const newPreviewUrl = e.target.result;
+        
         if (tipo === 'primer') {
+          // Verificar si el archivo ha cambiado comparando con el preview original
+          const hasChanged = reservaData?.primerDepositoPreview !== newPreviewUrl;
+          
           setPrimerDeposito(file);
-          setPrimerDepositoPreview(e.target.result);
+          setPrimerDepositoPreview(newPreviewUrl);
+          
+          // Marcar campo como tocado para validación visual
+          setTouchedFields(prev => ({
+            ...prev,
+            primerDeposito: true,
+            primerDepositoChanged: hasChanged
+          }));
         } else {
+          // Verificar si el archivo ha cambiado comparando con el preview original
+          const hasChanged = reservaData?.segundoDepositoPreview !== newPreviewUrl;
+          
           setSegundoDeposito(file);
-          setSegundoDepositoPreview(e.target.result);
+          setSegundoDepositoPreview(newPreviewUrl);
+          
+          // Marcar campo como tocado para validación visual
+          setTouchedFields(prev => ({
+            ...prev,
+            segundoDeposito: true,
+            segundoDepositoChanged: hasChanged
+          }));
         }
       };
       reader.readAsDataURL(file);
@@ -513,55 +535,94 @@ export const useReservaForm = (reservaData = null) => {
     }
   };
 
-  /**
+    /**
    * Maneja el envío del formulario
    * @param {Event} e - Evento del formulario
    * @param {boolean} isEdit - Indica si es edición (true) o creación (false)
-   * @returns {FormData} Datos del formulario listos para enviar al servidor
+   * @returns {FormData|Object} Datos del formulario listos para enviar al servidor
    */
   const handleSubmit = (e, isEdit = false) => {
     e.preventDefault();
     
-    // Crear FormData con todos los datos
-    const submitFormData = new FormData();
+    // Verificar si hay archivos que han cambiado (para edición)
+    const hasFileChanges = isEdit && (
+      (primerDeposito && touchedFields.primerDepositoChanged) ||
+      (segundoDeposito && touchedFields.segundoDepositoChanged)
+    );
     
-    // ===== DATOS DE LA CABAÑA =====
-    submitFormData.append('cabañaId', cabañaSeleccionada);
-    
-    // Buscar información adicional de la cabaña
-    const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
-    if (cabaña) {
-      submitFormData.append('cabañaNombre', cabaña.nombre);
-      submitFormData.append('cabañaColor', cabaña.color);
-    }
-    
-    // ===== DATOS DEL FORMULARIO =====
-    Object.keys(formData).forEach(key => {
-      if (key === 'extras') {
-        // Los extras se envían como JSON string
-        submitFormData.append('extras', JSON.stringify(formData[key]));
-      } else {
-        submitFormData.append(key, formData[key]);
+    // Para creación o si hay cambios de archivos, usar FormData
+    if (!isEdit || hasFileChanges) {
+      const submitFormData = new FormData();
+      
+      // ===== DATOS DE LA CABAÑA =====
+      submitFormData.append('cabañaId', cabañaSeleccionada);
+      
+      // Buscar información adicional de la cabaña
+      const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
+      if (cabaña) {
+        submitFormData.append('cabañaNombre', cabaña.nombre);
+        submitFormData.append('cabañaColor', cabaña.color);
       }
-    });
+      
+      // ===== DATOS DEL FORMULARIO =====
+      Object.keys(formData).forEach(key => {
+        if (key === 'extras') {
+          // Los extras se envían como JSON string
+          submitFormData.append('extras', JSON.stringify(formData[key]));
+        } else {
+          submitFormData.append(key, formData[key]);
+        }
+      });
 
-    // ===== ARCHIVOS =====
-    if (primerDeposito) {
-      submitFormData.append('primerDeposito', primerDeposito);
+      // ===== ARCHIVOS =====
+      if (isEdit) {
+        // Solo agregar archivos que han cambiado
+        if (primerDeposito && touchedFields.primerDepositoChanged) {
+          submitFormData.append('primerDeposito', primerDeposito);
+        }
+        if (segundoDeposito && touchedFields.segundoDepositoChanged) {
+          submitFormData.append('segundoDeposito', segundoDeposito);
+        }
+      } else {
+        // Para creación, agregar todos los archivos disponibles
+        if (primerDeposito) {
+          submitFormData.append('primerDeposito', primerDeposito);
+        }
+        if (segundoDeposito) {
+          submitFormData.append('segundoDeposito', segundoDeposito);
+        }
+      }
+
+      // ===== FLAG PARA EDICIÓN =====
+      if (isEdit) {
+        submitFormData.append('isEdit', 'true');
+      }
+
+      return submitFormData;
+    } else {
+      // Para edición sin archivos, usar objeto JSON
+      const submitData = {
+        // ===== DATOS DE LA CABAÑA =====
+        cabañaId: cabañaSeleccionada,
+        
+        // Buscar información adicional de la cabaña
+        ...((() => {
+          const cabaña = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
+          return cabaña ? {
+            cabañaNombre: cabaña.nombre,
+            cabañaColor: cabaña.color
+          } : {};
+        })()),
+        
+        // ===== DATOS DEL FORMULARIO =====
+        ...formData,
+        
+        // ===== FLAG PARA EDICIÓN =====
+        isEdit: true
+      };
+
+      return submitData;
     }
-    if (segundoDeposito) {
-      submitFormData.append('segundoDeposito', segundoDeposito);
-    }
-
-    // ===== FLAG PARA EDICIÓN =====
-    if (isEdit) {
-      submitFormData.append('isEdit', 'true');
-    }
-  
-    
-
-
-    return submitFormData;
   };
 
   // ===== DATOS DERIVADOS =====

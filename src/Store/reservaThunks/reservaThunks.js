@@ -167,56 +167,33 @@ export const obtenerReservaPorId = async (id) => {
 /**
  * Actualizar una reserva existente
  * @param {number} id - ID de la reserva
- * @param {Object} reservaData - Datos actualizados de la reserva
- * @param {File} primerDeposito - Archivo del primer depósito (opcional)
- * @param {File} segundoDeposito - Archivo del segundo depósito (opcional)
+ * @param {FormData|Object} submitData - Datos de la reserva (FormData o Object)
  * @returns {Promise} Resultado de la operación
  */
-export const actualizarReserva = async (id, reservaData, primerDeposito = null, segundoDeposito = null) => {
+export const actualizarReserva = async (id, submitData) => {
   try {
-    // Crear FormData para enviar archivos
-    const formData = new FormData();
-    
-    // Agregar todos los datos de la reserva
-    Object.keys(reservaData).forEach(key => {
-      if (key === 'extras') {
-        // Los extras se envían como JSON string
-        formData.append(key, JSON.stringify(reservaData[key]));
-      } else {
-        formData.append(key, reservaData[key]);
-      }
-    });
-    
-    // Agregar archivos si existen
-    if (primerDeposito) {
-      formData.append('primerDeposito', primerDeposito);
-    }
-    
-    if (segundoDeposito) {
-      formData.append('segundoDeposito', segundoDeposito);
-    }
-    
     // Obtener token de autenticación
     const token = localStorage.getItem('authToken');
     if (!token) {
       throw new Error('No hay token de autenticación');
     }
     
-    // Configurar headers
+    // Configurar headers base
     const headers = {
       'Authorization': `Bearer ${token}`
     };
     
-    // Realizar petición
-    const response = await api.put(`/reservas/${id}`, formData, {
-      headers: headers,
-      // No establecer Content-Type para que se establezca automáticamente con FormData
+    // Realizar petición según el tipo de datos
+    const response = await api.put(`/reservas/${id}`, submitData, {
+      headers: headers
+      // El Content-Type se establece automáticamente según el tipo de datos
     });
     
     return {
       success: true,
       data: response.data,
-      message: response.message || 'Reserva actualizada exitosamente'
+      message: response.message || 'Reserva actualizada exitosamente',
+      changes: response.changes || null
     };
     
   } catch (error) {
