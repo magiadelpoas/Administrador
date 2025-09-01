@@ -105,6 +105,9 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
         
+        // Debug logging
+        error_log("Router Dispatch - Method: $method, Path: $path");
+        
         // Manejar peticiones OPTIONS para CORS
         if ($method === 'OPTIONS') {
             $this->handleCORS();
@@ -115,9 +118,12 @@ class Router {
         $matchedRoute = $this->findMatchingRoute($method, $path);
         
         if (!$matchedRoute) {
+            error_log("Router - No se encontró ruta para: $method $path");
             $this->handleNotFound($method);
             return;
         }
+        
+        error_log("Router - Ruta encontrada: " . $matchedRoute['path']);
         
         // Ejecutar el manejador de la ruta
         $this->executeHandler($matchedRoute);
@@ -150,10 +156,17 @@ class Router {
      * @return array|null Ruta coincidente o null
      */
     private function findMatchingRoute($method, $path) {
+        error_log("Router - Buscando ruta para: $method $path");
+        error_log("Router - Rutas registradas: " . count($this->routes));
+        
         foreach ($this->routes as $route) {
+            error_log("Router - Probando ruta: {$route['method']} {$route['path']} (patrón: {$route['pattern']})");
+            
             if ($route['method'] === $method && preg_match($route['pattern'], $path, $matches)) {
                 // Extraer parámetros de la ruta
                 $params = array_slice($matches, 1);
+                
+                error_log("Router - Ruta coincidente encontrada: {$route['path']} con parámetros: " . implode(', ', $params));
                 
                 return [
                     'handler' => $route['handler'],
@@ -163,6 +176,7 @@ class Router {
             }
         }
         
+        error_log("Router - No se encontró ruta coincidente");
         return null;
     }
     
