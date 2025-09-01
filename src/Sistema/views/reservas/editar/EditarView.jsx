@@ -22,6 +22,7 @@ import {
   getValidationClasses
 } from "../utils/ReservaUtils";
 import { actualizarReserva } from "../../../../Store/reservaThunks/reservaThunks";
+import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
  * ========================================
@@ -72,12 +73,7 @@ export const EditarView = () => {
     // Validar el formulario con los archivos
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Errores de validación',
-        html: errors.join('<br>'),
-        confirmButtonText: 'Entendido'
-      });
+      await swalHelpers.showValidationError(errors);
       return;
     }
     
@@ -100,20 +96,14 @@ export const EditarView = () => {
     const reservaId = urlParams.get('id');
     
     if (!reservaId) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se encontró el ID de la reserva',
-        confirmButtonText: 'Entendido'
-      });
+      swalHelpers.showError('Error', 'No se encontró el ID de la reserva');
       return;
     }
 
     // Confirmar actualización de la reserva
-    const confirmResult = await Swal.fire({
-      icon: 'question',
-      title: '¿Confirmar actualización de reserva?',
-      html: `
+    const confirmResult = await swalHelpers.showConfirmation(
+      '¿Confirmar actualización de reserva?',
+      `
         <div class="text-start">
           <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
           <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
@@ -122,13 +112,8 @@ export const EditarView = () => {
           <p><strong>ID de Reserva:</strong> ${reservaId}</p>
         </div>
       `,
-      showCancelButton: true,
-      confirmButtonText: 'Sí, actualizar reserva',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      reverseButtons: true
-    });
+      'Sí, actualizar reserva'
+    );
 
     if (!confirmResult.isConfirmed) {
       return;
@@ -136,63 +121,45 @@ export const EditarView = () => {
     
     try {
       // Mostrar loading con SweetAlert
-      Swal.fire({
-        title: 'Actualizando reserva...',
-        html: `
+      swalHelpers.showLoading(
+        'Actualizando reserva...',
+        `
           <div class="text-center">
             <div class="spinner-border text-primary mb-3" role="status">
               <span class="visually-hidden">Cargando...</span>
             </div>
             <p>Procesando cambios para la reserva de <strong>${cabañaActual?.nombre}</strong></p>
           </div>
-        `,
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
-      });
+        `
+      );
       
       // Llamar a la API para actualizar la reserva
       const result = await actualizarReserva(reservaId, datosCompletos, primerDeposito, segundoDeposito);
       
       if (result.success) {
-        await Swal.fire({
-          icon: 'success',
-          title: '¡Reserva actualizada exitosamente!',
-          html: `
+        await swalHelpers.showSuccess(
+          '¡Reserva actualizada exitosamente!',
+          `
             <div class="text-start">
               <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
               <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
               <p><strong>ID de Reserva:</strong> ${reservaId}</p>
             </div>
-          `,
-          confirmButtonText: 'Ver lista de reservas',
-          confirmButtonColor: '#28a745'
-        });
+          `
+        );
         
         // Redirigir a la lista de reservas
         window.location.href = '/reservas/lista';
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al actualizar la reserva',
-          text: result.message,
-          confirmButtonText: 'Entendido',
-          confirmButtonColor: '#dc3545'
-        });
+        swalHelpers.showError('Error al actualizar la reserva', result.message);
       }
       
     } catch (error) {
       console.error('Error al actualizar reserva:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error inesperado',
-        text: 'Ocurrió un error inesperado al actualizar la reserva. Por favor, inténtelo de nuevo.',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#dc3545'
-      });
+      swalHelpers.showError(
+        'Error inesperado',
+        'Ocurrió un error inesperado al actualizar la reserva. Por favor, inténtelo de nuevo.'
+      );
     }
   };
 

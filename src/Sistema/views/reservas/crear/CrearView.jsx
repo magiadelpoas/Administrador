@@ -128,41 +128,29 @@ export const CrearView = () => {
       const result = await crearReserva(datosCompletos, primerDeposito, segundoDeposito);
       
       if (result.success) {
-        await Swal.fire({
-          icon: 'success',
-          title: '¡Reserva creada exitosamente!',
-          html: `
+        await swalHelpers.showSuccess(
+          '¡Reserva creada exitosamente!',
+          `
             <div class="text-start">
               <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
               <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
               <p><strong>ID de Reserva:</strong> ${result.data?.id_reserva || 'N/A'}</p>
             </div>
-          `,
-          confirmButtonText: 'Ver lista de reservas',
-          confirmButtonColor: '#28a745'
-        });
+          `
+        );
         
         // Redirigir a la lista de reservas
         window.location.href = '/reservas/lista';
       } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Error al crear la reserva',
-          text: result.message,
-          confirmButtonText: 'Entendido',
-          confirmButtonColor: '#dc3545'
-        });
+        swalHelpers.showError('Error al crear la reserva', result.message);
       }
       
     } catch (error) {
       console.error('Error al crear reserva:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error inesperado',
-        text: 'Ocurrió un error inesperado al crear la reserva. Por favor, inténtelo de nuevo.',
-        confirmButtonText: 'Entendido',
-        confirmButtonColor: '#dc3545'
-      });
+      swalHelpers.showError(
+        'Error inesperado',
+        'Ocurrió un error inesperado al crear la reserva. Por favor, inténtelo de nuevo.'
+      );
     }
   };
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
+import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
  * ========================================
@@ -453,13 +454,10 @@ export const useReservaForm = (reservaData = null) => {
       ];
       
       if (!allowedTypes.includes(file.type)) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Tipo de archivo no válido',
-          text: 'Por favor selecciona solo archivos de imagen, PDF o documentos Word',
-          confirmButtonText: 'Entendido',
-          confirmButtonColor: '#ffc107'
-        });
+        swalHelpers.showError(
+          'Tipo de archivo no válido',
+          'Por favor selecciona solo archivos de imagen, PDF o documentos Word'
+        );
         return;
       }
 
