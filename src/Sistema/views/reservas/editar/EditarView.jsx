@@ -1,5 +1,5 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { 
   Select, 
   MenuItem, 
@@ -21,7 +21,7 @@ import {
   validateForm,
   getValidationClasses
 } from "../utils/ReservaUtils";
-import { actualizarReserva } from "../../../../Store/reservaThunks/reservaThunks";
+import { actualizarReserva, obtenerReservaPorId } from "../../../../Store/reservaThunks/reservaThunks";
 import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
@@ -37,10 +37,72 @@ import { swalHelpers } from "../../../../utils/sweetalertConfig";
  * - Carga de imágenes con preview
  * - Selección múltiple de extras usando Material-UI
  * - Campos condicionales (se muestran solo después de seleccionar cabaña y tipo de reserva)
+ * - Carga automática de datos de la reserva desde la API
  * 
  * @returns {JSX.Element} Formulario de edición de reserva
  */
 export const EditarView = () => {
+  const { id } = useParams(); // Obtener el ID de la URL
+  const [loading, setLoading] = useState(true);
+  const [reservaData, setReservaData] = useState(null);
+  const [error, setError] = useState(null);
+
+  // ===== CARGA DE DATOS DE LA RESERVA =====
+  useEffect(() => {
+    const cargarReserva = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log('Intentando obtener reserva con ID:', id);
+        const result = await obtenerReservaPorId(id);
+        console.log('Resultado de obtenerReservaPorId:', result);
+        
+        if (result.success) {
+          // Mapear los datos de la API al formato esperado por el formulario
+          const datosMapeados = {
+            cabañaId: result.data.cabanaId_reserva,
+            nombreCliente: result.data.nombreCliente_reserva,
+            emailCliente: result.data.emailCliente_reserva,
+            nacionalidad: result.data.nacionalidad_reserva,
+            mascotas: result.data.mascotas_reserva,
+            cantidadPersonas: result.data.cantidadPersonas_reserva,
+            deposito: result.data.deposito_reserva,
+            moneda: result.data.moneda_reserva,
+            totalDepositado: result.data.totalDepositado_reserva,
+            horaIngreso: result.data.horaIngreso_reserva,
+            horaSalida: result.data.horaSalida_reserva,
+            fechaIngreso: result.data.fechaIngreso_reserva,
+            fechaSalida: result.data.fechaSalida_reserva,
+            tipoPagoPrimerDeposito: result.data.tipoPagoPrimerDeposito_reserva,
+            tipoPagoSegundoDeposito: result.data.tipoPagoSegundoDeposito_reserva,
+            tipoReserva: result.data.tipoReserva_reserva,
+            extras: result.data.extras_reserva ? JSON.parse(result.data.extras_reserva) : [],
+            primerDepositoPreview: result.data.primerDeposito_reserva ? 
+              `http://localhost/ApiMagia/imgComprobantes/${result.data.primerDeposito_reserva}` : null,
+            segundoDepositoPreview: result.data.segundoDeposito_reserva ? 
+              `http://localhost/ApiMagia/imgComprobantes/${result.data.segundoDeposito_reserva}` : null
+          };
+          
+          setReservaData(datosMapeados);
+        } else {
+          setError(result.message);
+          await swalHelpers.showError('Error', result.message);
+        }
+      } catch (error) {
+        console.error('Error al cargar la reserva:', error);
+        setError('Error al cargar los datos de la reserva');
+        await swalHelpers.showError('Error', 'Error al cargar los datos de la reserva');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      cargarReserva();
+    }
+  }, [id]);
+
   // ===== HOOK PERSONALIZADO =====
   // Obtener toda la lógica del formulario desde el hook personalizado
   const {
@@ -60,7 +122,7 @@ export const EditarView = () => {
     handleFileChange,
     handleRemoveFile,
     handleSubmit
-  } = useReservaForm();
+  } = useReservaForm(reservaData);
 
   // ===== MANEJADOR DE ENVÍO =====
   /**
@@ -91,15 +153,6 @@ export const EditarView = () => {
       isEdit: true
     };
 
-    // Obtener el ID de la reserva desde la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const reservaId = urlParams.get('id');
-    
-    if (!reservaId) {
-      swalHelpers.showError('Error', 'No se encontró el ID de la reserva');
-      return;
-    }
-
     // Confirmar actualización de la reserva
     const confirmResult = await swalHelpers.showConfirmation(
       '¿Confirmar actualización de reserva?',
@@ -109,7 +162,7 @@ export const EditarView = () => {
           <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
           <p><strong>Fechas:</strong> ${formData.fechaIngreso} - ${formData.fechaSalida}</p>
           <p><strong>Total:</strong> ${formData.totalDepositado} ${formData.moneda}</p>
-          <p><strong>ID de Reserva:</strong> ${reservaId}</p>
+          <p><strong>ID de Reserva:</strong> ${id}</p>
         </div>
       `,
       'Sí, actualizar reserva'
@@ -134,7 +187,7 @@ export const EditarView = () => {
       );
       
       // Llamar a la API para actualizar la reserva
-      const result = await actualizarReserva(reservaId, datosCompletos, primerDeposito, segundoDeposito);
+      const result = await actualizarReserva(id, datosCompletos, primerDeposito, segundoDeposito);
       
       if (result.success) {
         await swalHelpers.showSuccess(
@@ -143,7 +196,7 @@ export const EditarView = () => {
             <div class="text-start">
               <p><strong>Cabaña:</strong> ${cabañaActual?.nombre}</p>
               <p><strong>Cliente:</strong> ${formData.nombreCliente}</p>
-              <p><strong>ID de Reserva:</strong> ${reservaId}</p>
+              <p><strong>ID de Reserva:</strong> ${id}</p>
             </div>
           `
         );
@@ -163,6 +216,48 @@ export const EditarView = () => {
     }
   };
 
+  // ===== ESTADOS DE CARGA Y ERROR =====
+  if (loading) {
+    return (
+      <div className="container-fluid px-3 px-md-4">
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body text-center py-5">
+                <div className="spinner-border text-primary mb-3" role="status">
+                  <span className="visually-hidden">Cargando...</span>
+                </div>
+                <h5>Cargando datos de la reserva...</h5>
+                <p className="text-muted">Por favor espere mientras se cargan los datos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container-fluid px-3 px-md-4">
+        <div className="row">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-body text-center py-5">
+                <i className="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                <h5>Error al cargar la reserva</h5>
+                <p className="text-muted">{error}</p>
+                <Link to="/reservas/listar" className="btn btn-primary">
+                  <i className="fas fa-arrow-left"></i> Volver a la lista
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // ===== CONDICIÓN DE VISUALIZACIÓN =====
   // Los campos adicionales solo se muestran después de seleccionar cabaña y tipo de reserva
   const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
@@ -177,7 +272,7 @@ export const EditarView = () => {
           <div className="card">
             {/* ===== HEADER DEL CARD ===== */}
             <div className="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-              <h4 className="card-title mb-0">Editar Reserva</h4>
+              <h4 className="card-title mb-0">Editar Reserva #{id}</h4>
               <Link to="/reservas/listar" className="btn btn-secondary btn-sm">
                 <i className="fas fa-arrow-left"></i> 
                 <span className="d-none d-sm-inline ms-1">Volver a Lista</span>
@@ -453,13 +548,13 @@ export const EditarView = () => {
                             <label htmlFor="primerDeposito" className="form-label">
                               Primer Depósito (Imagen)
                             </label>
-                                                          <input
-                                type="file"
-                                className="form-control"
-                                id="primerDeposito"
-                                accept="image/*,.pdf,.doc,.docx"
-                                onChange={(e) => handleFileChange(e, 'primer')}
-                              />
+                            <input
+                              type="file"
+                              className="form-control"
+                              id="primerDeposito"
+                              accept="image/*,.pdf,.doc,.docx"
+                              onChange={(e) => handleFileChange(e, 'primer')}
+                            />
                             {/* Preview de la imagen del primer depósito */}
                             {primerDepositoPreview && (
                               <div className="mt-3">
@@ -481,7 +576,7 @@ export const EditarView = () => {
                                     </button>
                                     <div className="mt-1">
                                       <small className="text-muted">
-                                        Archivo: {primerDeposito?.name}
+                                        Archivo: {primerDeposito?.name || 'Archivo existente'}
                                       </small>
                                     </div>
                                   </div>
@@ -524,7 +619,7 @@ export const EditarView = () => {
                                       </button>
                                       <div className="mt-1">
                                         <small className="text-muted">
-                                          Archivo: {segundoDeposito?.name}
+                                          Archivo: {segundoDeposito?.name || 'Archivo existente'}
                                         </small>
                                       </div>
                                     </div>
@@ -568,10 +663,10 @@ export const EditarView = () => {
                               value={formData.emailCliente}
                               onChange={handleInputChange}
                             />
-                                                          <div className="form-text text-success">
-                                <i className="fas fa-check me-1"></i>
-                                Correo configurado por defecto (puede ser editado)
-                              </div>
+                            <div className="form-text text-success">
+                              <i className="fas fa-check me-1"></i>
+                              Correo configurado por defecto (puede ser editado)
+                            </div>
                           </div>
                           
                           {/* Campo: Nacionalidad */}
@@ -590,7 +685,6 @@ export const EditarView = () => {
                                 <option 
                                   key={nacionalidad} 
                                   value={nacionalidad}
-                                  selected={nacionalidad === "Costa Rica"}
                                 >
                                   {nacionalidad}
                                 </option>
@@ -618,7 +712,6 @@ export const EditarView = () => {
                                 <option 
                                   key={opcion} 
                                   value={opcion}
-                                  selected={opcion === "No"}
                                 >
                                   {opcion === "No" ? "No Mascotas" : `${opcion} Mascota${opcion > 1 ? 's' : ''}`}
                                 </option>
@@ -740,7 +833,7 @@ export const EditarView = () => {
                           <i className="fas fa-save"></i> 
                           <span className="ms-1">Actualizar Reserva</span>
                         </button>
-                        <Link to="/reservas/lista" className="btn btn-secondary">
+                        <Link to="/reservas/listar" className="btn btn-secondary">
                           <i className="fas fa-times"></i> 
                           <span className="ms-1">Cancelar</span>
                         </Link>

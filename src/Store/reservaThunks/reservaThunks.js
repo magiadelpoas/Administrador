@@ -152,6 +152,9 @@ export const obtenerReservaPorId = async (id) => {
     
   } catch (error) {
     console.error('Error al obtener reserva:', error);
+    console.error('Error response:', error.response);
+    console.error('Error status:', error.response?.status);
+    console.error('Error data:', error.response?.data);
     
     return {
       success: false,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
 import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
@@ -383,6 +383,16 @@ export const useReservaForm = (reservaData = null) => {
 
   // Obtener lista de cabañas disponibles
   const cabañas = getCabañasColores();
+
+  // ===== EFECTO PARA ACTUALIZAR DATOS CUANDO CAMBIA reservaData =====
+  useEffect(() => {
+    if (reservaData) {
+      setCabañaSeleccionada(reservaData.cabañaId || "");
+      setFormData(getInitialFormState(reservaData));
+      setPrimerDepositoPreview(reservaData.primerDepositoPreview || null);
+      setSegundoDepositoPreview(reservaData.segundoDepositoPreview || null);
+    }
+  }, [reservaData]);
 
   // ===== MANEJADORES DE EVENTOS =====
 
