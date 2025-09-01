@@ -79,7 +79,7 @@ export const EditarView = () => {
             tipoReserva: result.data.tipoReserva_reserva,
             extras: result.data.extras_reserva ? JSON.parse(result.data.extras_reserva) : [],
             primerDepositoPreview: result.data.primerDeposito_reserva ? 
-              `http://localhost/ApiMagia/imgComprobantes/${result.data.primerDeposito_reserva}` : null,
+              `http://apiMagia.com/imgComprobantes/${result.data.primerDeposito_reserva}` : null,
             segundoDepositoPreview: result.data.segundoDeposito_reserva ? 
               `http://localhost/ApiMagia/imgComprobantes/${result.data.segundoDeposito_reserva}` : null
           };
