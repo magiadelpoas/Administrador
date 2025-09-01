@@ -363,6 +363,128 @@ class Reserva {
     }
     
     /**
+     * Actualiza el estado de una reserva
+     * @param int $id ID de la reserva
+     * @param string $estado Nuevo estado ('pendiente', 'confirmado', 'cancelado')
+     * @return array Resultado de la operación
+     */
+    public function updateStatus($id, $estado) {
+        try {
+            // Verificar si la reserva existe
+            $existingReserva = $this->getById($id);
+            if (!$existingReserva['success']) {
+                return [
+                    'success' => false,
+                    'message' => 'Reserva no encontrada'
+                ];
+            }
+            
+            // Validar estados permitidos
+            $allowedStates = ['pendiente', 'confirmado', 'cancelado'];
+            if (!in_array($estado, $allowedStates)) {
+                return [
+                    'success' => false,
+                    'message' => 'Estado no válido. Estados permitidos: ' . implode(', ', $allowedStates)
+                ];
+            }
+            
+            // Obtener el estado actual
+            $estadoActual = $existingReserva['data']['estado_reserva'];
+            
+            // Validar transiciones de estado
+            $result = $this->validateStateTransition($estadoActual, $estado);
+            if (!$result['valid']) {
+                return [
+                    'success' => false,
+                    'message' => $result['message']
+                ];
+            }
+            
+            // Actualizar estado
+            $query = "UPDATE {$this->table_name} SET estado_reserva = :estado WHERE id_reserva = :id";
+            
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':estado', $estado);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            
+            if ($stmt->execute()) {
+                $messages = [
+                    'pendiente' => 'Reserva reactivada exitosamente',
+                    'confirmado' => 'Reserva confirmada exitosamente',
+                    'cancelado' => 'Reserva cancelada exitosamente'
+                ];
+                
+                return [
+                    'success' => true,
+                    'message' => $messages[$estado] ?? 'Estado actualizado exitosamente'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Error al actualizar el estado de la reserva'
+                ];
+            }
+            
+        } catch (PDOException $e) {
+            error_log("Error en updateStatus(): " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error al actualizar el estado de la reserva',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
+     * Valida las transiciones de estado permitidas
+     * @param string $estadoActual Estado actual de la reserva
+     * @param string $nuevoEstado Nuevo estado deseado
+     * @return array Resultado de la validación
+     */
+    private function validateStateTransition($estadoActual, $nuevoEstado) {
+        // Definir transiciones permitidas
+        $allowedTransitions = [
+            'pendiente' => ['confirmado', 'cancelado'],
+            'cancelado' => ['pendiente'],
+            'confirmado' => [] // Una vez confirmado, no se puede cambiar
+        ];
+        
+        // Si el estado es el mismo, no hay problema
+        if ($estadoActual === $nuevoEstado) {
+            return [
+                'valid' => true,
+                'message' => 'El estado ya es ' . $nuevoEstado
+            ];
+        }
+        
+        // Verificar si la transición está permitida
+        if (!isset($allowedTransitions[$estadoActual])) {
+            return [
+                'valid' => false,
+                'message' => 'Estado actual no reconocido: ' . $estadoActual
+            ];
+        }
+        
+        if (!in_array($nuevoEstado, $allowedTransitions[$estadoActual])) {
+            $messages = [
+                'confirmado' => 'No se puede cambiar el estado de una reserva confirmada',
+                'pendiente' => 'Solo se puede cambiar a confirmado o cancelado desde pendiente',
+                'cancelado' => 'Solo se puede reactivar (cambiar a pendiente) desde cancelado'
+            ];
+            
+            return [
+                'valid' => false,
+                'message' => $messages[$estadoActual] ?? 'Transición de estado no permitida'
+            ];
+        }
+        
+        return [
+            'valid' => true,
+            'message' => 'Transición válida'
+        ];
+    }
+    
+    /**
      * Sube un archivo al servidor
      * @param array $file Archivo subido
      * @param string $tipo Tipo de depósito ('primer' o 'segundo')

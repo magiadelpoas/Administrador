@@ -47,7 +47,7 @@ if (in_array($origin, $allowedOrigins)) {
     header('Access-Control-Allow-Origin: http://localhost:5173');
 }
 
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 header('Access-Control-Allow-Credentials: true');
 
@@ -116,6 +116,15 @@ try {
     
     // DELETE /api/reservas/{id} - Eliminar reserva (cambiar estado a cancelado)
     $router->delete('/api/reservas/{id}', ['ReservaController', 'destroy']);
+    
+    // PATCH /api/reservas/{id}/confirmar - Confirmar reserva
+    $router->patch('/api/reservas/{id}/confirmar', ['ReservaController', 'confirmar']);
+    
+    // PATCH /api/reservas/{id}/cancelar - Cancelar reserva
+    $router->patch('/api/reservas/{id}/cancelar', ['ReservaController', 'cancelar']);
+    
+    // PATCH /api/reservas/{id}/reactivar - Reactivar reserva
+    $router->patch('/api/reservas/{id}/reactivar', ['ReservaController', 'reactivar']);
     
     // ========================================
     // RUTAS UTILITARIAS

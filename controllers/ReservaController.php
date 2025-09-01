@@ -193,6 +193,78 @@ class ReservaController {
     }
     
     /**
+     * PATCH /api/reservas/{id}/confirmar - Confirma una reserva (cambia estado a confirmado)
+     * Requiere autenticación
+     */
+    public function confirmar($id) {
+        AuthMiddleware::requireAuth(function() use ($id) {
+            // Validar ID
+            if (!is_numeric($id) || $id <= 0) {
+                Response::error('ID de reserva inválido', 400);
+                return;
+            }
+            
+            // Confirmar reserva
+            $result = $this->reservaModel->updateStatus($id, 'confirmado');
+            
+            if ($result['success']) {
+                Response::success(null, $result['message']);
+            } else {
+                $statusCode = strpos($result['message'], 'no encontrada') !== false ? 404 : 400;
+                Response::error($result['message'], $statusCode);
+            }
+        });
+    }
+    
+    /**
+     * PATCH /api/reservas/{id}/cancelar - Cancela una reserva (cambia estado a cancelado)
+     * Requiere autenticación
+     */
+    public function cancelar($id) {
+        AuthMiddleware::requireAuth(function() use ($id) {
+            // Validar ID
+            if (!is_numeric($id) || $id <= 0) {
+                Response::error('ID de reserva inválido', 400);
+                return;
+            }
+            
+            // Cancelar reserva
+            $result = $this->reservaModel->updateStatus($id, 'cancelado');
+            
+            if ($result['success']) {
+                Response::success(null, $result['message']);
+            } else {
+                $statusCode = strpos($result['message'], 'no encontrada') !== false ? 404 : 400;
+                Response::error($result['message'], $statusCode);
+            }
+        });
+    }
+    
+    /**
+     * PATCH /api/reservas/{id}/reactivar - Reactiva una reserva (cambia estado a pendiente)
+     * Requiere autenticación
+     */
+    public function reactivar($id) {
+        AuthMiddleware::requireAuth(function() use ($id) {
+            // Validar ID
+            if (!is_numeric($id) || $id <= 0) {
+                Response::error('ID de reserva inválido', 400);
+                return;
+            }
+            
+            // Reactivar reserva
+            $result = $this->reservaModel->updateStatus($id, 'pendiente');
+            
+            if ($result['success']) {
+                Response::success(null, $result['message']);
+            } else {
+                $statusCode = strpos($result['message'], 'no encontrada') !== false ? 404 : 400;
+                Response::error($result['message'], $statusCode);
+            }
+        });
+    }
+    
+    /**
      * Mapea los campos del frontend a los campos de la base de datos
      * @param array $data Datos del frontend
      * @return array Datos mapeados para la base de datos

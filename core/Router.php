@@ -55,6 +55,16 @@ class Router {
     }
     
     /**
+     * Registra una ruta PATCH
+     * @param string $path Ruta
+     * @param callable|array $handler Manejador de la ruta
+     * @return void
+     */
+    public function patch($path, $handler) {
+        $this->addRoute('PATCH', $path, $handler);
+    }
+    
+    /**
      * Registra una ruta OPTIONS
      * @param string $path Ruta
      * @param callable|array $handler Manejador de la ruta
@@ -215,7 +225,7 @@ class Router {
      */
     private function handleCORS() {
         header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
         header('Access-Control-Max-Age: 86400'); // 24 horas
         
