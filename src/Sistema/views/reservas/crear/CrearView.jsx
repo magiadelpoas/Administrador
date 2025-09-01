@@ -140,7 +140,7 @@ export const CrearView = () => {
         );
         
         // Redirigir a la lista de reservas
-        window.location.href = '/reservas/lista';
+        window.location.href = '/reservas/listar';
       } else {
         swalHelpers.showError('Error al crear la reserva', result.message);
       }
@@ -169,7 +169,7 @@ export const CrearView = () => {
             {/* ===== HEADER DEL CARD ===== */}
             <div className="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
               <h4 className="card-title mb-0">Crear Nueva Reserva</h4>
-              <Link to="/reservas/lista" className="btn btn-secondary btn-sm">
+              <Link to="/reservas/listar" className="btn btn-secondary btn-sm">  
                 <i className="fas fa-arrow-left"></i> 
                 <span className="d-none d-sm-inline ms-1">Volver a Lista</span>
                 <span className="d-sm-none">Volver</span>
@@ -732,7 +732,7 @@ export const CrearView = () => {
                           <i className="fas fa-save"></i> 
                           <span className="ms-1">Crear Reserva</span>
                         </button>
-                        <Link to="/reservas/lista" className="btn btn-secondary">
+                        <Link to="/reservas/listar" className="btn btn-secondary">
                           <i className="fas fa-times"></i> 
                           <span className="ms-1">Cancelar</span>
                         </Link>
