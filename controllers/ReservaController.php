@@ -80,10 +80,6 @@ class ReservaController {
                 $data = $_POST;
                 $files = $_FILES;
                 
-
-                
-
-
             } else {
                 // Procesar datos JSON
                 $input = json_decode(file_get_contents('php://input'), true);
