@@ -75,6 +75,20 @@ export const EditarView = () => {
       return;
     }
     
+    // ===== CONSOLE LOG DE TODOS LOS DATOS =====
+    console.log("=== DATOS DEL FORMULARIO DE EDITAR RESERVA ===");
+    console.log("Cabaña Seleccionada:", cabañaSeleccionada);
+    console.log("Cabaña Actual:", cabañaActual);
+    console.log("Capacidad Máxima:", capacidadMaxima);
+    console.log("Form Data:", formData);
+    console.log("Primer Depósito:", primerDeposito);
+    console.log("Segundo Depósito:", segundoDeposito);
+    console.log("Primer Depósito Preview:", primerDepositoPreview);
+    console.log("Segundo Depósito Preview:", segundoDepositoPreview);
+    console.log("Touched Fields:", touchedFields);
+    console.log("Mostrar Segundo Depósito:", mostrarSegundoDeposito);
+    console.log("=============================================");
+    
     handleSubmit(e, true); // true = editar reserva existente
   };
 
@@ -483,10 +497,10 @@ export const EditarView = () => {
                               value={formData.emailCliente}
                               onChange={handleInputChange}
                             />
-                            <div className="form-text text-success">
-                              <i className="fas fa-check me-1"></i>
-                              Correo configurado por defecto
-                            </div>
+                                                          <div className="form-text text-success">
+                                <i className="fas fa-check me-1"></i>
+                                Correo configurado por defecto (puede ser editado)
+                              </div>
                           </div>
                           
                           {/* Campo: Nacionalidad */}

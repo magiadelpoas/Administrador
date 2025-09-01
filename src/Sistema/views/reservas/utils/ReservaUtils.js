@@ -535,14 +535,9 @@ export const useReservaForm = (reservaData = null) => {
     if (isEdit) {
       submitFormData.append('isEdit', 'true');
     }
+  
     
-    // ===== LOGGING PARA DEBUGGING =====
-    console.log('FormData creado:', submitFormData);
-    
-    // Mostrar los datos en consola para verificación
-    for (let [key, value] of submitFormData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
+
 
     return submitFormData;
   };

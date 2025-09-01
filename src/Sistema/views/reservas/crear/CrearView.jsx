@@ -75,6 +75,26 @@ export const CrearView = () => {
       alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
       return;
     }
+  
+    
+    // ===== DATOS COMPLETOS QUE SE ENVIARÁN =====
+    const datosCompletos = {
+      // Datos de la cabaña
+      cabañaId: cabañaSeleccionada,
+      cabañaNombre: cabañaActual?.nombre || "",
+      cabañaColor: cabañaActual?.color || "",
+      
+      // Todos los campos del formData
+      ...formData,
+      
+      // Archivos
+      primerDeposito: primerDeposito ? "Archivo seleccionado" : "Sin archivo",
+      segundoDeposito: segundoDeposito ? "Archivo seleccionado" : "Sin archivo",
+      
+      // Flag de edición
+      isEdit: false
+    };
+    console.log("=== DATOS COMPLETOS QUE SE ENVIARÁN ===", datosCompletos);
     
     handleSubmit(e, false); // false = crear nueva reserva
   };
@@ -311,9 +331,9 @@ export const CrearView = () => {
                                  value={formData.extras}
                                  onChange={handleExtrasChange}
                                  input={<OutlinedInput label="Extras (Selección múltiple)" />}
-                                 renderValue={(selected) => (
+                                 renderValue={(defaultValue) => (
                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                     {selected.map((value) => (
+                                     {defaultValue.map((value) => (
                                        <Chip key={value} label={value} size="small" />
                                      ))}
                                    </Box>
@@ -477,19 +497,18 @@ export const CrearView = () => {
                              <label htmlFor="emailCliente" className="form-label">
                                Correo del Cliente <span className="text-success">✓</span>
                              </label>
-                             <input
-                               type="email"
-                               className="form-control"
-                               id="emailCliente"
-                               name="emailCliente"
-                               value={formData.emailCliente}
-                               onChange={handleInputChange}
-                               readOnly
-                             />
-                             <div className="form-text text-success">
-                               <i className="fas fa-check me-1"></i>
-                               Correo configurado por defecto
-                             </div>
+                                                           <input
+                                type="email"
+                                className="form-control"
+                                id="emailCliente"
+                                name="emailCliente"
+                                value={formData.emailCliente}
+                                onChange={handleInputChange}
+                              />
+                                                           <div className="form-text text-success">
+                                <i className="fas fa-check me-1"></i>
+                                Correo configurado por defecto (puede ser editado)
+                              </div>
                            </div>
                            
                            {/* Campo: Nacionalidad */}
@@ -508,7 +527,7 @@ export const CrearView = () => {
                                  <option 
                                    key={nacionalidad} 
                                    value={nacionalidad}
-                                   selected={nacionalidad === "Costa Rica"}
+                                   defaultValue={nacionalidad === "Costa Rica"}
                                  >
                                    {nacionalidad}
                                  </option>
@@ -536,7 +555,7 @@ export const CrearView = () => {
                                  <option 
                                    key={opcion} 
                                    value={opcion}
-                                   selected={opcion === "No"}
+                                   defaultValue={opcion === "No"}
                                  >
                                    {opcion === "No" ? "No Mascotas" : `${opcion} Mascota${opcion > 1 ? 's' : ''}`}
                                  </option>
