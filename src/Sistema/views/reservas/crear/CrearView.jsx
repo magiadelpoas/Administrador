@@ -21,6 +21,7 @@ import {
   validateForm,
   getValidationClasses
 } from "../utils/ReservaUtils";
+import { crearReserva } from "../../../../Store/reservaThunks/reservaThunks";
 
 /**
  * ========================================
@@ -66,7 +67,7 @@ export const CrearView = () => {
    * Maneja el envío del formulario para crear una nueva reserva
    * @param {Event} e - Evento del formulario
    */
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     
     // Validar el formulario con los archivos
@@ -75,28 +76,49 @@ export const CrearView = () => {
       alert("Por favor, corrija los siguientes errores:\n" + errors.join("\n"));
       return;
     }
-  
     
     // ===== DATOS COMPLETOS QUE SE ENVIARÁN =====
     const datosCompletos = {
-      // Datos de la cabaña
-      cabañaId: cabañaSeleccionada,
-      cabañaNombre: cabañaActual?.nombre || "",
-      cabañaColor: cabañaActual?.color || "",
+      // Datos de la cabaña (usar nombres sin caracteres especiales)
+      cabanaId: cabañaSeleccionada,
+      cabanaNombre: cabañaActual?.nombre || "",
+      cabanaColor: cabañaActual?.color || "",
       
       // Todos los campos del formData
       ...formData,
-      
-      // Archivos
-      primerDeposito: primerDeposito ? "Archivo seleccionado" : "Sin archivo",
-      segundoDeposito: segundoDeposito ? "Archivo seleccionado" : "Sin archivo",
       
       // Flag de edición
       isEdit: false
     };
     console.log("=== DATOS COMPLETOS QUE SE ENVIARÁN ===", datosCompletos);
     
-    handleSubmit(e, false); // false = crear nueva reserva
+    try {
+      // Mostrar indicador de carga
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      const originalText = submitButton.innerHTML;
+      submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span class="ms-1">Creando...</span>';
+      submitButton.disabled = true;
+      
+      // Llamar a la API para crear la reserva
+      const result = await crearReserva(datosCompletos, primerDeposito, segundoDeposito);
+      
+      if (result.success) {
+        alert('¡Reserva creada exitosamente!');
+        // Redirigir a la lista de reservas
+        window.location.href = '/reservas/lista';
+      } else {
+        alert(`Error al crear la reserva: ${result.message}`);
+      }
+      
+    } catch (error) {
+      console.error('Error al crear reserva:', error);
+      alert('Error inesperado al crear la reserva');
+    } finally {
+      // Restaurar botón
+      const submitButton = e.target.querySelector('button[type="submit"]');
+      submitButton.innerHTML = '<i class="fas fa-save"></i> <span class="ms-1">Crear Reserva</span>';
+      submitButton.disabled = false;
+    }
   };
 
   // ===== CONDICIÓN DE VISUALIZACIÓN =====
@@ -394,7 +416,7 @@ export const CrearView = () => {
                                type="file"
                                className="form-control"
                                id="primerDeposito"
-                               accept="image/*"
+                               accept="image/*,.pdf,.doc,.docx"
                                onChange={(e) => handleFileChange(e, 'primer')}
                              />
                              {/* Preview de la imagen del primer depósito */}
@@ -437,7 +459,7 @@ export const CrearView = () => {
                                  type="file"
                                  className="form-control"
                                  id="segundoDeposito"
-                                 accept="image/*"
+                                 accept="image/*,.pdf,.doc,.docx"
                                  onChange={(e) => handleFileChange(e, 'segundo')}
                                />
                                {/* Preview de la imagen del segundo depósito */}
