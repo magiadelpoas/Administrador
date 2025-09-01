@@ -16,7 +16,10 @@ import {
   opcionesTipoPago,
   opcionesTipoReserva,
   opcionesExtras,
-  validateForm
+  nacionalidades,
+  opcionesMascotas,
+  validateForm,
+  getValidationClasses
 } from "../utils/ReservaUtils";
 
 /**
@@ -48,6 +51,8 @@ export const CrearView = () => {
     segundoDepositoPreview,
     cabañas,
     cabañaActual,
+    capacidadMaxima,
+    touchedFields,
     handleCabañaChange,
     handleInputChange,
     handleExtrasChange,
@@ -77,6 +82,9 @@ export const CrearView = () => {
   // ===== CONDICIÓN DE VISUALIZACIÓN =====
   // Los campos adicionales solo se muestran después de seleccionar cabaña y tipo de reserva
   const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
+  
+  // Condición para mostrar campos del segundo depósito (solo si depósito es 50%)
+  const mostrarSegundoDeposito = formData.deposito === "50%";
 
   return (
     <div className="container-fluid px-3 px-md-4">
@@ -104,13 +112,13 @@ export const CrearView = () => {
                     <label htmlFor="cabañaId" className="form-label">
                       Seleccionar Cabaña <span className="text-danger">*</span>
                     </label>
-                    <select
-                      className="form-select"
-                      id="cabañaId"
-                      value={cabañaSeleccionada}
-                      onChange={handleCabañaChange}
-                      required
-                    >
+                                         <select
+                       className={getValidationClasses("cabañaId", formData, touchedFields, cabañaSeleccionada)}
+                       id="cabañaId"
+                       value={cabañaSeleccionada}
+                       onChange={handleCabañaChange}
+                       required
+                     >
                       <option value="">Seleccione una cabaña</option>
                       {cabañas.map((cabaña) => (
                         <option 
@@ -128,14 +136,14 @@ export const CrearView = () => {
                     <label htmlFor="tipoReserva" className="form-label">
                       Tipo de Reserva <span className="text-danger">*</span>
                     </label>
-                    <select
-                      className="form-select"
-                      id="tipoReserva"
-                      name="tipoReserva"
-                      value={formData.tipoReserva}
-                      onChange={handleInputChange}
-                      required
-                    >
+                                         <select
+                       className={getValidationClasses("tipoReserva", formData, touchedFields)}
+                       id="tipoReserva"
+                       name="tipoReserva"
+                       value={formData.tipoReserva}
+                       onChange={handleInputChange}
+                       required
+                     >
                       {opcionesTipoReserva.map(opcion => (
                         <option key={opcion} value={opcion}>
                           {opcion}
@@ -175,349 +183,472 @@ export const CrearView = () => {
                   </div>
                 )}
 
-                {/* ===== SECCIÓN 3: CAMPOS ADICIONALES (CONDICIONALES) ===== */}
-                {/* Campos adicionales que aparecen después de seleccionar cabaña y tipo de reserva */}
-                {ambosSeleccionados && (
-                  <>
-                    {/* Formulario en 2 columnas */}
-                    <div className="row">
-                      {/* ===== COLUMNA IZQUIERDA ===== */}
-                      <div className="col-12 col-lg-6">
-                        <div className="row">
-                          {/* Campo: Nombre del Cliente */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="nombreCliente" className="form-label">
-                              Nombre del Cliente <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              id="nombreCliente"
-                              name="nombreCliente"
-                              value={formData.nombreCliente}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Correo del Cliente */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="emailCliente" className="form-label">
-                              Correo del Cliente <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="email"
-                              className="form-control"
-                              id="emailCliente"
-                              name="emailCliente"
-                              value={formData.emailCliente}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Cantidad de Personas */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="cantidadPersonas" className="form-label">
-                              Cantidad de Personas <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              id="cantidadPersonas"
-                              name="cantidadPersonas"
-                              min="1"
-                              value={formData.cantidadPersonas}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Depósito */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="deposito" className="form-label">
-                              Depósito <span className="text-danger">*</span>
-                            </label>
-                            <select
-                              className="form-select"
-                              id="deposito"
-                              name="deposito"
-                              value={formData.deposito}
-                              onChange={handleInputChange}
-                              required
-                            >
-                              {opcionesDeposito.map(opcion => (
-                                <option key={opcion} value={opcion}>
-                                  {opcion}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          {/* Campo: Moneda */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="moneda" className="form-label">
-                              Moneda <span className="text-danger">*</span>
-                            </label>
-                            <select
-                              className="form-select"
-                              id="moneda"
-                              name="moneda"
-                              value={formData.moneda}
-                              onChange={handleInputChange}
-                              required
-                            >
-                              {opcionesMoneda.map(opcion => (
-                                <option key={opcion} value={opcion}>
-                                  {opcion}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          {/* Campo: Total Depositado */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="totalDepositado" className="form-label">
-                              Total Depositado <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              id="totalDepositado"
-                              name="totalDepositado"
-                              min="0"
-                              step="0.01"
-                              value={formData.totalDepositado}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Extras (Selección múltiple con Material-UI) */}
-                          <div className="col-12 mb-3">
-                            <FormControl fullWidth>
-                              <InputLabel id="extras-label">Extras (Selección múltiple)</InputLabel>
-                              <Select
-                                labelId="extras-label"
-                                id="extras"
-                                multiple
-                                value={formData.extras}
-                                onChange={handleExtrasChange}
-                                input={<OutlinedInput label="Extras (Selección múltiple)" />}
-                                renderValue={(selected) => (
-                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map((value) => (
-                                      <Chip key={value} label={value} size="small" />
-                                    ))}
-                                  </Box>
-                                )}
-                              >
-                                {opcionesExtras.map((extra) => (
-                                  <MenuItem key={extra} value={extra}>
-                                    {extra}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
-                          </div>
-                        </div>
-                      </div>
+                                 {/* ===== SECCIÓN 3: CAMPOS ADICIONALES (CONDICIONALES) ===== */}
+                 {/* Campos adicionales que aparecen después de seleccionar cabaña y tipo de reserva */}
+                 {ambosSeleccionados && (
+                   <>
+                     {/* ===== SECCIÓN 3.1: CAMPOS QUE EL USUARIO DEBE LLENAR ===== */}
+                     <div className="row mb-4">
+                       <div className="col-12">
+                         <h5 className="text-primary mb-3">
+                           <i className="fas fa-edit me-2"></i>
+                           Información Requerida
+                         </h5>
+                         <div className="alert alert-info">
+                           <i className="fas fa-info-circle me-2"></i>
+                           Complete los siguientes campos para crear la reserva
+                         </div>
+                       </div>
+                     </div>
+                     
+                     <div className="row">
+                       {/* ===== COLUMNA IZQUIERDA ===== */}
+                       <div className="col-12 col-lg-6">
+                         <div className="row">
+                           {/* Campo: Nombre del Cliente */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="nombreCliente" className="form-label">
+                               Nombre del Cliente <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="text"
+                               className={getValidationClasses("nombreCliente", formData, touchedFields)}
+                               id="nombreCliente"
+                               name="nombreCliente"
+                               value={formData.nombreCliente}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Cantidad de Personas */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="cantidadPersonas" className="form-label">
+                               Cantidad de Personas <span className="text-danger">*</span>
+                             </label>
+                             <select
+                               className={getValidationClasses("cantidadPersonas", formData, touchedFields)}
+                               id="cantidadPersonas"
+                               name="cantidadPersonas"
+                               value={formData.cantidadPersonas}
+                               onChange={handleInputChange}
+                               required
+                             >
+                               <option value="">Seleccione cantidad de personas</option>
+                               {capacidadMaxima && Array.from({ length: capacidadMaxima }, (_, i) => i + 1).map(num => (
+                                 <option key={num} value={num}>
+                                   {num} persona{num > 1 ? 's' : ''}
+                                 </option>
+                               ))}
+                             </select>
+                             {/* Mensaje de capacidad máxima */}
+                             {capacidadMaxima && (
+                               <div className="form-text text-info">
+                                 <i className="fas fa-info-circle me-1"></i>
+                                 La cabaña seleccionada permite máximo {capacidadMaxima} persona{capacidadMaxima > 1 ? 's' : ''}.
+                               </div>
+                             )}
+                           </div>
+                           
+                           {/* Campo: Total Depositado */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="totalDepositado" className="form-label">
+                               Total Depositado <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="number"
+                               className={getValidationClasses("totalDepositado", formData, touchedFields)}
+                               id="totalDepositado"
+                               name="totalDepositado"
+                               min="0"
+                               step="0.01"
+                               value={formData.totalDepositado}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Fecha de Ingreso */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="fechaIngreso" className="form-label">
+                               Fecha de Ingreso <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="date"
+                               className={getValidationClasses("fechaIngreso", formData, touchedFields)}
+                               id="fechaIngreso"
+                               name="fechaIngreso"
+                               value={formData.fechaIngreso}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Fecha de Salida */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="fechaSalida" className="form-label">
+                               Fecha de Salida <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="date"
+                               className={getValidationClasses("fechaSalida", formData, touchedFields)}
+                               id="fechaSalida"
+                               name="fechaSalida"
+                               value={formData.fechaSalida}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Extras (Selección múltiple con Material-UI) */}
+                           <div className="col-12 mb-3">
+                             <FormControl fullWidth>
+                               <InputLabel id="extras-label">Extras (Selección múltiple)</InputLabel>
+                               <Select
+                                 labelId="extras-label"
+                                 id="extras"
+                                 multiple
+                                 value={formData.extras}
+                                 onChange={handleExtrasChange}
+                                 input={<OutlinedInput label="Extras (Selección múltiple)" />}
+                                 renderValue={(selected) => (
+                                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                     {selected.map((value) => (
+                                       <Chip key={value} label={value} size="small" />
+                                     ))}
+                                   </Box>
+                                 )}
+                               >
+                                 {opcionesExtras.map((extra) => (
+                                   <MenuItem key={extra} value={extra}>
+                                     {extra}
+                                   </MenuItem>
+                                 ))}
+                               </Select>
+                             </FormControl>
+                           </div>
+                         </div>
+                       </div>
 
-                      {/* ===== COLUMNA DERECHA ===== */}
-                      <div className="col-12 col-lg-6">
-                        <div className="row">
-                          {/* Campo: Hora de Ingreso */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="horaIngreso" className="form-label">
-                              Hora de Ingreso <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              id="horaIngreso"
-                              name="horaIngreso"
-                              value={formData.horaIngreso}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Hora de Salida */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="horaSalida" className="form-label">
-                              Hora de Salida <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="time"
-                              className="form-control"
-                              id="horaSalida"
-                              name="horaSalida"
-                              value={formData.horaSalida}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Fecha de Ingreso */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="fechaIngreso" className="form-label">
-                              Fecha de Ingreso <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="date"
-                              className="form-control"
-                              id="fechaIngreso"
-                              name="fechaIngreso"
-                              value={formData.fechaIngreso}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Fecha de Salida */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="fechaSalida" className="form-label">
-                              Fecha de Salida <span className="text-danger">*</span>
-                            </label>
-                            <input
-                              type="date"
-                              className="form-control"
-                              id="fechaSalida"
-                              name="fechaSalida"
-                              value={formData.fechaSalida}
-                              onChange={handleInputChange}
-                              required
-                            />
-                          </div>
-                          
-                          {/* Campo: Tipo de Pago Primer Depósito */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="tipoPagoPrimerDeposito" className="form-label">
-                              Tipo de Pago Primer Depósito {primerDeposito && <span className="text-danger">*</span>}
-                            </label>
-                            <select
-                              className="form-select"
-                              id="tipoPagoPrimerDeposito"
-                              name="tipoPagoPrimerDeposito"
-                              value={formData.tipoPagoPrimerDeposito}
-                              onChange={handleInputChange}
-                              required={!!primerDeposito}
-                            >
-                              {opcionesTipoPago.map(opcion => (
-                                <option key={opcion} value={opcion}>
-                                  {opcion || "Seleccione el tipo de depósito"}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          {/* Campo: Primer Depósito (Imagen) */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="primerDeposito" className="form-label">
-                              Primer Depósito (Imagen)
-                            </label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              id="primerDeposito"
-                              accept="image/*"
-                              onChange={(e) => handleFileChange(e, 'primer')}
-                            />
-                            {/* Preview de la imagen del primer depósito */}
-                            {primerDepositoPreview && (
-                              <div className="mt-3">
-                                <div className="d-flex align-items-start gap-2">
-                                  <img
-                                    src={primerDepositoPreview}
-                                    alt="Preview Primer Depósito"
-                                    className="img-thumbnail"
-                                    style={{ maxWidth: '150px', maxHeight: '150px' }}
-                                  />
-                                  <div className="flex-grow-1">
-                                    <button
-                                      type="button"
-                                      className="btn btn-danger btn-sm"
-                                      onClick={() => handleRemoveFile('primer')}
-                                    >
-                                      <i className="fas fa-times me-1"></i>
-                                      Eliminar
-                                    </button>
-                                    <div className="mt-1">
-                                      <small className="text-muted">
-                                        Archivo: {primerDeposito?.name}
-                                      </small>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Campo: Tipo de Pago Segundo Depósito */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
-                              Tipo de Pago Segundo Depósito {segundoDeposito && <span className="text-danger">*</span>}
-                            </label>
-                            <select
-                              className="form-select"
-                              id="tipoPagoSegundoDeposito"
-                              name="tipoPagoSegundoDeposito"
-                              value={formData.tipoPagoSegundoDeposito}
-                              onChange={handleInputChange}
-                              required={!!segundoDeposito}
-                            >
-                              {opcionesTipoPago.map(opcion => (
-                                <option key={opcion} value={opcion}>
-                                  {opcion || "Seleccione el tipo de depósito"}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          
-                          {/* Campo: Segundo Depósito (Imagen) */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="segundoDeposito" className="form-label">
-                              Segundo Depósito (Imagen)
-                            </label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              id="segundoDeposito"
-                              accept="image/*"
-                              onChange={(e) => handleFileChange(e, 'segundo')}
-                            />
-                            {/* Preview de la imagen del segundo depósito */}
-                            {segundoDepositoPreview && (
-                              <div className="mt-3">
-                                <div className="d-flex align-items-start gap-2">
-                                  <img
-                                    src={segundoDepositoPreview}
-                                    alt="Preview Segundo Depósito"
-                                    className="img-thumbnail"
-                                    style={{ maxWidth: '150px', maxHeight: '150px' }}
-                                  />
-                                  <div className="flex-grow-1">
-                                    <button
-                                      type="button"
-                                      className="btn btn-danger btn-sm"
-                                      onClick={() => handleRemoveFile('segundo')}
-                                    >
-                                      <i className="fas fa-times me-1"></i>
-                                      Eliminar
-                                    </button>
-                                    <div className="mt-1">
-                                      <small className="text-muted">
-                                        Archivo: {segundoDeposito?.name}
-                                      </small>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                       {/* ===== COLUMNA DERECHA ===== */}
+                       <div className="col-12 col-lg-6">
+                         <div className="row">
+                           {/* Campo: Hora de Ingreso */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="horaIngreso" className="form-label">
+                               Hora de Ingreso <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="time"
+                               className={getValidationClasses("horaIngreso", formData, touchedFields)}
+                               id="horaIngreso"
+                               name="horaIngreso"
+                               value={formData.horaIngreso}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Hora de Salida */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="horaSalida" className="form-label">
+                               Hora de Salida <span className="text-danger">*</span>
+                             </label>
+                             <input
+                               type="time"
+                               className={getValidationClasses("horaSalida", formData, touchedFields)}
+                               id="horaSalida"
+                               name="horaSalida"
+                               value={formData.horaSalida}
+                               onChange={handleInputChange}
+                               required
+                             />
+                           </div>
+                           
+                           {/* Campo: Primer Depósito (Imagen) */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="primerDeposito" className="form-label">
+                               Primer Depósito (Imagen)
+                             </label>
+                             <input
+                               type="file"
+                               className="form-control"
+                               id="primerDeposito"
+                               accept="image/*"
+                               onChange={(e) => handleFileChange(e, 'primer')}
+                             />
+                             {/* Preview de la imagen del primer depósito */}
+                             {primerDepositoPreview && (
+                               <div className="mt-3">
+                                 <div className="d-flex align-items-start gap-2">
+                                   <img
+                                     src={primerDepositoPreview}
+                                     alt="Preview Primer Depósito"
+                                     className="img-thumbnail"
+                                     style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                   />
+                                   <div className="flex-grow-1">
+                                     <button
+                                       type="button"
+                                       className="btn btn-danger btn-sm"
+                                       onClick={() => handleRemoveFile('primer')}
+                                     >
+                                       <i className="fas fa-times me-1"></i>
+                                       Eliminar
+                                     </button>
+                                     <div className="mt-1">
+                                       <small className="text-muted">
+                                         Archivo: {primerDeposito?.name}
+                                       </small>
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div>
+                             )}
+                           </div>
+                           
+                           {/* Campo: Segundo Depósito (Imagen) */}
+                           {mostrarSegundoDeposito && (
+                             <div className="col-12 mb-3">
+                               <label htmlFor="segundoDeposito" className="form-label">
+                                 Segundo Depósito (Imagen)
+                               </label>
+                               <input
+                                 type="file"
+                                 className="form-control"
+                                 id="segundoDeposito"
+                                 accept="image/*"
+                                 onChange={(e) => handleFileChange(e, 'segundo')}
+                               />
+                               {/* Preview de la imagen del segundo depósito */}
+                               {segundoDepositoPreview && (
+                                 <div className="mt-3">
+                                   <div className="d-flex align-items-start gap-2">
+                                     <img
+                                       src={segundoDepositoPreview}
+                                       alt="Preview Segundo Depósito"
+                                       className="img-thumbnail"
+                                       style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                     />
+                                     <div className="flex-grow-1">
+                                       <button
+                                         type="button"
+                                         className="btn btn-danger btn-sm"
+                                         onClick={() => handleRemoveFile('segundo')}
+                                       >
+                                         <i className="fas fa-times me-1"></i>
+                                         Eliminar
+                                       </button>
+                                       <div className="mt-1">
+                                         <small className="text-muted">
+                                           Archivo: {segundoDeposito?.name}
+                                         </small>
+                                       </div>
+                                     </div>
+                                   </div>
+                                 </div>
+                               )}
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     </div>
+
+                     {/* ===== SECCIÓN 3.2: CAMPOS CON VALORES POR DEFECTO ===== */}
+                     <div className="row mb-4">
+                       <div className="col-12">
+                         <h5 className="text-success mb-3">
+                           <i className="fas fa-check-circle me-2"></i>
+                           Configuración Preestablecida
+                         </h5>
+                         <div className="alert alert-success">
+                           <i className="fas fa-info-circle me-2"></i>
+                           Los siguientes campos ya tienen valores configurados por defecto
+                         </div>
+                       </div>
+                     </div>
+                     
+                     <div className="row">
+                       {/* ===== COLUMNA IZQUIERDA ===== */}
+                       <div className="col-12 col-lg-6">
+                         <div className="row">
+                           {/* Campo: Correo del Cliente */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="emailCliente" className="form-label">
+                               Correo del Cliente <span className="text-success">✓</span>
+                             </label>
+                             <input
+                               type="email"
+                               className="form-control"
+                               id="emailCliente"
+                               name="emailCliente"
+                               value={formData.emailCliente}
+                               onChange={handleInputChange}
+                               readOnly
+                             />
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Correo configurado por defecto
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Nacionalidad */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="nacionalidad" className="form-label">
+                               Nacionalidad <span className="text-success">✓</span>
+                             </label>
+                             <select
+                               className="form-select"
+                               id="nacionalidad"
+                               name="nacionalidad"
+                               value={formData.nacionalidad}
+                               onChange={handleInputChange}
+                             >
+                               {nacionalidades.map(nacionalidad => (
+                                 <option 
+                                   key={nacionalidad} 
+                                   value={nacionalidad}
+                                   selected={nacionalidad === "Costa Rica"}
+                                 >
+                                   {nacionalidad}
+                                 </option>
+                               ))}
+                             </select>
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Costa Rica seleccionado por defecto
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Mascotas */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="mascotas" className="form-label">
+                               Mascotas <span className="text-success">✓</span>
+                             </label>
+                             <select
+                               className="form-select"
+                               id="mascotas"
+                               name="mascotas"
+                               value={formData.mascotas}
+                               onChange={handleInputChange}
+                             >
+                               {opcionesMascotas.map(opcion => (
+                                 <option 
+                                   key={opcion} 
+                                   value={opcion}
+                                   selected={opcion === "No"}
+                                 >
+                                   {opcion === "No" ? "No Mascotas" : `${opcion} Mascota${opcion > 1 ? 's' : ''}`}
+                                 </option>
+                               ))}
+                             </select>
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Sin mascotas configurado por defecto
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Depósito */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="deposito" className="form-label">
+                               Depósito <span className="text-success">✓</span>
+                             </label>
+                             <select
+                               className="form-select"
+                               id="deposito"
+                               name="deposito"
+                               value={formData.deposito}
+                               onChange={handleInputChange}
+                             >
+                               {opcionesDeposito.map(opcion => (
+                                 <option key={opcion} value={opcion}>
+                                   {opcion}
+                                 </option>
+                               ))}
+                             </select>
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               100% configurado por defecto
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Moneda */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="moneda" className="form-label">
+                               Moneda <span className="text-success">✓</span>
+                             </label>
+                             <select
+                               className="form-select"
+                               id="moneda"
+                               name="moneda"
+                               value={formData.moneda}
+                               onChange={handleInputChange}
+                             >
+                               {opcionesMoneda.map(opcion => (
+                                 <option key={opcion} value={opcion}>
+                                   {opcion}
+                                 </option>
+                               ))}
+                             </select>
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Colones configurado por defecto
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+
+                       {/* ===== COLUMNA DERECHA ===== */}
+                       <div className="col-12 col-lg-6">
+                         <div className="row">
+                           {/* Campo: Tipo de Pago Primer Depósito */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="tipoPagoPrimerDeposito" className="form-label">
+                               Tipo de Pago Primer Depósito <span className="text-success">✓</span>
+                             </label>
+                             <select
+                               className="form-select"
+                               id="tipoPagoPrimerDeposito"
+                               name="tipoPagoPrimerDeposito"
+                               value={formData.tipoPagoPrimerDeposito}
+                               onChange={handleInputChange}
+                             >
+                               {opcionesTipoPago.map(opcion => (
+                                 <option key={opcion} value={opcion}>
+                                   {opcion || "Seleccione el tipo de depósito"}
+                                 </option>
+                               ))}
+                             </select>
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Sinpe móvil configurado por defecto
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Tipo de Pago Segundo Depósito */}
+                           {mostrarSegundoDeposito && (
+                             <div className="col-12 mb-3">
+                               <label htmlFor="tipoPagoSegundoDeposito" className="form-label">
+                                 Tipo de Pago Segundo Depósito
+                               </label>
+                               <select
+                                 className="form-select"
+                                 id="tipoPagoSegundoDeposito"
+                                 name="tipoPagoSegundoDeposito"
+                                 value={formData.tipoPagoSegundoDeposito}
+                                 onChange={handleInputChange}
+                               >
+                                 {opcionesTipoPago.map(opcion => (
+                                   <option key={opcion} value={opcion}>
+                                     {opcion || "Seleccione el tipo de depósito"}
+                                   </option>
+                                 ))}
+                               </select>
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     </div>
 
                     {/* ===== SECCIÓN 4: BOTONES DE ACCIÓN ===== */}
                     {/* Botones de acción */}

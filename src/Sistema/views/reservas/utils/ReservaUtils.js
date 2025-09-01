@@ -19,19 +19,292 @@ export const opcionesMoneda = ["Colones", "Dólares"];
 export const opcionesTipoPago = ["", "Sinpe móvil", "Depósito"];
 
 // Opciones para el tipo de reserva (orden específico solicitado)
-export const opcionesTipoReserva = ["Reserva Local", "Airbnb", "Booking"];
+export const opcionesTipoReserva = ["WhatsApp", "Airbnb", "Booking"];
 
 // Opciones para los extras/servicios adicionales
 export const opcionesExtras = [
-  "WiFi",
-  "Aire acondicionado", 
-  "Cocina equipada",
-  "Estacionamiento",
-  "Servicio de limpieza",
-  "Desayuno incluido",
-  "Parrilla",
-  "Jacuzzi"
+  "Tabla de fiambres",
+  "Tabla de fresas", 
+  "Tabla de fiambres + vino",
+  "Vino",
+  "Decoración pétalos",
+  "Globos",
+  "Propuesta de matrimonio/ noviazgo"
 ];
+
+// Lista completa de nacionalidades
+export const nacionalidades = [
+  "No especifica",
+  "Afganistán",
+  "Albania",
+  "Alemania",
+  "Andorra",
+  "Angola",
+  "Anguilla",
+  "Antártida",
+  "Antigua y Barbuda",
+  "Antillas Holandesas",
+  "Arabia Saudí",
+  "Argelia",
+  "Argentina",
+  "Armenia",
+  "Aruba",
+  "Australia",
+  "Austria",
+  "Azerbaiyán",
+  "Bahamas",
+  "Bahrein",
+  "Bangladesh",
+  "Barbados",
+  "Bélgica",
+  "Belice",
+  "Benin",
+  "Bermudas",
+  "Bielorrusia",
+  "Birmania",
+  "Bolivia",
+  "Bosnia y Herzegovina",
+  "Botswana",
+  "Brasil",
+  "Brunei",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Bután",
+  "Cabo Verde",
+  "Camboya",
+  "Camerún",
+  "Canadá",
+  "Chad",
+  "Chile",
+  "China",
+  "Chipre",
+  "Ciudad del Vaticano (Santa Sede)",
+  "Colombia",
+  "Comores",
+  "Congo",
+  "Congo, República Democrática del",
+  "Corea",
+  "Corea del Norte",
+  "Costa de Marfíl",
+  "Costa Rica",
+  "Croacia (Hrvatska)",
+  "Cuba",
+  "Dinamarca",
+  "Djibouti",
+  "Dominica",
+  "Ecuador",
+  "Egipto",
+  "El Salvador",
+  "Emiratos Árabes Unidos",
+  "Eritrea",
+  "Eslovenia",
+  "España",
+  "Estados Unidos",
+  "Estonia",
+  "Etiopía",
+  "Fiji",
+  "Filipinas",
+  "Finlandia",
+  "Francia",
+  "Gabón",
+  "Gambia",
+  "Georgia",
+  "Ghana",
+  "Gibraltar",
+  "Granada",
+  "Grecia",
+  "Groenlandia",
+  "Guadalupe",
+  "Guam",
+  "Guatemala",
+  "Guayana",
+  "Guayana Francesa",
+  "Guinea",
+  "Guinea Ecuatorial",
+  "Guinea-Bissau",
+  "Haití",
+  "Honduras",
+  "Hungría",
+  "India",
+  "Indonesia",
+  "Irak",
+  "Irán",
+  "Irlanda",
+  "Isla Bouvet",
+  "Isla de Christmas",
+  "Islandia",
+  "Islas Caimán",
+  "Islas Cook",
+  "Islas de Cocos o Keeling",
+  "Islas Faroe",
+  "Islas Heard y McDonald",
+  "Islas Malvinas",
+  "Islas Marianas del Norte",
+  "Islas Marshall",
+  "Islas menores de Estados Unidos",
+  "Islas Palau",
+  "Islas Salomón",
+  "Islas Svalbard y Jan Mayen",
+  "Islas Tokelau",
+  "Islas Turks y Caicos",
+  "Islas Vírgenes (EEUU)",
+  "Islas Vírgenes (Reino Unido)",
+  "Islas Wallis y Futuna",
+  "Israel",
+  "Italia",
+  "Jamaica",
+  "Japón",
+  "Jordania",
+  "Kazajistán",
+  "Kenia",
+  "Kirguizistán",
+  "Kiribati",
+  "Kuwait",
+  "Laos",
+  "Lesotho",
+  "Letonia",
+  "Líbano",
+  "Liberia",
+  "Libia",
+  "Liechtenstein",
+  "Lituania",
+  "Luxemburgo",
+  "Macedonia, Ex-República Yugoslava de",
+  "Madagascar",
+  "Malasia",
+  "Malawi",
+  "Maldivas",
+  "Malí",
+  "Malta",
+  "Marruecos",
+  "Martinica",
+  "Mauricio",
+  "Mauritania",
+  "Mayotte",
+  "México",
+  "Micronesia",
+  "Moldavia",
+  "Mónaco",
+  "Mongolia",
+  "Montserrat",
+  "Mozambique",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Nicaragua",
+  "Níger",
+  "Nigeria",
+  "Niue",
+  "Norfolk",
+  "Noruega",
+  "Nueva Caledonia",
+  "Nueva Zelanda",
+  "Omán",
+  "Países Bajos",
+  "Panamá",
+  "Papúa Nueva Guinea",
+  "Paquistán",
+  "Paraguay",
+  "Perú",
+  "Pitcairn",
+  "Polinesia Francesa",
+  "Polonia",
+  "Portugal",
+  "Puerto Rico",
+  "Qatar",
+  "Reino Unido",
+  "República Centroafricana",
+  "República Checa",
+  "República de Sudáfrica",
+  "República Dominicana",
+  "República Eslovaca",
+  "Reunión",
+  "Ruanda",
+  "Rumania",
+  "Rusia",
+  "Sahara Occidental",
+  "Saint Kitts y Nevis",
+  "Samoa",
+  "Samoa Americana",
+  "San Marino",
+  "San Vicente y Granadinas",
+  "Santa Helena",
+  "Santa Lucía",
+  "Santo Tomé y Príncipe",
+  "Senegal",
+  "Seychelles",
+  "Sierra Leona",
+  "Singapur",
+  "Siria",
+  "Somalia",
+  "Sri Lanka",
+  "St Pierre y Miquelon",
+  "Suazilandia",
+  "Sudán",
+  "Suecia",
+  "Suiza",
+  "Surinam",
+  "Tailandia",
+  "Taiwán",
+  "Tanzania",
+  "Tayikistán",
+  "Territorios franceses del Sur",
+  "Timor Oriental",
+  "Togo",
+  "Tonga",
+  "Trinidad y Tobago",
+  "Túnez",
+  "Turkmenistán",
+  "Turquía",
+  "Tuvalu",
+  "Ucrania",
+  "Uganda",
+  "Uruguay",
+  "Uzbekistán",
+  "Vanuatu",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Yugoslavia",
+  "Zambia",
+  "Zimbabue"
+];
+
+// Opciones para mascotas
+export const opcionesMascotas = [
+  "No",
+  "1",
+  "2"
+];
+
+/**
+ * ========================================
+ * CONFIGURACIÓN DE CAPACIDAD POR CABAÑA
+ * ========================================
+ * Define la capacidad máxima de personas permitida para cada cabaña
+ */
+export const capacidadPorCabaña = {
+  1: 5,  // Antía - máximo 5 personas
+  2: 5,  // Lilliam - máximo 5 personas
+  3: 1,  // Luna - máximo 1 persona
+  4: 2,  // Roble Escondido - máximo 2 personas
+  5: 2,  // Glamping - máximo 2 personas
+  6: 8   // Colima - máximo 8 personas
+};
+
+/**
+ * ========================================
+ * FUNCIÓN PARA OBTENER CAPACIDAD MÁXIMA
+ * ========================================
+ * Obtiene la capacidad máxima de personas para una cabaña específica
+ * 
+ * @param {number} cabañaId - ID de la cabaña
+ * @returns {number} Capacidad máxima de personas
+ */
+export const getCapacidadMaxima = (cabañaId) => {
+  return capacidadPorCabaña[cabañaId] || 1; // Por defecto 1 si no se encuentra
+};
 
 /**
  * ========================================
@@ -46,11 +319,13 @@ export const opcionesExtras = [
 export const getInitialFormState = (reservaData = null) => ({
   // Información del cliente
   nombreCliente: reservaData?.nombreCliente || "",
-  emailCliente: reservaData?.emailCliente || "",
+  emailCliente: reservaData?.emailCliente || "magiadelpoas@gmail.com",
+  nacionalidad: reservaData?.nacionalidad || "Costa Rica",
+  mascotas: reservaData?.mascotas || "No",
   
   // Detalles de la reserva
   cantidadPersonas: reservaData?.cantidadPersonas || 1,
-  deposito: reservaData?.deposito || "50%",
+  deposito: reservaData?.deposito || "100%",
   moneda: reservaData?.moneda || "Colones",
   totalDepositado: reservaData?.totalDepositado || "",
   
@@ -62,12 +337,12 @@ export const getInitialFormState = (reservaData = null) => ({
   fechaIngreso: reservaData?.fechaIngreso || "",
   fechaSalida: reservaData?.fechaSalida || "",
   
-  // Tipos de pago para depósitos (vacíos por defecto)
-  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "",
+  // Tipos de pago para depósitos (Sinpe móvil por defecto para primer depósito)
+  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Sinpe móvil",
   tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "",
   
   // Tipo de reserva
-  tipoReserva: reservaData?.tipoReserva || "Reserva Local",
+  tipoReserva: reservaData?.tipoReserva || "WhatsApp",
   
   // Extras seleccionados (array)
   extras: reservaData?.extras || []
@@ -92,6 +367,9 @@ export const useReservaForm = (reservaData = null) => {
   // Estado del formulario con todos los campos
   const [formData, setFormData] = useState(getInitialFormState(reservaData));
   
+  // Estado para campos tocados (para validación visual)
+  const [touchedFields, setTouchedFields] = useState({});
+  
   // ===== ESTADOS PARA ARCHIVOS Y PREVIEWS =====
   
   // Archivos seleccionados
@@ -114,6 +392,12 @@ export const useReservaForm = (reservaData = null) => {
   const handleCabañaChange = (e) => {
     const cabañaId = e.target.value;
     setCabañaSeleccionada(cabañaId);
+    
+    // Marcar el campo como tocado para validación visual
+    setTouchedFields(prev => ({
+      ...prev,
+      cabañaId: true
+    }));
   };
 
   /**
@@ -125,6 +409,12 @@ export const useReservaForm = (reservaData = null) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+    
+    // Marcar el campo como tocado para validación visual
+    setTouchedFields(prev => ({
+      ...prev,
+      [name]: true
     }));
   };
 
@@ -139,6 +429,12 @@ export const useReservaForm = (reservaData = null) => {
     setFormData(prev => ({
       ...prev,
       extras: typeof value === 'string' ? value.split(',') : value,
+    }));
+    
+    // Marcar el campo como tocado para validación visual
+    setTouchedFields(prev => ({
+      ...prev,
+      extras: true
     }));
   };
 
@@ -255,6 +551,9 @@ export const useReservaForm = (reservaData = null) => {
   
   // Obtener la cabaña seleccionada para mostrar en el alert
   const cabañaActual = cabañas.find(c => c.id === parseInt(cabañaSeleccionada));
+  
+  // Obtener la capacidad máxima de la cabaña seleccionada
+  const capacidadMaxima = cabañaSeleccionada ? getCapacidadMaxima(parseInt(cabañaSeleccionada)) : null;
 
   // ===== RETORNO DEL HOOK =====
   return {
@@ -267,6 +566,8 @@ export const useReservaForm = (reservaData = null) => {
     segundoDepositoPreview,
     cabañas,
     cabañaActual,
+    capacidadMaxima,
+    touchedFields,
     
     // Funciones
     handleCabañaChange,
@@ -321,7 +622,7 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
   
   // Validar cantidad de personas
   if (!formData.cantidadPersonas || formData.cantidadPersonas < 1) {
-    errors.push("La cantidad de personas debe ser al menos 1");
+    errors.push("Debe seleccionar la cantidad de personas");
   }
 
   // Validar total depositado
@@ -358,8 +659,8 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
     errors.push("El tipo de pago del primer depósito es requerido cuando hay una imagen seleccionada");
   }
 
-  // Validar tipo de pago segundo depósito solo si hay imagen
-  if (segundoDeposito && !formData.tipoPagoSegundoDeposito) {
+  // Validar tipo de pago segundo depósito solo si hay imagen Y el depósito no es 100%
+  if (segundoDeposito && !formData.tipoPagoSegundoDeposito && formData.deposito !== "100%") {
     errors.push("El tipo de pago del segundo depósito es requerido cuando hay una imagen seleccionada");
   }
 
@@ -371,6 +672,80 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
   }
 
   return errors;
+};
+
+/**
+ * ========================================
+ * FUNCIÓN PARA OBTENER CLASES DE VALIDACIÓN
+ * ========================================
+ * Retorna las clases CSS para mostrar errores de validación visual
+ * 
+ * @param {string} fieldName - Nombre del campo
+ * @param {Object} formData - Datos del formulario
+ * @param {Object} touchedFields - Campos que han sido tocados
+ * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @returns {string} Clases CSS para el campo
+ */
+export const getValidationClasses = (fieldName, formData, touchedFields, cabañaSeleccionada = "") => {
+  const isTouched = touchedFields[fieldName];
+  const value = formData[fieldName];
+  
+  // Si el campo no ha sido tocado, no mostrar error
+  if (!isTouched) return "form-control form-select";
+  
+  // Validaciones específicas por campo
+  let isValid = true;
+  
+  switch (fieldName) {
+    case "cabañaId":
+      isValid = cabañaSeleccionada && cabañaSeleccionada !== "";
+      break;
+    case "nombreCliente":
+      isValid = value && value.trim() !== "";
+      break;
+    case "emailCliente":
+      isValid = value && value.trim() !== "" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      break;
+    case "cantidadPersonas":
+      isValid = value && value !== "";
+      break;
+    case "totalDepositado":
+      isValid = value && parseFloat(value) > 0;
+      break;
+    case "fechaIngreso":
+      isValid = value && value !== "";
+      break;
+    case "fechaSalida":
+      isValid = value && value !== "";
+      break;
+    case "horaIngreso":
+      isValid = value && value !== "";
+      break;
+    case "horaSalida":
+      isValid = value && value !== "";
+      break;
+    case "tipoReserva":
+      isValid = value && value !== "";
+      break;
+    case "deposito":
+      isValid = value && value !== "";
+      break;
+    case "moneda":
+      isValid = value && value !== "";
+      break;
+    case "tipoPagoPrimerDeposito":
+      // Solo validar si hay imagen del primer depósito
+      isValid = true; // Este campo es opcional si no hay imagen
+      break;
+    case "tipoPagoSegundoDeposito":
+      // Solo validar si hay imagen del segundo depósito y depósito es 50%
+      isValid = true; // Este campo es opcional
+      break;
+    default:
+      isValid = true;
+  }
+  
+  return isValid ? "form-control form-select" : "form-control form-select is-invalid";
 };
 
 /**

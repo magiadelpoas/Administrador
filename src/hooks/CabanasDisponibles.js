@@ -3,27 +3,32 @@ export const cabanasDisponibles = [
   {
     id: 1,
     nombre: "Antía",
-    color: "#a44ecc" // Azul hex
+    color: "#E03045" // Azul hex
   },
   {
     id: 2,
     nombre: "Lilliam",
-    color: "#fed852" // Púrpura hex
+    color: "#E0BD30" // Púrpura hex
   },
   {
     id: 3,
     nombre: "Luna",
-    color: "#5ac1f6" // Dorado hex
+    color: "#3DC2EC" // Dorado hex
   },
   {
     id: 4,
     nombre: "Roble Escondido",
-    color: "#e54f2c" // Verde bosque hex
+    color: "#2ECC71" // Verde bosque hex
   },
   {
     id: 5,
     nombre: "Glamping",
-    color: "#f7fac1" // Naranja hex
+    color: "#2471a3" // Naranja hex
+  },
+  {
+    id: 6,
+    nombre: "Colima",
+    color: "#9546bd" // Naranja hex
   }
 ];
 
