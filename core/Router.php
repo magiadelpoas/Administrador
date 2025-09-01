@@ -88,11 +88,14 @@ class Router {
      * @return string Patrón regex
      */
     private function convertPathToPattern($path) {
-        // Escapar caracteres especiales de regex excepto {}
-        $pattern = preg_quote($path, '/');
+        // Método más simple y directo
+        // Reemplazar {param} con ([^/]+) directamente
+        $pattern = preg_replace('/\{[^}]+\}/', '([^/]+)', $path);
         
-        // Convertir {param} a grupos de captura
-        $pattern = preg_replace('/\\\{([^}]+)\\\}/', '([^/]+)', $pattern);
+        // Escapar caracteres especiales de regex
+        $pattern = str_replace('/', '\/', $pattern);
+        
+        // Debug logs removidos para producción
         
         return '/^' . $pattern . '$/';
     }
@@ -105,8 +108,7 @@ class Router {
         $method = $_SERVER['REQUEST_METHOD'];
         $path = $this->getCurrentPath();
         
-        // Debug logging
-        error_log("Router Dispatch - Method: $method, Path: $path");
+        // Debug logging removido para producción
         
         // Manejar peticiones OPTIONS para CORS
         if ($method === 'OPTIONS') {
@@ -118,12 +120,9 @@ class Router {
         $matchedRoute = $this->findMatchingRoute($method, $path);
         
         if (!$matchedRoute) {
-            error_log("Router - No se encontró ruta para: $method $path");
             $this->handleNotFound($method);
             return;
         }
-        
-        error_log("Router - Ruta encontrada: " . $matchedRoute['path']);
         
         // Ejecutar el manejador de la ruta
         $this->executeHandler($matchedRoute);
@@ -156,17 +155,10 @@ class Router {
      * @return array|null Ruta coincidente o null
      */
     private function findMatchingRoute($method, $path) {
-        error_log("Router - Buscando ruta para: $method $path");
-        error_log("Router - Rutas registradas: " . count($this->routes));
-        
         foreach ($this->routes as $route) {
-            error_log("Router - Probando ruta: {$route['method']} {$route['path']} (patrón: {$route['pattern']})");
-            
             if ($route['method'] === $method && preg_match($route['pattern'], $path, $matches)) {
                 // Extraer parámetros de la ruta
                 $params = array_slice($matches, 1);
-                
-                error_log("Router - Ruta coincidente encontrada: {$route['path']} con parámetros: " . implode(', ', $params));
                 
                 return [
                     'handler' => $route['handler'],
@@ -176,7 +168,6 @@ class Router {
             }
         }
         
-        error_log("Router - No se encontró ruta coincidente");
         return null;
     }
     

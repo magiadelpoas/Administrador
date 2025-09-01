@@ -18,7 +18,7 @@ class AuthMiddleware {
      */
     public static function authenticate() {
         // Obtener el header de autorización
-        $headers = getallheaders();
+        $headers = self::getAllHeaders();
         $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? null;
         
         if (!$authHeader) {
@@ -78,6 +78,28 @@ class AuthMiddleware {
     public static function isAdmin() {
         $user = self::getCurrentUser();
         return $user && isset($user['id']);
+    }
+    
+    /**
+     * Obtiene todos los headers HTTP de forma compatible con CLI y web
+     * @return array Headers HTTP
+     */
+    private static function getAllHeaders() {
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+        
+        // Fallback para CLI y servidores que no tienen getallheaders
+        $headers = [];
+        
+        foreach ($_SERVER as $key => $value) {
+            if (substr($key, 0, 5) === 'HTTP_') {
+                $headerKey = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
+                $headers[$headerKey] = $value;
+            }
+        }
+        
+        return $headers;
     }
 }
 ?>
