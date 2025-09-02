@@ -111,7 +111,21 @@ export const ListaView = () => {
   // Función para formatear moneda
   const formatearMoneda = (monto, moneda) => {
     if (!monto) return 'N/A'
-    return `${monto} ${moneda || 'CRC'}`
+    
+    // Formatear el número con separadores de miles
+    const numeroFormateado = new Intl.NumberFormat('es-CR').format(monto)
+    
+    // Determinar el símbolo de moneda
+    let simboloMoneda = ''
+    if (moneda === 'USD' || moneda === 'Dolares') {
+      simboloMoneda = '$'
+    } else if (moneda === 'CRC' || moneda === 'Colones') {
+      simboloMoneda = '₡'
+    } else {
+      simboloMoneda = moneda || '₡'
+    }
+    
+    return `${simboloMoneda} ${numeroFormateado}`
   }
 
   // Función para formatear hora en formato 12 horas
