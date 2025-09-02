@@ -19,7 +19,8 @@ import {
   nacionalidades,
   opcionesMascotas,
   validateForm,
-  getValidationClasses
+  getValidationClasses,
+  getFieldError
 } from "../utils/ReservaUtils";
 import { 
   actualizarReserva, 
@@ -657,6 +658,12 @@ export const EditarView = () => {
                               required
                               disabled={isFormDisabled}
                             />
+                            {!isFormDisabled && getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                           </div>
                           
                           {/* Campo: Cantidad de Personas */}
@@ -708,6 +715,12 @@ export const EditarView = () => {
                               required
                               disabled={isFormDisabled}
                             />
+                            {!isFormDisabled && getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                           </div>
                           
                           {/* Campo: Fecha de Ingreso */}
@@ -989,6 +1002,12 @@ export const EditarView = () => {
                                onBlur={handleInputBlur}
                                disabled={isFormDisabled}
                              />
+                             {!isFormDisabled && getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada) && (
+                               <div className="invalid-feedback d-block">
+                                 <i className="fas fa-exclamation-circle me-1"></i>
+                                 {getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada)}
+                               </div>
+                             )}
                              <div className="form-text text-success">
                                <i className="fas fa-check me-1"></i>
                                Correo configurado por defecto (puede ser editado)

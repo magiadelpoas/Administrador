@@ -19,7 +19,8 @@ import {
   nacionalidades,
   opcionesMascotas,
   validateForm,
-  getValidationClasses
+  getValidationClasses,
+  getFieldError
 } from "../utils/ReservaUtils";
 import { crearReserva } from "../../../../Store/reservaThunks/reservaThunks";
 import { swalHelpers } from "../../../../utils/sweetalertConfig";
@@ -328,6 +329,12 @@ export const CrearView = () => {
                               onBlur={handleInputBlur}
                               required
                             />
+                            {getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                            </div>
                            
                            {/* Campo: Cantidad de Personas */}
@@ -377,6 +384,12 @@ export const CrearView = () => {
                               onBlur={handleInputBlur}
                               required
                             />
+                            {getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                            </div>
                            
                            {/* Campo: Fecha de Ingreso */}
@@ -411,6 +424,12 @@ export const CrearView = () => {
                               onBlur={handleInputBlur}
                               required
                             />
+                            {getFieldError("fechaSalida", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("fechaSalida", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                            </div>
                            
                            {/* Campo: Extras (Selección múltiple con Material-UI) */}
@@ -601,6 +620,12 @@ export const CrearView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                             />
+                            {getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada) && (
+                              <div className="invalid-feedback d-block">
+                                <i className="fas fa-exclamation-circle me-1"></i>
+                                {getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada)}
+                              </div>
+                            )}
                              <div className="form-text text-success">
                                <i className="fas fa-check me-1"></i>
                                Correo configurado por defecto (puede ser editado)

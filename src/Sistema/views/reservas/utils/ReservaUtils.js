@@ -868,6 +868,28 @@ export const validateField = (fieldName, value, formData = {}, cabañaSelecciona
 
 /**
  * ========================================
+ * FUNCIÓN PARA OBTENER MENSAJE DE ERROR INDIVIDUAL
+ * ========================================
+ * Retorna el mensaje de error específico para un campo si es inválido
+ * 
+ * @param {string} fieldName - Nombre del campo
+ * @param {Object} formData - Datos del formulario
+ * @param {Object} touchedFields - Campos que han sido tocados
+ * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const getFieldError = (fieldName, formData, touchedFields, cabañaSeleccionada = "") => {
+  const isTouched = touchedFields[fieldName];
+  
+  // Si el campo no ha sido tocado, no mostrar error
+  if (!isTouched) return null;
+  
+  // Usar la función validateField para obtener el error específico
+  return validateField(fieldName, formData[fieldName], formData, cabañaSeleccionada);
+};
+
+/**
+ * ========================================
  * FUNCIÓN PARA OBTENER CLASES DE VALIDACIÓN
  * ========================================
  * Retorna las clases CSS para mostrar errores de validación visual
