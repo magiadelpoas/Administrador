@@ -105,6 +105,9 @@ try {
     // GET /api/reservas - Listar reservas con paginación
     $router->get('/api/reservas', ['ReservaController', 'index']);
     
+    // GET /api/reservas/pendientes - Listar solo reservas pendientes
+    $router->get('/api/reservas/pendientes', ['ReservaController', 'pendientes']);
+    
     // GET /api/reservas/{id} - Obtener reserva específica
     $router->get('/api/reservas/{id}', ['ReservaController', 'show']);
     
