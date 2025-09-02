@@ -154,20 +154,21 @@ export const ListaView = () => {
              searching: true,
            },
            viewTotal: true,
-           columns: [ 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                       columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
          },
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-        order: [[2, 'desc']], // Ordenar por ID descendente
-        columnDefs: [
-          { orderable: false, targets: [0, 1] }, // Estado y Acciones no ordenables
-          { width: '80px', targets: [0, 1] }, // Ancho fijo para Estado y Acciones
-          { width: '100px', targets: [2] }, // Ancho fijo para ID
-          { width: '150px', targets: [3, 4, 5] }, // Ancho fijo para Cabaña, Cliente, Email
-          { width: '120px', targets: [6, 7, 8] }, // Ancho fijo para Personas, Depósito, Total
-          { width: '180px', targets: [9] }, // Ancho fijo para Fechas
-          { width: '120px', targets: [10, 11] } // Ancho fijo para Hora y Tipo Pago
-        ],
+                 order: [[3, 'desc']], // Ordenar por ID descendente (ahora en columna 3)
+         columnDefs: [
+           { orderable: false, targets: [0, 1] }, // Estado y Acciones no ordenables
+           { width: '80px', targets: [0, 1] }, // Ancho fijo para Estado y Acciones
+           { width: '150px', targets: [2] }, // Ancho fijo para Cliente
+           { width: '100px', targets: [3] }, // Ancho fijo para ID
+           { width: '150px', targets: [4, 5] }, // Ancho fijo para Cabaña, Email
+           { width: '120px', targets: [6, 7, 8] }, // Ancho fijo para Personas, Depósito, Total
+           { width: '180px', targets: [9] }, // Ancho fijo para Fechas
+           { width: '120px', targets: [10, 11] } // Ancho fijo para Hora y Tipo Pago
+         ],
         responsive: true,
         dom: 'lPBfrtip',
         buttons: [
@@ -320,22 +321,22 @@ export const ListaView = () => {
               ) : (
                                  <div className="table-responsive">
                    <table ref={tableRef} className="table table-striped table-hover">
-                    <thead className="table-dark">
-                      <tr>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                        <th>ID</th>
-                        <th>Cabaña</th>
-                        <th>Cliente</th>
-                        <th>Email</th>
-                        <th>Personas</th>
-                        <th>Depósito</th>
-                        <th>Total</th>
-                        <th>Fechas</th>
-                        <th>Hora Ingreso</th>
-                        <th>Tipo Pago</th>
-                      </tr>
-                    </thead>
+                                         <thead className="table-dark">
+                       <tr>
+                         <th>Estado</th>
+                         <th>Acciones</th>
+                         <th>Cliente</th>
+                         <th>ID</th>
+                         <th>Cabaña</th>
+                         <th>Email</th>
+                         <th>Personas</th>
+                         <th>Depósito</th>
+                         <th>Total</th>
+                         <th>Fechas</th>
+                         <th>Hora Ingreso</th>
+                         <th>Tipo Pago</th>
+                       </tr>
+                     </thead>
                     <tbody>
                       {reservas.map((reserva) => (
                         <tr key={reserva.id_reserva}>
@@ -353,6 +354,16 @@ export const ListaView = () => {
                               >
                                 <i className="fas fa-edit"></i>
                               </Link>
+                            </div>
+                          </td>
+                          <td>
+                            <div>
+                              <div className="fw-medium">
+                                {reserva.nombreCliente_reserva || 'N/A'}
+                              </div>
+                              <small className="text-muted">
+                                {reserva.nacionalidad_reserva || 'N/A'}
+                              </small>
                             </div>
                           </td>
                           <td>
@@ -374,16 +385,6 @@ export const ListaView = () => {
                               <span className="fw-medium">
                                 {reserva.cabanaNombre_reserva || 'N/A'}
                               </span>
-                            </div>
-                          </td>
-                          <td>
-                            <div>
-                              <div className="fw-medium">
-                                {reserva.nombreCliente_reserva || 'N/A'}
-                              </div>
-                              <small className="text-muted">
-                                {reserva.nacionalidad_reserva || 'N/A'}
-                              </small>
                             </div>
                           </td>
                           <td>
