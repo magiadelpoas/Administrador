@@ -126,6 +126,7 @@ export const EditarView = () => {
     touchedFields,
     handleCabañaChange,
     handleInputChange,
+    handleInputBlur,
     handleExtrasChange,
     handleFileChange,
     handleRemoveFile,
@@ -275,10 +276,36 @@ export const EditarView = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     
+    // Marcar todos los campos como tocados para mostrar errores visuales
+    const allFields = [
+      'cabañaId', 'tipoReserva', 'nombreCliente', 'emailCliente', 
+      'cantidadPersonas', 'totalDepositado', 'fechaIngreso', 'fechaSalida',
+      'horaIngreso', 'horaSalida'
+    ];
+    
+    // Forzar re-render con campos marcados como tocados
+    handleInputBlur({ target: { name: 'form-validation' } });
+    
     // Validar el formulario con los archivos
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
-      await swalHelpers.showValidationError(errors);
+      // Mostrar SweetAlert mejorado con lista de errores
+      await swalHelpers.showError(
+        '❌ Formulario Incompleto',
+        `
+          <div class="text-start">
+            <p class="mb-3"><strong>Por favor corrija los siguientes errores:</strong></p>
+            <ul class="list-unstyled">
+              ${errors.map(error => `<li class="mb-2">• ${error}</li>`).join('')}
+            </ul>
+            <hr>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Los campos marcados en rojo requieren atención
+            </p>
+          </div>
+        `
+      );
       return;
     }
     
@@ -626,7 +653,9 @@ export const EditarView = () => {
                               name="nombreCliente"
                               value={formData.nombreCliente}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -641,7 +670,9 @@ export const EditarView = () => {
                               name="cantidadPersonas"
                               value={formData.cantidadPersonas}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             >
                               <option value="">Seleccione cantidad de personas</option>
                               {capacidadMaxima && Array.from({ length: capacidadMaxima }, (_, i) => i + 1).map(num => (
@@ -673,7 +704,9 @@ export const EditarView = () => {
                               step="0.01"
                               value={formData.totalDepositado}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -689,7 +722,9 @@ export const EditarView = () => {
                               name="fechaIngreso"
                               value={formData.fechaIngreso}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -705,7 +740,9 @@ export const EditarView = () => {
                               name="fechaSalida"
                               value={formData.fechaSalida}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -754,7 +791,9 @@ export const EditarView = () => {
                               name="horaIngreso"
                               value={formData.horaIngreso}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -770,7 +809,9 @@ export const EditarView = () => {
                               name="horaSalida"
                               value={formData.horaSalida}
                               onChange={handleInputChange}
+                              onBlur={handleInputBlur}
                               required
+                              disabled={isFormDisabled}
                             />
                           </div>
                           
@@ -940,11 +981,13 @@ export const EditarView = () => {
                              </label>
                              <input
                                type="email"
-                               className="form-control"
+                               className={getValidationClasses("emailCliente", formData, touchedFields)}
                                id="emailCliente"
                                name="emailCliente"
                                value={formData.emailCliente}
                                onChange={handleInputChange}
+                               onBlur={handleInputBlur}
+                               disabled={isFormDisabled}
                              />
                              <div className="form-text text-success">
                                <i className="fas fa-check me-1"></i>

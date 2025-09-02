@@ -408,6 +408,39 @@ export const useReservaForm = (reservaData = null) => {
   };
 
   /**
+   * Maneja el evento blur para validación visual inmediata
+   * @param {Event} e - Evento del input
+   */
+  const handleInputBlur = (e) => {
+    const { name } = e.target;
+    
+    // Si es llamado desde la validación del formulario, marcar todos los campos como tocados
+    if (name === 'form-validation') {
+      const allFields = [
+        'cabañaId', 'tipoReserva', 'nombreCliente', 'emailCliente', 
+        'cantidadPersonas', 'totalDepositado', 'fechaIngreso', 'fechaSalida',
+        'horaIngreso', 'horaSalida'
+      ];
+      
+      const newTouchedFields = {};
+      allFields.forEach(field => {
+        newTouchedFields[field] = true;
+      });
+      
+      setTouchedFields(prev => ({
+        ...prev,
+        ...newTouchedFields
+      }));
+    } else {
+      // Marcar solo el campo específico como tocado
+      setTouchedFields(prev => ({
+        ...prev,
+        [name]: true
+      }));
+    }
+  };
+
+  /**
    * Maneja los cambios en el campo de extras (selección múltiple)
    * @param {Event} event - Evento del select múltiple de Material-UI
    */
@@ -642,6 +675,7 @@ export const useReservaForm = (reservaData = null) => {
     // Funciones
     handleCabañaChange,
     handleInputChange,
+    handleInputBlur,
     handleExtrasChange,
     handleFileChange,
     handleRemoveFile,
@@ -669,22 +703,29 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
   
   // Validar selección de cabaña
   if (!cabañaSeleccionada) {
-    errors.push("Debe seleccionar una cabaña");
+    errors.push("🏠 Debe seleccionar una cabaña");
+  }
+
+  // Validar tipo de reserva
+  if (!formData.tipoReserva) {
+    errors.push("📋 El tipo de reserva es requerido");
   }
 
   // Validar nombre del cliente
-  if (!formData.nombreCliente.trim()) {
-    errors.push("El nombre del cliente es requerido");
+  if (!formData.nombreCliente || !formData.nombreCliente.trim()) {
+    errors.push("👤 El nombre del cliente es requerido");
+  } else if (formData.nombreCliente.trim().length < 2) {
+    errors.push("👤 El nombre del cliente debe tener al menos 2 caracteres");
   }
 
   // Validar email del cliente
-  if (!formData.emailCliente.trim()) {
-    errors.push("El correo del cliente es requerido");
+  if (!formData.emailCliente || !formData.emailCliente.trim()) {
+    errors.push("📧 El correo del cliente es requerido");
   } else {
     // Validar formato de email con regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.emailCliente)) {
-      errors.push("El formato del correo electrónico no es válido");
+    if (!emailRegex.test(formData.emailCliente.trim())) {
+      errors.push("📧 El formato del correo electrónico no es válido (ejemplo: usuario@dominio.com)");
     }
   }
 
@@ -692,24 +733,28 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
   
   // Validar cantidad de personas
   if (!formData.cantidadPersonas || formData.cantidadPersonas < 1) {
-    errors.push("Debe seleccionar la cantidad de personas");
+    errors.push("👥 Debe seleccionar la cantidad de personas (mínimo 1)");
   }
 
   // Validar total depositado
-  if (!formData.totalDepositado || parseFloat(formData.totalDepositado) <= 0) {
-    errors.push("El total depositado debe ser mayor a 0");
+  if (!formData.totalDepositado) {
+    errors.push("💰 El total depositado es requerido");
+  } else if (parseFloat(formData.totalDepositado) <= 0) {
+    errors.push("💰 El total depositado debe ser mayor a 0");
+  } else if (isNaN(parseFloat(formData.totalDepositado))) {
+    errors.push("💰 El total depositado debe ser un número válido");
   }
 
   // ===== VALIDACIONES DE FECHAS =====
   
   // Validar fecha de ingreso
   if (!formData.fechaIngreso) {
-    errors.push("La fecha de ingreso es requerida");
+    errors.push("📅 La fecha de ingreso es requerida");
   }
 
   // Validar fecha de salida
   if (!formData.fechaSalida) {
-    errors.push("La fecha de salida es requerida");
+    errors.push("📅 La fecha de salida es requerida");
   }
 
   // Validar que la fecha de salida sea posterior a la de ingreso
@@ -718,30 +763,107 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
     const fechaSalida = new Date(formData.fechaSalida);
     
     if (fechaIngreso >= fechaSalida) {
-      errors.push("La fecha de salida debe ser posterior a la fecha de ingreso");
+      errors.push("📅 La fecha de salida debe ser posterior a la fecha de ingreso");
     }
+    
+    // Validar que las fechas no sean muy antiguas
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    if (fechaIngreso < hoy) {
+      errors.push("📅 La fecha de ingreso no puede ser anterior a hoy");
+    }
+  }
+
+  // ===== VALIDACIONES DE HORARIOS =====
+  
+  // Validar hora de ingreso
+  if (!formData.horaIngreso) {
+    errors.push("🕐 La hora de ingreso es requerida");
+  }
+
+  // Validar hora de salida
+  if (!formData.horaSalida) {
+    errors.push("🕐 La hora de salida es requerida");
   }
 
   // ===== VALIDACIONES DE TIPOS DE PAGO (CONDICIONALES) =====
   
   // Validar tipo de pago primer depósito solo si hay imagen
   if (primerDeposito && !formData.tipoPagoPrimerDeposito) {
-    errors.push("El tipo de pago del primer depósito es requerido cuando hay una imagen seleccionada");
+    errors.push("💳 El tipo de pago del primer depósito es requerido cuando hay una imagen seleccionada");
   }
 
   // Validar tipo de pago segundo depósito solo si hay imagen Y el depósito no es 100%
   if (segundoDeposito && !formData.tipoPagoSegundoDeposito && formData.deposito !== "100%") {
-    errors.push("El tipo de pago del segundo depósito es requerido cuando hay una imagen seleccionada");
-  }
-
-  // ===== VALIDACIONES ADICIONALES =====
-  
-  // Validar tipo de reserva
-  if (!formData.tipoReserva) {
-    errors.push("El tipo de reserva es requerido");
+    errors.push("💳 El tipo de pago del segundo depósito es requerido cuando hay una imagen seleccionada");
   }
 
   return errors;
+};
+
+/**
+ * ========================================
+ * FUNCIÓN PARA VALIDAR CAMPOS INDIVIDUALES
+ * ========================================
+ * Valida un campo específico y retorna el mensaje de error si existe
+ * 
+ * @param {string} fieldName - Nombre del campo
+ * @param {any} value - Valor del campo
+ * @param {Object} formData - Datos completos del formulario (para validaciones cruzadas)
+ * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @returns {string|null} Mensaje de error o null si es válido
+ */
+export const validateField = (fieldName, value, formData = {}, cabañaSeleccionada = "") => {
+  switch (fieldName) {
+    case "cabañaId":
+      if (!cabañaSeleccionada) return "Debe seleccionar una cabaña";
+      break;
+    case "nombreCliente":
+      if (!value || !value.trim()) return "El nombre del cliente es requerido";
+      if (value.trim().length < 2) return "El nombre debe tener al menos 2 caracteres";
+      break;
+    case "emailCliente":
+      if (!value || !value.trim()) return "El correo del cliente es requerido";
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value.trim())) return "El formato del correo no es válido";
+      break;
+    case "cantidadPersonas":
+      if (!value || value < 1) return "Debe seleccionar la cantidad de personas";
+      break;
+    case "totalDepositado":
+      if (!value) return "El total depositado es requerido";
+      if (parseFloat(value) <= 0) return "El total debe ser mayor a 0";
+      if (isNaN(parseFloat(value))) return "Debe ser un número válido";
+      break;
+    case "fechaIngreso":
+      if (!value) return "La fecha de ingreso es requerida";
+      const fechaIngreso = new Date(value);
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      if (fechaIngreso < hoy) return "La fecha no puede ser anterior a hoy";
+      break;
+    case "fechaSalida":
+      if (!value) return "La fecha de salida es requerida";
+      if (formData.fechaIngreso && value) {
+        const fechaIngreso = new Date(formData.fechaIngreso);
+        const fechaSalida = new Date(value);
+        if (fechaIngreso >= fechaSalida) return "Debe ser posterior a la fecha de ingreso";
+      }
+      break;
+    case "horaIngreso":
+      if (!value) return "La hora de ingreso es requerida";
+      break;
+    case "horaSalida":
+      if (!value) return "La hora de salida es requerida";
+      break;
+    case "tipoReserva":
+      if (!value) return "El tipo de reserva es requerido";
+      break;
+    default:
+      return null;
+  }
+  return null;
 };
 
 /**
@@ -760,8 +882,12 @@ export const getValidationClasses = (fieldName, formData, touchedFields, cabaña
   const isTouched = touchedFields[fieldName];
   const value = formData[fieldName];
   
-  // Si el campo no ha sido tocado, no mostrar error
-  if (!isTouched) return "form-control form-select";
+  // Determinar el tipo de campo para aplicar las clases correctas
+  const isSelectField = ['cabañaId', 'tipoReserva', 'cantidadPersonas', 'nacionalidad', 'mascotas', 'deposito', 'moneda', 'tipoPagoPrimerDeposito', 'tipoPagoSegundoDeposito'].includes(fieldName);
+  const baseClasses = isSelectField ? "form-select" : "form-control";
+  
+  // Si el campo no ha sido tocado, retornar clases base
+  if (!isTouched) return baseClasses;
   
   // Validaciones específicas por campo
   let isValid = true;
@@ -777,7 +903,7 @@ export const getValidationClasses = (fieldName, formData, touchedFields, cabaña
       isValid = value && value.trim() !== "" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
       break;
     case "cantidadPersonas":
-      isValid = value && value !== "";
+      isValid = value && value !== "" && value !== "0";
       break;
     case "totalDepositado":
       isValid = value && parseFloat(value) > 0;
@@ -787,6 +913,12 @@ export const getValidationClasses = (fieldName, formData, touchedFields, cabaña
       break;
     case "fechaSalida":
       isValid = value && value !== "";
+      // Validación adicional: fecha de salida debe ser posterior a la de ingreso
+      if (isValid && formData.fechaIngreso && value) {
+        const fechaIngreso = new Date(formData.fechaIngreso);
+        const fechaSalida = new Date(value);
+        isValid = fechaSalida > fechaIngreso;
+      }
       break;
     case "horaIngreso":
       isValid = value && value !== "";
@@ -815,7 +947,7 @@ export const getValidationClasses = (fieldName, formData, touchedFields, cabaña
       isValid = true;
   }
   
-  return isValid ? "form-control form-select" : "form-control form-select is-invalid";
+  return isValid ? baseClasses : `${baseClasses} is-invalid`;
 };
 
 /**

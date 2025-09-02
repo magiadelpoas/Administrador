@@ -57,6 +57,7 @@ export const CrearView = () => {
     touchedFields,
     handleCabañaChange,
     handleInputChange,
+    handleInputBlur,
     handleExtrasChange,
     handleFileChange,
     handleRemoveFile,
@@ -71,10 +72,42 @@ export const CrearView = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     
+    // Marcar todos los campos como tocados para mostrar errores visuales
+    const allFields = [
+      'cabañaId', 'tipoReserva', 'nombreCliente', 'emailCliente', 
+      'cantidadPersonas', 'totalDepositado', 'fechaIngreso', 'fechaSalida',
+      'horaIngreso', 'horaSalida'
+    ];
+    
+    // Actualizar touchedFields para mostrar validación visual
+    const newTouchedFields = {};
+    allFields.forEach(field => {
+      newTouchedFields[field] = true;
+    });
+    
+    // Forzar re-render con campos marcados como tocados
+    handleInputBlur({ target: { name: 'form-validation' } });
+    
     // Validar el formulario con los archivos
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
-      await swalHelpers.showValidationError(errors);
+      // Mostrar SweetAlert mejorado con lista de errores
+      await swalHelpers.showError(
+        '❌ Formulario Incompleto',
+        `
+          <div class="text-start">
+            <p class="mb-3"><strong>Por favor corrija los siguientes errores:</strong></p>
+            <ul class="list-unstyled">
+              ${errors.map(error => `<li class="mb-2">• ${error}</li>`).join('')}
+            </ul>
+            <hr>
+            <p class="text-muted small mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Los campos marcados en rojo requieren atención
+            </p>
+          </div>
+        `
+      );
       return;
     }
     
@@ -285,15 +318,16 @@ export const CrearView = () => {
                              <label htmlFor="nombreCliente" className="form-label">
                                Nombre del Cliente <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="text"
-                               className={getValidationClasses("nombreCliente", formData, touchedFields)}
-                               id="nombreCliente"
-                               name="nombreCliente"
-                               value={formData.nombreCliente}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="text"
+                              className={getValidationClasses("nombreCliente", formData, touchedFields)}
+                              id="nombreCliente"
+                              name="nombreCliente"
+                              value={formData.nombreCliente}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Cantidad de Personas */}
@@ -301,14 +335,15 @@ export const CrearView = () => {
                              <label htmlFor="cantidadPersonas" className="form-label">
                                Cantidad de Personas <span className="text-danger">*</span>
                              </label>
-                             <select
-                               className={getValidationClasses("cantidadPersonas", formData, touchedFields)}
-                               id="cantidadPersonas"
-                               name="cantidadPersonas"
-                               value={formData.cantidadPersonas}
-                               onChange={handleInputChange}
-                               required
-                             >
+                                                         <select
+                              className={getValidationClasses("cantidadPersonas", formData, touchedFields)}
+                              id="cantidadPersonas"
+                              name="cantidadPersonas"
+                              value={formData.cantidadPersonas}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            >
                                <option value="">Seleccione cantidad de personas</option>
                                {capacidadMaxima && Array.from({ length: capacidadMaxima }, (_, i) => i + 1).map(num => (
                                  <option key={num} value={num}>
@@ -330,17 +365,18 @@ export const CrearView = () => {
                              <label htmlFor="totalDepositado" className="form-label">
                                Total Depositado <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="number"
-                               className={getValidationClasses("totalDepositado", formData, touchedFields)}
-                               id="totalDepositado"
-                               name="totalDepositado"
-                               min="0"
-                               step="0.01"
-                               value={formData.totalDepositado}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="number"
+                              className={getValidationClasses("totalDepositado", formData, touchedFields)}
+                              id="totalDepositado"
+                              name="totalDepositado"
+                              min="0"
+                              step="0.01"
+                              value={formData.totalDepositado}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Fecha de Ingreso */}
@@ -348,15 +384,16 @@ export const CrearView = () => {
                              <label htmlFor="fechaIngreso" className="form-label">
                                Fecha de Ingreso <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="date"
-                               className={getValidationClasses("fechaIngreso", formData, touchedFields)}
-                               id="fechaIngreso"
-                               name="fechaIngreso"
-                               value={formData.fechaIngreso}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="date"
+                              className={getValidationClasses("fechaIngreso", formData, touchedFields)}
+                              id="fechaIngreso"
+                              name="fechaIngreso"
+                              value={formData.fechaIngreso}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Fecha de Salida */}
@@ -364,15 +401,16 @@ export const CrearView = () => {
                              <label htmlFor="fechaSalida" className="form-label">
                                Fecha de Salida <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="date"
-                               className={getValidationClasses("fechaSalida", formData, touchedFields)}
-                               id="fechaSalida"
-                               name="fechaSalida"
-                               value={formData.fechaSalida}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="date"
+                              className={getValidationClasses("fechaSalida", formData, touchedFields)}
+                              id="fechaSalida"
+                              name="fechaSalida"
+                              value={formData.fechaSalida}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Extras (Selección múltiple con Material-UI) */}
@@ -413,15 +451,16 @@ export const CrearView = () => {
                              <label htmlFor="horaIngreso" className="form-label">
                                Hora de Ingreso <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="time"
-                               className={getValidationClasses("horaIngreso", formData, touchedFields)}
-                               id="horaIngreso"
-                               name="horaIngreso"
-                               value={formData.horaIngreso}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="time"
+                              className={getValidationClasses("horaIngreso", formData, touchedFields)}
+                              id="horaIngreso"
+                              name="horaIngreso"
+                              value={formData.horaIngreso}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Hora de Salida */}
@@ -429,15 +468,16 @@ export const CrearView = () => {
                              <label htmlFor="horaSalida" className="form-label">
                                Hora de Salida <span className="text-danger">*</span>
                              </label>
-                             <input
-                               type="time"
-                               className={getValidationClasses("horaSalida", formData, touchedFields)}
-                               id="horaSalida"
-                               name="horaSalida"
-                               value={formData.horaSalida}
-                               onChange={handleInputChange}
-                               required
-                             />
+                                                         <input
+                              type="time"
+                              className={getValidationClasses("horaSalida", formData, touchedFields)}
+                              id="horaSalida"
+                              name="horaSalida"
+                              value={formData.horaSalida}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                              required
+                            />
                            </div>
                            
                            {/* Campo: Primer Depósito (Imagen) */}
@@ -552,14 +592,15 @@ export const CrearView = () => {
                              <label htmlFor="emailCliente" className="form-label">
                                Correo del Cliente <span className="text-success">✓</span>
                              </label>
-                             <input
-                               type="email"
-                               className="form-control"
-                               id="emailCliente"
-                               name="emailCliente"
-                               value={formData.emailCliente}
-                               onChange={handleInputChange}
-                             />
+                                                         <input
+                              type="email"
+                              className={getValidationClasses("emailCliente", formData, touchedFields)}
+                              id="emailCliente"
+                              name="emailCliente"
+                              value={formData.emailCliente}
+                              onChange={handleInputChange}
+                              onBlur={handleInputBlur}
+                            />
                              <div className="form-text text-success">
                                <i className="fas fa-check me-1"></i>
                                Correo configurado por defecto (puede ser editado)

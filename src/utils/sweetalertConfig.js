@@ -2,6 +2,7 @@
  * Configuración personalizada para SweetAlert2
  * Mantiene un estilo consistente en toda la aplicación
  */
+import Swal from 'sweetalert2';
 
 // Configuración base para todos los alerts
 export const swalConfig = {
