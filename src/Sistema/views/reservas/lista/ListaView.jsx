@@ -252,7 +252,11 @@ export const ListaView = () => {
                             </span>
                           </td>
                           <td>
-                            <span className="badge bg-primary">
+                            <span className={`badge ${
+                              reserva.deposito_reserva === '50%' ? 'bg-danger' : 
+                              reserva.deposito_reserva === '100%' ? 'bg-success' : 
+                              'bg-primary'
+                            }`}>
                               {reserva.deposito_reserva || 'N/A'}
                             </span>
                           </td>
