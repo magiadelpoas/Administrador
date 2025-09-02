@@ -60,3 +60,31 @@ export const getCabañasNombres = () => {
 export const getCabañasIds = () => {
   return cabanasDisponibles.map(cabaña => cabaña.id);
 };
+
+/**
+ * ========================================
+ * CONFIGURACIÓN DE CAPACIDAD POR CABAÑA
+ * ========================================
+ * Define la capacidad máxima de personas permitida para cada cabaña
+ */
+const capacidadPorCabaña = {
+  1: 5,  // Antía - máximo 5 personas
+  2: 5,  // Lilliam - máximo 5 personas
+  3: 2,  // Luna - máximo 2 personas
+  4: 2,  // Roble Escondido - máximo 2 personas
+  5: 2,  // Glamping - máximo 2 personas
+  6: 8   // Colima - máximo 8 personas
+};
+
+/**
+ * ========================================
+ * FUNCIÓN PARA OBTENER CAPACIDAD MÁXIMA
+ * ========================================
+ * Obtiene la capacidad máxima de personas para una cabaña específica
+ * 
+ * @param {number} cabañaId - ID de la cabaña
+ * @returns {number} Capacidad máxima de personas
+ */
+export const getCapacidadMaxima = (cabañaId) => {
+  return capacidadPorCabaña[cabañaId] || 1; // Por defecto 1 si no se encuentra
+};

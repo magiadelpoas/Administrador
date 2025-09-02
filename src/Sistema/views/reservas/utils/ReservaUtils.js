@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getCabañasColores } from "../../../../hooks/CabanasDisponibles";
+import { getCabañasColores, getCapacidadMaxima } from "../../../../hooks/CabanasDisponibles";
 import { swalHelpers } from "../../../../utils/sweetalertConfig";
 
 /**
@@ -279,33 +279,7 @@ export const opcionesMascotas = [
   "2"
 ];
 
-/**
- * ========================================
- * CONFIGURACIÓN DE CAPACIDAD POR CABAÑA
- * ========================================
- * Define la capacidad máxima de personas permitida para cada cabaña
- */
-export const capacidadPorCabaña = {
-  1: 5,  // Antía - máximo 5 personas
-  2: 5,  // Lilliam - máximo 5 personas
-  3: 1,  // Luna - máximo 1 persona
-  4: 2,  // Roble Escondido - máximo 2 personas
-  5: 2,  // Glamping - máximo 2 personas
-  6: 8   // Colima - máximo 8 personas
-};
-
-/**
- * ========================================
- * FUNCIÓN PARA OBTENER CAPACIDAD MÁXIMA
- * ========================================
- * Obtiene la capacidad máxima de personas para una cabaña específica
- * 
- * @param {number} cabañaId - ID de la cabaña
- * @returns {number} Capacidad máxima de personas
- */
-export const getCapacidadMaxima = (cabañaId) => {
-  return capacidadPorCabaña[cabañaId] || 1; // Por defecto 1 si no se encuentra
-};
+// Nota: getCapacidadMaxima ahora se importa desde CabanasDisponibles.js
 
 /**
  * ========================================
@@ -325,7 +299,7 @@ export const getInitialFormState = (reservaData = null) => ({
   mascotas: reservaData?.mascotas || "No",
   
   // Detalles de la reserva
-  cantidadPersonas: reservaData?.cantidadPersonas || 1,
+  cantidadPersonas: reservaData?.cantidadPersonas || 2,
   deposito: reservaData?.deposito || "100%",
   moneda: reservaData?.moneda || "Colones",
   totalDepositado: reservaData?.totalDepositado || "",
