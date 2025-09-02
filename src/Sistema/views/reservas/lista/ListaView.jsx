@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { obtenerReservas, eliminarReserva } from '../../../../Store/reservaThunks/reservaThunks'
+import { obtenerReservasPendientes, eliminarReserva } from '../../../../Store/reservaThunks/reservaThunks'
 import { swalHelpers } from '../../../../utils/sweetalertConfig'
 
 export const ListaView = () => {
@@ -21,11 +21,11 @@ export const ListaView = () => {
     cargarReservas()
   }, [])
 
-  // Función para cargar reservas
+  // Función para cargar reservas pendientes
   const cargarReservas = async (page = 1, search = '') => {
     try {
       setLoading(true)
-      const result = await obtenerReservas(page, 20, search)
+      const result = await obtenerReservasPendientes(page, 20, search)
       
       if (result.success) {
         setReservas(result.data)
@@ -39,8 +39,8 @@ export const ListaView = () => {
         swalHelpers.showError('Error', result.message)
       }
     } catch (error) {
-      console.error('Error al cargar reservas:', error)
-      swalHelpers.showError('Error', 'Error al cargar las reservas')
+      console.error('Error al cargar reservas pendientes:', error)
+      swalHelpers.showError('Error', 'Error al cargar las reservas pendientes')
     } finally {
       setLoading(false)
     }
@@ -156,7 +156,7 @@ export const ListaView = () => {
         <div className="col-12">
           <div className="card">
             <div className="card-header d-flex justify-content-between align-items-center">
-              <h4 className="card-title">Lista de Reservas</h4>
+              <h4 className="card-title">Lista de Reservas Pendientes</h4>
               <Link to="/reservas/crear" className="btn btn-primary">
                 <i className="fas fa-plus"></i> Nueva Reserva
               </Link>
@@ -181,7 +181,7 @@ export const ListaView = () => {
                 </div>
                 <div className="col-md-6 text-end">
                   <span className="text-muted">
-                    Total: {pagination.total_records} reservas
+                    Total: {pagination.total_records} reservas pendientes
                   </span>
                 </div>
               </div>
@@ -192,14 +192,14 @@ export const ListaView = () => {
                   <div className="spinner-border text-primary" role="status">
                     <span className="visually-hidden">Cargando...</span>
                   </div>
-                  <p className="mt-2">Cargando reservas...</p>
+                  <p className="mt-2">Cargando reservas pendientes...</p>
                 </div>
               ) : reservas.length === 0 ? (
                 <div className="text-center py-4">
                   <i className="fas fa-inbox fa-3x text-muted mb-3"></i>
-                  <h5 className="text-muted">No hay reservas</h5>
+                  <h5 className="text-muted">No hay reservas pendientes</h5>
                   <p className="text-muted">
-                    {searchTerm ? 'No se encontraron reservas con los criterios de búsqueda.' : 'Aún no se han creado reservas.'}
+                    {searchTerm ? 'No se encontraron reservas pendientes con los criterios de búsqueda.' : 'No hay reservas pendientes en este momento.'}
                   </p>
                 </div>
               ) : (
@@ -207,6 +207,8 @@ export const ListaView = () => {
                   <table className="table table-striped table-hover">
                     <thead className="table-dark">
                       <tr>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                         <th>ID</th>
                         <th>Cabaña</th>
                         <th>Cliente</th>
@@ -217,13 +219,27 @@ export const ListaView = () => {
                         <th>Fechas</th>
                         <th>Hora Ingreso</th>
                         <th>Tipo Pago</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {reservas.map((reserva) => (
                         <tr key={reserva.id_reserva}>
+                          <td>
+                            <span className={`badge ${getEstadoBadge(reserva.estado_reserva)}`}>
+                              {reserva.estado_reserva || 'pendiente'}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="d-flex gap-2">
+                              <Link 
+                                to={`/reservas/editar/${reserva.id_reserva}`} 
+                                className="btn btn-sm btn-warning"
+                                title="Editar"
+                              >
+                                <i className="fas fa-edit"></i>
+                              </Link>
+                            </div>
+                          </td>
                           <td>
                             <span className="badge bg-secondary">
                               #{reserva.id_reserva}
@@ -301,22 +317,6 @@ export const ListaView = () => {
                               {reserva.tipoPagoPrimerDeposito_reserva || 'N/A'}
                             </span>
                           </td>
-                          <td>
-                            <span className={`badge ${getEstadoBadge(reserva.estado_reserva)}`}>
-                              {reserva.estado_reserva || 'pendiente'}
-                            </span>
-                          </td>
-                                                     <td>
-                             <div className="d-flex gap-2">
-                               <Link 
-                                 to={`/reservas/editar/${reserva.id_reserva}`} 
-                                 className="btn btn-sm btn-warning"
-                                 title="Editar"
-                               >
-                                 <i className="fas fa-edit"></i>
-                               </Link>
-                             </div>
-                           </td>
                         </tr>
                       ))}
                     </tbody>
