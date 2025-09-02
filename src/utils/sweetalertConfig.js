@@ -87,6 +87,40 @@ export const swalHelpers = {
       html: Array.isArray(errors) ? errors.join('<br>') : errors
     });
   },
+
+  // Mostrar errores de validación con formato mejorado
+  showValidationErrors: (errors) => {
+    const errorList = Array.isArray(errors) ? errors : [errors];
+    const htmlContent = `
+      <div style="text-align: left; padding: 10px;">
+        <p style="margin-bottom: 15px; font-weight: bold;">Por favor corrija los siguientes errores:</p>
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #dc3545;">
+          ${errorList.map(error => `
+            <div style="margin-bottom: 10px; display: flex; align-items: flex-start;">
+              <span style="color: #dc3545; margin-right: 8px; font-weight: bold;">•</span>
+              <span>${error}</span>
+            </div>
+          `).join('')}
+        </div>
+        <hr style="margin: 15px 0; border-color: #dee2e6;">
+        <p style="color: #6c757d; font-size: 14px; margin-bottom: 0; display: flex; align-items: center;">
+          <i class="fas fa-info-circle" style="margin-right: 8px; color: #17a2b8;"></i>
+          Los campos marcados en rojo requieren atención
+        </p>
+      </div>
+    `;
+    
+    return Swal.fire({
+      title: '❌ Formulario Incompleto',
+      html: htmlContent,
+      icon: 'error',
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#dc3545',
+      customClass: {
+        popup: 'swal-wide'
+      }
+    });
+  },
   
   // Mostrar confirmación de acción
   showConfirmation: (title, message, confirmText = 'Sí, continuar') => {
@@ -112,7 +146,7 @@ export const swalHelpers = {
     return Swal.fire({
       ...swalConfigs.error,
       title,
-      text: message
+      html: message
     });
   },
   

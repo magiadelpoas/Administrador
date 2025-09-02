@@ -93,22 +93,7 @@ export const CrearView = () => {
     const errors = validateForm(formData, cabañaSeleccionada, primerDeposito, segundoDeposito);
     if (errors.length > 0) {
       // Mostrar SweetAlert mejorado con lista de errores
-      await swalHelpers.showError(
-        '❌ Formulario Incompleto',
-        `
-          <div class="text-start">
-            <p class="mb-3"><strong>Por favor corrija los siguientes errores:</strong></p>
-            <ul class="list-unstyled">
-              ${errors.map(error => `<li class="mb-2">• ${error}</li>`).join('')}
-            </ul>
-            <hr>
-            <p class="text-muted small mb-0">
-              <i class="fas fa-info-circle me-1"></i>
-              Los campos marcados en rojo requieren atención
-            </p>
-          </div>
-        `
-      );
+      await swalHelpers.showValidationErrors(errors);
       return;
     }
     

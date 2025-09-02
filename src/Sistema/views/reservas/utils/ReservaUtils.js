@@ -694,9 +694,10 @@ export const useReservaForm = (reservaData = null) => {
  * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
  * @param {File|null} primerDeposito - Archivo del primer depósito
  * @param {File|null} segundoDeposito - Archivo del segundo depósito
+ * @param {boolean} isEditMode - Indica si es modo edición (no valida fechas pasadas)
  * @returns {Array} Array de mensajes de error (vacío si no hay errores)
  */
-export const validateForm = (formData, cabañaSeleccionada, primerDeposito = null, segundoDeposito = null) => {
+export const validateForm = (formData, cabañaSeleccionada, primerDeposito = null, segundoDeposito = null, isEditMode = false) => {
   const errors = [];
 
   // ===== VALIDACIONES OBLIGATORIAS =====
@@ -766,12 +767,14 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
       errors.push("📅 La fecha de salida debe ser posterior a la fecha de ingreso");
     }
     
-    // Validar que las fechas no sean muy antiguas
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-    
-    if (fechaIngreso < hoy) {
-      errors.push("📅 La fecha de ingreso no puede ser anterior a hoy");
+    // Solo validar fechas pasadas para nuevas reservas (NO para modo edición)
+    if (!isEditMode) {
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+      
+      if (fechaIngreso < hoy) {
+        errors.push("📅 La fecha de ingreso no puede ser anterior a hoy");
+      }
     }
   }
 
@@ -812,9 +815,10 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
  * @param {any} value - Valor del campo
  * @param {Object} formData - Datos completos del formulario (para validaciones cruzadas)
  * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @param {boolean} isEditMode - Indica si es modo edición (no valida fechas pasadas)
  * @returns {string|null} Mensaje de error o null si es válido
  */
-export const validateField = (fieldName, value, formData = {}, cabañaSeleccionada = "") => {
+export const validateField = (fieldName, value, formData = {}, cabañaSeleccionada = "", isEditMode = false) => {
   switch (fieldName) {
     case "cabañaId":
       if (!cabañaSeleccionada) return "Debe seleccionar una cabaña";
@@ -838,10 +842,13 @@ export const validateField = (fieldName, value, formData = {}, cabañaSelecciona
       break;
     case "fechaIngreso":
       if (!value) return "La fecha de ingreso es requerida";
-      const fechaIngreso = new Date(value);
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-      if (fechaIngreso < hoy) return "La fecha no puede ser anterior a hoy";
+      // Solo validar fechas pasadas para nuevas reservas (NO para modo edición)
+      if (!isEditMode) {
+        const fechaIngreso = new Date(value);
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        if (fechaIngreso < hoy) return "La fecha no puede ser anterior a hoy";
+      }
       break;
     case "fechaSalida":
       if (!value) return "La fecha de salida es requerida";
@@ -876,16 +883,17 @@ export const validateField = (fieldName, value, formData = {}, cabañaSelecciona
  * @param {Object} formData - Datos del formulario
  * @param {Object} touchedFields - Campos que han sido tocados
  * @param {string} cabañaSeleccionada - ID de la cabaña seleccionada
+ * @param {boolean} isEditMode - Indica si es modo edición (no valida fechas pasadas)
  * @returns {string|null} Mensaje de error o null si es válido
  */
-export const getFieldError = (fieldName, formData, touchedFields, cabañaSeleccionada = "") => {
+export const getFieldError = (fieldName, formData, touchedFields, cabañaSeleccionada = "", isEditMode = false) => {
   const isTouched = touchedFields[fieldName];
   
   // Si el campo no ha sido tocado, no mostrar error
   if (!isTouched) return null;
   
   // Usar la función validateField para obtener el error específico
-  return validateField(fieldName, formData[fieldName], formData, cabañaSeleccionada);
+  return validateField(fieldName, formData[fieldName], formData, cabañaSeleccionada, isEditMode);
 };
 
 /**
