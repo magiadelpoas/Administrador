@@ -269,32 +269,46 @@ class ReservaController {
             
             $reservaData = $reservaResult['data'];
             
-            // Verificar que la reserva esté en estado pendiente
-            if ($reservaData['estado_reserva'] !== 'pendiente') {
-                Response::error('Solo se pueden confirmar reservas en estado pendiente', 400);
-                return;
-            }
+            // Permitir confirmar reservas en cualquier estado (reconfirmación incluida)
+            // No hay restricciones de estado para la confirmación
+            
+            // Determinar si es confirmación o reconfirmación
+            $isReconfirmation = $reservaData['estado_reserva'] === 'confirmado';
             
             // Confirmar reserva
             $result = $this->reservaModel->updateStatus($id, 'confirmado');
             
             if ($result['success']) {
-                // Enviar email de confirmación al cliente
+                // Personalizar mensaje según si es confirmación o reconfirmación
+                $actionMessage = $isReconfirmation ? 'reconfirmada' : 'confirmada';
+                $customMessage = "Reserva {$actionMessage} exitosamente";
+                
+                // Enviar email de confirmación al cliente (SIEMPRE, tanto para confirmaciones como reconfirmaciones)
                 $emailSent = EmailService::sendReservationConfirmation($reservaData);
                 
                 if ($emailSent) {
-                    error_log("Email de confirmación enviado exitosamente para reserva ID: " . $id);
+                    $emailMessage = $isReconfirmation ? 
+                        'Email de reconfirmación enviado al cliente' : 
+                        'Email de confirmación enviado al cliente';
+                    
+                    error_log("Email de confirmación/reconfirmación enviado exitosamente para reserva ID: " . $id);
                     Response::success([
-                        'message' => $result['message'],
-                        'email_sent' => true
-                    ], $result['message'] . ' - Email de confirmación enviado al cliente');
+                        'message' => $customMessage,
+                        'email_sent' => true,
+                        'is_reconfirmation' => $isReconfirmation
+                    ], $customMessage . ' - ' . $emailMessage);
                 } else {
-                    error_log("Error al enviar email de confirmación para reserva ID: " . $id);
+                    $emailMessage = $isReconfirmation ? 
+                        'No se pudo enviar el email de reconfirmación' : 
+                        'No se pudo enviar el email de confirmación';
+                    
+                    error_log("Error al enviar email de confirmación/reconfirmación para reserva ID: " . $id);
                     Response::success([
-                        'message' => $result['message'],
+                        'message' => $customMessage,
                         'email_sent' => false,
-                        'email_warning' => 'La reserva fue confirmada pero no se pudo enviar el email de confirmación'
-                    ], $result['message'] . ' - Advertencia: No se pudo enviar el email de confirmación');
+                        'email_warning' => 'La reserva fue ' . ($isReconfirmation ? 'reconfirmada' : 'confirmada') . ' pero no se pudo enviar el email',
+                        'is_reconfirmation' => $isReconfirmation
+                    ], $customMessage . ' - Advertencia: ' . $emailMessage);
                 }
             } else {
                 $statusCode = strpos($result['message'], 'no encontrada') !== false ? 404 : 400;

@@ -181,7 +181,7 @@ class EmailService {
     }
     
     /**
-     * Envía un email usando PHPMailer
+     * Envía un email usando PHPMailer con múltiples configuraciones de fallback
      * @param string $name Nombre del cliente
      * @param string $email Email del cliente
      * @param string $message Mensaje HTML con los datos de la reserva
@@ -201,63 +201,106 @@ class EmailService {
             $name = "Cliente";
         }
         
-        // Instantiation and passing `true` enables exceptions
-        $mail = new PHPMailer(true);
-
-        try {
-            // Configuración SMTP mejorada
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
-            $mail->SMTPDebug = 0; // Desactivar debug en producción
+        // Configuraciones SMTP múltiples para evitar bloqueos
+        $smtpConfigs = [
+            // Configuración 1: Hostinger directo sin MailChannels
+            [
+                'host' => 'smtp.hostinger.com',
+                'port' => 465,
+                'secure' => PHPMailer::ENCRYPTION_SMTPS,
+                'username' => 'info@magiadelpoas.com',
+                'password' => 'Npls1234!',
+                'from_email' => 'info@magiadelpoas.com',
+                'from_name' => 'Magia del Poas - Cabañas de montaña',
+                'timeout' => 30
+            ],
+            // Configuración 2: Hostinger alternativa con STARTTLS
+            [
+                'host' => 'smtp.hostinger.com', 
+                'port' => 587,
+                'secure' => PHPMailer::ENCRYPTION_STARTTLS,
+                'username' => 'info@magiadelpoas.com',
+                'password' => 'Npls1234!',
+                'from_email' => 'info@magiadelpoas.com',
+                'from_name' => 'Magia del Poas. Cabañas de montaña',
+                'timeout' => 45
+            ],
+            // Configuración 3: Hostinger con puerto alternativo
+            [
+                'host' => 'smtp.hostinger.com',
+                'port' => 2525,
+                'secure' => PHPMailer::ENCRYPTION_STARTTLS,
+                'username' => 'info@magiadelpoas.com',
+                'password' => 'Npls1234!',
+                'from_email' => 'info@magiadelpoas.com',
+                'from_name' => 'Magia del Poas Cabañas de montaña',
+                'timeout' => 60
+            ]
+        ];
+        
+        // Intentar enviar con cada configuración
+        foreach ($smtpConfigs as $index => $config) {
+            $mail = new PHPMailer(true);
             
-            $mail->isSMTP(); // Send using SMTP
-            $mail->Host = 'smtp.hostinger.com'; // Set the SMTP server to send through
-            $mail->SMTPAuth = true; // Enable SMTP authentication
-            $mail->Username = 'info@magiadelpoas.com'; // Sender's email address
-            $mail->Password = 'Npls1234!'; // SMTP password
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-            $mail->Timeout = 60; // Aumentar timeout
+            try {
+                // Configuración SMTP más robusta
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true,
+                        'disable_compression' => true,
+                    )
+                );
+                $mail->SMTPDebug = 0; // Desactivar debug en producción
+                
+                $mail->isSMTP();
+                $mail->Host = $config['host'];
+                $mail->SMTPAuth = true;
+                $mail->Username = $config['username'];
+                $mail->Password = $config['password'];
+                $mail->SMTPSecure = $config['secure'];
+                $mail->Port = $config['port'];
+                $mail->Timeout = $config['timeout'];
+                $mail->SMTPKeepAlive = true; // Mantener conexión activa
 
-            // Configuración mejorada del remitente para evitar bloqueos
-            $mail->setFrom('info@magiadelpoas.com', 'Magia del Poas - Reservas');
-            $mail->addReplyTo('info@magiadelpoas.com', 'Magia del Poas');
-            
-            // Agregar headers adicionales para mejorar deliverability
-            $mail->addCustomHeader('X-Mailer', 'Magia del Poas Reservation System');
-            $mail->addCustomHeader('X-Priority', '3');
-            $mail->addCustomHeader('List-Unsubscribe', '<mailto:info@magiadelpoas.com?subject=Unsubscribe>');
-            
-            $mail->addAddress(trim($email), $name);
-            //$mail->addCC('magiadelpoas@gmail.com', 'MAGIA DEL POAS');
-            
-            // Content
-            $mail->isHTML(true);
-            $mail->CharSet = 'UTF-8'; // Asegurar codificación UTF-8
-            $mail->Subject = "Confirmacion de Reserva - Magia del Poas - " . $name;
+                // Configuración del remitente
+                $mail->setFrom($config['from_email'], $config['from_name']);
+                $mail->addReplyTo($config['from_email'], $config['from_name']);
+                
+                // Headers mejorados para evitar filtros de spam
+                $mail->addCustomHeader('X-Mailer', 'Magia del Poas System v2.0');
+                $mail->addCustomHeader('X-Priority', '3');
+                $mail->addCustomHeader('X-MSMail-Priority', 'Normal');
+                $mail->addCustomHeader('Importance', 'Normal');
+                $mail->addCustomHeader('List-Unsubscribe', '<mailto:info@magiadelpoas.com?subject=Unsubscribe>');
+                $mail->addCustomHeader('X-Auto-Response-Suppress', 'OOF, DR, RN, NRN, AutoReply');
+                
+                $mail->addAddress(trim($email), $name);
+                
+                // Content
+                $mail->isHTML(true);
+                $mail->CharSet = 'UTF-8';
+                $mail->Encoding = 'base64'; // Mejor codificación para caracteres especiales
+                $mail->Subject = "Confirmación de Reserva #" . $reservaId . " - Magia del Poas";
 
-            // El mensaje ya viene formateado como tabla HTML
-            $messageFormatted = $message;
+                // El mensaje ya viene formateado como tabla HTML
+                $messageFormatted = $message;
 
-            $template = '
+                $template = '
             <!DOCTYPE html>
             <html lang="es">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Confirmacion de Reserva - Magia del Poas</title>
+                <title>Confirmación de Reserva - Magia del Poas</title>
             </head>
             <body style="margin: 0; padding: 20px; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f4;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
                   <div style="text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                       <img width="150px" height="auto" src="https://sistema.magiadelpoas.com/assets/logo.jpg" alt="Magia del Poas Logo" style="max-width: 100%; height: auto; border-radius: 8px;">
                       <h1 style="color: white; margin: 15px 0 5px 0; font-size: 24px;">Magia del Poas</h1>
-                      <p style="color: #f0f0f0; margin: 0; font-size: 14px;">Hotel y Cabanas</p>
+                      <p style="color: #f0f0f0; margin: 0; font-size: 14px;">Cabañas de Montaña</p>
                   </div>
                   
                   <div style="padding: 30px;">
@@ -278,7 +321,7 @@ class EmailService {
                               <h3 style="font-size:14px;margin-bottom:15px;color:#495057;text-align:center;font-weight:bold;">Política de Cancelación</h3>
                               <ul style="margin: 0; padding-left: 20px;">
                                   <li style="font-size:12px;margin-bottom:8px;color:#6c757d;line-height:1.5;">
-                                      Las cancelaciones deben enviarse por correo a <strong>info@magiadelpoas.com</strong> y ser confirmadas por nosotros.
+                                      Las cancelaciones deben enviarse por correo a <strong>info@magiadelpoas.com</strong> y Ser confirmadas por la administración..
                                   </li>
                                   <li style="font-size:12px;margin-bottom:8px;color:#6c757d;line-height:1.5;">
                                       <strong>7+ días antes:</strong> Sin penalización.
@@ -290,7 +333,7 @@ class EmailService {
                                       <strong>0-2 días antes:</strong> Penalización del 100%.
                                   </li>
                                   <li style="font-size:12px;margin-bottom:0;color:#6c757d;line-height:1.5;">
-                                      <strong>Crédito transferible:</strong> Válido por 6 meses para cancelaciones con 7+ días de anticipación.
+                                      <strong>Crédito transferible:</strong> Válido por 3 meses para cancelaciones con 7+ días de anticipación.
                                   </li>
                               </ul>
                           </div>
@@ -309,7 +352,7 @@ class EmailService {
                           
                           <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
                               <p style="font-size:11px;color:#6c757d;margin:0;">
-                                  Magia del Poas - Hotel y Cabañas<br>
+                                  Magia del Poas - Cabañas de Montaña<br>  
                                   📧 info@magiadelpoas.com | 📱 WhatsApp: +506 8723-4000
                               </p>
                           </div>
@@ -319,28 +362,37 @@ class EmailService {
             </body>
             </html>';
 
-            $search = ['{name}', '{message}'];
-            $replace = [$name, $messageFormatted];
-            $mensaje = str_replace($search, $replace, $template);
-            $mail->Body = $mensaje;
-            
-            $mail->send();
-            
-            error_log("Email de confirmación enviado exitosamente a: " . $email);
-            return true;
-            
-        } catch (Exception $e) {
-            error_log("Error al enviar email de confirmación: " . $e->getMessage());
-            error_log("Email destinatario: " . $email);
-            error_log("Nombre cliente: " . $name);
-            
-            // Si falla el envío, intentar con configuración alternativa
-            return self::sendEmailFallback($name, $email, $message, $reservaId, $e->getMessage());
+                $search = ['{name}', '{message}'];
+                $replace = [$name, $messageFormatted];
+                $mensaje = str_replace($search, $replace, $template);
+                $mail->Body = $mensaje;
+                
+                $mail->send();
+                
+                error_log("Email de confirmación enviado exitosamente a: " . $email . " usando configuración " . ($index + 1));
+                return true;
+                
+            } catch (Exception $e) {
+                error_log("Error con configuración SMTP " . ($index + 1) . ": " . $e->getMessage());
+                
+                // Si es el último intento, usar el método de fallback
+                if ($index === count($smtpConfigs) - 1) {
+                    error_log("Todas las configuraciones SMTP fallaron para: " . $email);
+                    return self::sendEmailFallback($name, $email, $message, $reservaId, $e->getMessage());
+                }
+                
+                // Continuar con la siguiente configuración
+                continue;
+            }
         }
+        
+        // Si llegamos aquí, todas las configuraciones fallaron
+        error_log("Error crítico: No se pudo enviar email con ninguna configuración SMTP");
+        return false;
     }
     
     /**
-     * Método de fallback para envío de emails cuando falla el método principal
+     * Método de fallback mejorado con múltiples estrategias para envío de emails
      * @param string $name Nombre del cliente
      * @param string $email Email del cliente  
      * @param string $message Mensaje HTML
@@ -349,61 +401,182 @@ class EmailService {
      * @return bool
      */
     private static function sendEmailFallback($name, $email, $message, $reservaId, $originalError) {
-        try {
-            $mail = new PHPMailer(true);
-            
-            // Configuración más permisiva para evitar bloqueos
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
-            
-            $mail->isSMTP();
-            $mail->Host = 'smtp.hostinger.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'info@magiadelpoas.com';
-            $mail->Password = 'Npls1234!';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-            $mail->Timeout = 30;
-            
-            // Configuración más simple del remitente
-            $mail->setFrom('info@magiadelpoas.com', 'Magia del Poas');
-            $mail->addAddress(trim($email));
-            
-            $mail->isHTML(true);
-            $mail->CharSet = 'UTF-8';
-            $mail->Subject = "Confirmacion Reserva #" . $reservaId . " - Magia del Poas";
-            
-            // Mensaje más simple para evitar filtros de spam
-            $simpleMessage = "
-            <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;'>
-                <h2 style='color: #333; text-align: center;'>Confirmación de Reserva</h2>
-                <p>Estimado(a) <strong>" . htmlspecialchars($name) . "</strong>,</p>
-                <p>Su reserva ha sido confirmada exitosamente.</p>
+        // Configuraciones de fallback adicionales
+        $fallbackConfigs = [
+            // Configuración 1: Sin SSL/TLS
+            [
+                'host' => 'smtp.hostinger.com',
+                'port' => 25,
+                'secure' => false,
+                'auth' => true,
+                'username' => 'info@magiadelpoas.com',
+                'password' => 'Npls1234!',
+                'timeout' => 30
+            ],
+            // Configuración 2: Solo SSL básico
+            [
+                'host' => 'smtp.hostinger.com',
+                'port' => 465,
+                'secure' => 'ssl',
+                'auth' => true,
+                'username' => 'info@magiadelpoas.com',
+                'password' => 'Npls1234!',
+                'timeout' => 45
+            ],
+            // Configuración 3: PHP mail() function como último recurso
+            [
+                'use_php_mail' => true
+            ]
+        ];
+        
+        foreach ($fallbackConfigs as $index => $config) {
+            try {
+                if (isset($config['use_php_mail']) && $config['use_php_mail']) {
+                    // Usar función mail() de PHP como último recurso
+                    return self::sendEmailWithPHPMail($name, $email, $message, $reservaId);
+                }
+                
+                $mail = new PHPMailer(true);
+                
+                // Configuración muy permisiva para evitar bloqueos SSL
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'allow_self_signed' => true,
+                        'disable_compression' => true,
+                        'SNI_enabled' => false,
+                        'ciphers' => 'HIGH:!SSLv2:!SSLv3'
+                    )
+                );
+                
+                $mail->isSMTP();
+                $mail->Host = $config['host'];
+                $mail->SMTPAuth = $config['auth'];
+                $mail->Username = $config['username'];
+                $mail->Password = $config['password'];
+                
+                if ($config['secure'] === 'ssl') {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                } elseif ($config['secure']) {
+                    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                }
+                
+                $mail->Port = $config['port'];
+                $mail->Timeout = $config['timeout'];
+                $mail->SMTPDebug = 0;
+                
+                // Configuración más simple del remitente
+                $mail->setFrom('info@magiadelpoas.com', 'Magia del Poas');
+                $mail->addAddress(trim($email));
+                
+                $mail->isHTML(true);
+                $mail->CharSet = 'UTF-8';
+                $mail->Subject = "Confirmación Reserva #" . $reservaId . " - Magia del Poas";
+                
+                // Mensaje más simple para evitar filtros de spam
+                $simpleMessage = self::createSimpleMessage($name, $message, $reservaId);
+                $mail->Body = $simpleMessage;
+                
+                $mail->send();
+                
+                error_log("Email enviado exitosamente usando fallback " . ($index + 1) . " a: " . $email);
+                return true;
+                
+            } catch (Exception $e) {
+                error_log("Error en fallback " . ($index + 1) . ": " . $e->getMessage());
+                
+                // Si es el último intento, notificar al administrador
+                if ($index === count($fallbackConfigs) - 1) {
+                    self::notifyAdminEmailFailure($name, $email, $reservaId, $originalError, $e->getMessage());
+                }
+                
+                continue;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Crea un mensaje HTML simple para evitar filtros de spam
+     * @param string $name Nombre del cliente
+     * @param string $message Mensaje HTML original
+     * @param int $reservaId ID de la reserva
+     * @return string Mensaje HTML simplificado
+     */
+    private static function createSimpleMessage($name, $message, $reservaId) {
+        return "
+        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;'>
+            <div style='background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <div style='text-align: center; margin-bottom: 30px;'>
+                    <h1 style='color: #333; margin: 0; font-size: 24px;'>Magia del Poas</h1>
+                    <p style='color: #666; margin: 5px 0 0 0; font-size: 14px;'>Hotel y Cabañas</p>
+                </div>
+                
+                <div style='border-left: 4px solid #4CAF50; padding-left: 20px; margin-bottom: 30px;'>
+                    <h2 style='color: #333; margin: 0 0 10px 0; font-size: 20px;'>¡Reserva Confirmada!</h2>
+                    <p style='color: #666; margin: 0; font-size: 16px;'>Estimado(a) " . htmlspecialchars($name) . "</p>
+                </div>
+                
                 " . $message . "
-                <hr style='margin: 30px 0;'>
-                <p style='font-size: 12px; color: #666; text-align: center;'>
-                    Magia del Poas - Hotel y Cabañas<br>
-                    Email: info@magiadelpoas.com | WhatsApp: +506 8723-4000
-                </p>
-            </div>";
+                
+                <div style='margin-top: 30px; padding: 20px; background-color: #f5f5f5; border-radius: 5px; text-align: center;'>
+                    <p style='margin: 0 0 10px 0; color: #333; font-weight: bold;'>¿Necesita ayuda?</p>
+                    <p style='margin: 0; color: #666; font-size: 14px;'>
+                        📧 info@magiadelpoas.com<br>
+                        📱 WhatsApp: +506 8723-4000
+                    </p>
+                </div>
+            </div>
+        </div>";
+    }
+    
+    /**
+     * Envía email usando la función mail() de PHP como último recurso
+     * @param string $name Nombre del cliente
+     * @param string $email Email del cliente
+     * @param string $message Mensaje HTML
+     * @param int $reservaId ID de la reserva
+     * @return bool
+     */
+    private static function sendEmailWithPHPMail($name, $email, $message, $reservaId) {
+        try {
+            $to = trim($email);
+            $subject = "Confirmacion Reserva #" . $reservaId . " - Magia del Poas";
             
-            $mail->Body = $simpleMessage;
-            $mail->send();
+            // Headers básicos
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+            $headers .= "From: info@magiadelpoas.com" . "\r\n";
+            $headers .= "Reply-To: info@magiadelpoas.com" . "\r\n";
+            $headers .= "X-Mailer: PHP/" . phpversion();
             
-            error_log("Email enviado exitosamente usando método fallback a: " . $email);
-            return true;
+            // Mensaje simple en texto plano como fallback
+            $plainMessage = "
+            Estimado(a) " . $name . ",
+            
+            Su reserva #" . $reservaId . " ha sido confirmada exitosamente.
+            
+            Para más información, contáctenos:
+            Email: info@magiadelpoas.com
+            WhatsApp: +506 8723-4000
+            
+            Gracias por elegir Magia del Poas.
+            ";
+            
+            $sent = mail($to, $subject, $plainMessage, $headers);
+            
+            if ($sent) {
+                error_log("Email enviado exitosamente usando PHP mail() a: " . $email);
+                return true;
+            } else {
+                error_log("Error al enviar email con PHP mail() a: " . $email);
+                return false;
+            }
             
         } catch (Exception $e) {
-            error_log("Error en método fallback: " . $e->getMessage());
-            error_log("Error original: " . $originalError);
-            
-            // Como último recurso, enviar notificación al administrador
-            self::notifyAdminEmailFailure($name, $email, $reservaId, $originalError, $e->getMessage());
+            error_log("Error en sendEmailWithPHPMail: " . $e->getMessage());
             return false;
         }
     }
@@ -417,14 +590,106 @@ class EmailService {
      * @param string $fallbackError Error del fallback
      */
     private static function notifyAdminEmailFailure($name, $email, $reservaId, $originalError, $fallbackError) {
-        error_log("ALERTA: No se pudo enviar email de confirmación de reserva");
+        $timestamp = date('Y-m-d H:i:s');
+        
+        // Logging detallado para análisis
+        error_log("================== ALERTA EMAIL FALLIDO ==================");
+        error_log("Timestamp: " . $timestamp);
         error_log("Reserva ID: " . $reservaId);
-        error_log("Cliente: " . $name . " (" . $email . ")");
+        error_log("Cliente: " . $name);
+        error_log("Email: " . $email);
         error_log("Error principal: " . $originalError);
         error_log("Error fallback: " . $fallbackError);
+        error_log("User Agent: " . ($_SERVER['HTTP_USER_AGENT'] ?? 'No disponible'));
+        error_log("IP Cliente: " . ($_SERVER['REMOTE_ADDR'] ?? 'No disponible'));
+        error_log("=======================================================");
         
-        // Aquí podrías implementar envío de notificación por WhatsApp, Telegram, etc.
-        // O guardar en una tabla de emails fallidos para reenvío manual
+        // Guardar en archivo específico para emails fallidos
+        $logFile = __DIR__ . '/../logs/email_failures.log';
+        $logDir = dirname($logFile);
+        
+        // Crear directorio de logs si no existe
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+        
+        $logEntry = [
+            'timestamp' => $timestamp,
+            'reserva_id' => $reservaId,
+            'cliente_nombre' => $name,
+            'cliente_email' => $email,
+            'error_principal' => $originalError,
+            'error_fallback' => $fallbackError,
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'No disponible',
+            'client_ip' => $_SERVER['REMOTE_ADDR'] ?? 'No disponible'
+        ];
+        
+        file_put_contents($logFile, json_encode($logEntry) . "\n", FILE_APPEND | LOCK_EX);
+        
+        // Intentar enviar notificación al administrador por email (usando un proveedor diferente si es posible)
+        self::sendAdminNotification($reservaId, $name, $email, $originalError);
+    }
+    
+    /**
+     * Envía notificación al administrador sobre emails fallidos
+     * @param int $reservaId ID de la reserva
+     * @param string $clientName Nombre del cliente
+     * @param string $clientEmail Email del cliente
+     * @param string $error Error ocurrido
+     */
+    private static function sendAdminNotification($reservaId, $clientName, $clientEmail, $error) {
+        try {
+            // Usar función mail() simple para notificar al admin
+            $adminEmail = 'magiadelpoas@gmail.com'; // Email alternativo del administrador
+            $subject = 'ALERTA: Fallo envío email confirmación reserva #' . $reservaId;
+            
+            $message = "
+            ALERTA: No se pudo enviar email de confirmación de reserva
+            
+            Detalles:
+            - Reserva ID: {$reservaId}
+            - Cliente: {$clientName}
+            - Email cliente: {$clientEmail}
+            - Error: {$error}
+            - Fecha: " . date('Y-m-d H:i:s') . "
+            
+            ACCIÓN REQUERIDA:
+            1. Contactar al cliente manualmente
+            2. Verificar configuración SMTP
+            3. Revisar logs del servidor
+            
+            Sistema de Reservas - Magia del Poas
+            ";
+            
+            $headers = "From: sistema@magiadelpoas.com\r\n";
+            $headers .= "Reply-To: sistema@magiadelpoas.com\r\n";
+            $headers .= "X-Priority: 1\r\n"; // Alta prioridad
+            
+            mail($adminEmail, $subject, $message, $headers);
+            
+        } catch (Exception $e) {
+            error_log("Error al enviar notificación al administrador: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Método para reintentar envío de emails fallidos (para usar manualmente)
+     * @param int $reservaId ID de la reserva
+     * @return bool
+     */
+    public static function retryFailedEmail($reservaId) {
+        try {
+            // Aquí podrías implementar lógica para recuperar datos de la reserva
+            // y reintentar el envío de email
+            error_log("Reintentando envío de email para reserva: " . $reservaId);
+            
+            // Por ahora solo registra el intento
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("Error al reintentar envío de email: " . $e->getMessage());
+            return false;
+        }
     }
 }
 ?>

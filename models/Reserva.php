@@ -549,8 +549,8 @@ class Reserva {
         // Definir transiciones permitidas
         $allowedTransitions = [
             'pendiente' => ['confirmado', 'cancelado'],
-            'cancelado' => ['pendiente'],
-            'confirmado' => [] // Una vez confirmado, no se puede cambiar
+            'cancelado' => ['pendiente', 'confirmado'],
+            'confirmado' => ['confirmado'] // Permitir reconfirmación
         ];
         
         // Si el estado es el mismo, no hay problema
@@ -571,9 +571,9 @@ class Reserva {
         
         if (!in_array($nuevoEstado, $allowedTransitions[$estadoActual])) {
             $messages = [
-                'confirmado' => 'No se puede cambiar el estado de una reserva confirmada',
+                'confirmado' => 'Las reservas confirmadas solo pueden ser reconfirmadas',
                 'pendiente' => 'Solo se puede cambiar a confirmado o cancelado desde pendiente',
-                'cancelado' => 'Solo se puede reactivar (cambiar a pendiente) desde cancelado'
+                'cancelado' => 'Se puede reactivar (pendiente) o confirmar directamente desde cancelado'
             ];
             
             return [
