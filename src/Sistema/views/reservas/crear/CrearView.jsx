@@ -552,18 +552,38 @@ export const CrearView = () => {
                              <label htmlFor="emailCliente" className="form-label">
                                Correo del Cliente <span className="text-success">✓</span>
                              </label>
-                                                           <input
-                                type="email"
-                                className="form-control"
-                                id="emailCliente"
-                                name="emailCliente"
-                                value={formData.emailCliente}
-                                onChange={handleInputChange}
-                              />
-                                                           <div className="form-text text-success">
-                                <i className="fas fa-check me-1"></i>
-                                Correo configurado por defecto (puede ser editado)
-                              </div>
+                             <input
+                               type="email"
+                               className="form-control"
+                               id="emailCliente"
+                               name="emailCliente"
+                               value={formData.emailCliente}
+                               onChange={handleInputChange}
+                             />
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Correo configurado por defecto (puede ser editado)
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Teléfono del Cliente */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="telefono" className="form-label">
+                               Teléfono del Cliente <span className="text-success">✓</span>
+                             </label>
+                             <input
+                               type="tel"
+                               className="form-control"
+                               id="telefono"
+                               name="telefono"
+                               value={formData.telefono}
+                               onChange={handleInputChange}
+                               placeholder="00"
+                             />
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Teléfono configurado por defecto como "00" (puede ser editado)
+                             </div>
                            </div>
                            
                            {/* Campo: Nacionalidad */}

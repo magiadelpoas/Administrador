@@ -70,6 +70,7 @@ export const EditarView = () => {
             cabañaId: result.data.cabanaId_reserva,
             nombreCliente: result.data.nombreCliente_reserva,
             emailCliente: result.data.emailCliente_reserva,
+            telefono: result.data.telefono_reserva || '00',
             nacionalidad: result.data.nacionalidad_reserva,
             mascotas: result.data.mascotas_reserva,
             cantidadPersonas: result.data.cantidadPersonas_reserva,
@@ -932,24 +933,44 @@ export const EditarView = () => {
                       {/* ===== COLUMNA IZQUIERDA ===== */}
                       <div className="col-12 col-lg-6">
                         <div className="row">
-                          {/* Campo: Correo del Cliente */}
-                          <div className="col-12 mb-3">
-                            <label htmlFor="emailCliente" className="form-label">
-                              Correo del Cliente <span className="text-success">✓</span>
-                            </label>
-                            <input
-                              type="email"
-                              className="form-control"
-                              id="emailCliente"
-                              name="emailCliente"
-                              value={formData.emailCliente}
-                              onChange={handleInputChange}
-                            />
-                            <div className="form-text text-success">
-                              <i className="fas fa-check me-1"></i>
-                              Correo configurado por defecto (puede ser editado)
-                            </div>
-                          </div>
+                                                     {/* Campo: Correo del Cliente */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="emailCliente" className="form-label">
+                               Correo del Cliente <span className="text-success">✓</span>
+                             </label>
+                             <input
+                               type="email"
+                               className="form-control"
+                               id="emailCliente"
+                               name="emailCliente"
+                               value={formData.emailCliente}
+                               onChange={handleInputChange}
+                             />
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Correo configurado por defecto (puede ser editado)
+                             </div>
+                           </div>
+                           
+                           {/* Campo: Teléfono del Cliente */}
+                           <div className="col-12 mb-3">
+                             <label htmlFor="telefono" className="form-label">
+                               Teléfono del Cliente <span className="text-success">✓</span>
+                             </label>
+                             <input
+                               type="tel"
+                               className="form-control"
+                               id="telefono"
+                               name="telefono"
+                               value={formData.telefono}
+                               onChange={handleInputChange}
+                               placeholder="00"
+                             />
+                             <div className="form-text text-success">
+                               <i className="fas fa-check me-1"></i>
+                               Teléfono configurado por defecto como "00" (puede ser editado)
+                             </div>
+                           </div>
                           
                           {/* Campo: Nacionalidad */}
                           <div className="col-12 mb-3">

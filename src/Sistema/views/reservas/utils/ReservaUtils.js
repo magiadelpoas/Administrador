@@ -295,6 +295,7 @@ export const getInitialFormState = (reservaData = null) => ({
   // Información del cliente
   nombreCliente: reservaData?.nombreCliente || "",
   emailCliente: reservaData?.emailCliente || "magiadelpoas@gmail.com",
+  telefono: reservaData?.telefono || "00",
   nacionalidad: reservaData?.nacionalidad || "Costa Rica",
   mascotas: reservaData?.mascotas || "No",
   
