@@ -66,14 +66,32 @@ export const ListaView = () => {
         }
       }
       
-      // Limpiar clases y atributos de DataTable
-      $(tableRef.current).removeClass('dataTable')
-      $(tableRef.current).removeAttr('style')
-      $(tableRef.current).find('thead, tbody').removeAttr('style')
-      $(tableRef.current).find('th, td').removeAttr('style')
+      // Limpiar completamente el DOM
+      const $table = $(tableRef.current)
+      const $wrapper = $table.closest('.dataTables_wrapper')
       
-      // Remover elementos adicionales que DataTable pueda haber creado
-      $(tableRef.current).parent().find('.dataTables_wrapper').remove()
+      if ($wrapper.length) {
+        // Si existe wrapper, remover todo el wrapper y recrear la tabla
+        const tableHTML = $table.prop('outerHTML')
+        $wrapper.remove()
+        
+        // Recrear la tabla en el contenedor
+        const $container = $('.table-responsive')
+        $container.html(tableHTML)
+        
+        // Actualizar la referencia
+        tableRef.current = $container.find('table')[0]
+      } else {
+        // Limpiar clases y atributos de DataTable
+        $table.removeClass('dataTable')
+        $table.removeAttr('style')
+        $table.find('thead, tbody').removeAttr('style')
+        $table.find('th, td').removeAttr('style')
+        $table.find('tr').removeAttr('style')
+        
+        // Remover todos los elementos adicionales
+        $table.parent().find('.dataTables_info, .dataTables_paginate, .dataTables_length, .dataTables_filter, .dt-buttons').remove()
+      }
     }
   }
 
@@ -144,18 +162,19 @@ export const ListaView = () => {
             loadMessage: "Cargando paneles de búsqueda...",
           }
         },
-        searchPanes: {
-          layout: isMobile ? "columns-1" : "columns-2",
-           initCollapsed: true,
-           cascadePanes: true,
-           dtOpts: {
-             select: { style: "multi" },
-             info: false,
-             searching: true,
-           },
-           viewTotal: true,
-                       columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-         },
+                 searchPanes: {
+           layout: isMobile ? "columns-1" : "columns-2",
+            initCollapsed: true,
+            cascadePanes: true,
+            dtOpts: {
+              select: { style: "multi" },
+              info: false,
+              searching: true,
+            },
+            viewTotal: true,
+            threshold: 0.1, // Reducir el umbral para mostrar más paneles
+            columns: [2, 4, 5, 7] // Forzar columnas específicas
+          },
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
                  order: [[3, 'desc']], // Ordenar por ID descendente (ahora en columna 3)
@@ -167,7 +186,10 @@ export const ListaView = () => {
            { width: '150px', targets: [4, 5] }, // Ancho fijo para Cabaña, Email
            { width: '120px', targets: [6, 7, 8] }, // Ancho fijo para Personas, Depósito, Total
            { width: '180px', targets: [9] }, // Ancho fijo para Fechas
-           { width: '120px', targets: [10, 11] } // Ancho fijo para Hora y Tipo Pago
+           { width: '120px', targets: [10, 11] }, // Ancho fijo para Hora y Tipo Pago
+           // Configuración específica para searchPanes
+           { searchPanes: { show: true }, targets: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }, // Forzar mostrar en searchPanes
+           { searchPanes: { show: false }, targets: [0, 1] } // No mostrar Estado y Acciones en searchPanes
          ],
         responsive: true,
         dom: 'lPBfrtip',
