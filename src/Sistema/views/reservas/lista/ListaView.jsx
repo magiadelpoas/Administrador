@@ -1,40 +1,91 @@
 
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { obtenerReservasPendientes, eliminarReserva } from '../../../../Store/reservaThunks/reservaThunks'
 import { swalHelpers } from '../../../../utils/sweetalertConfig'
+import $ from "jquery"
+import "datatables.net"
+import "datatables.net-bs5"
+import "datatables.net-searchpanes-bs5"
+import "datatables.net-select-bs5"
+import './ListaView.css'
 
 export const ListaView = () => {
   const [reservas, setReservas] = useState([])
   const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState({
-    current_page: 1,
-    per_page: 20,
-    total_records: 0,
-    total_pages: 0
-  })
   const [searchTerm, setSearchTerm] = useState('')
+  const tableRef = useRef(null)
+  const tableInstanceRef = useRef(null)
 
   // Cargar reservas al montar el componente
   useEffect(() => {
     cargarReservas()
+    
+    // Cleanup: destruir DataTable cuando el componente se desmonte
+    return () => {
+      if (tableInstanceRef.current && $.fn.DataTable.isDataTable(tableRef.current)) {
+        tableInstanceRef.current.destroy()
+        tableInstanceRef.current = null
+      }
+    }
   }, [])
 
+  // Efecto para reinicializar DataTables cuando cambien los datos
+  useEffect(() => {
+    if (reservas.length > 0 && tableRef.current) {
+      // Limpiar completamente la tabla existente
+      cleanupTable()
+      
+      // Inicializar DataTable con un pequeño delay para asegurar limpieza
+      setTimeout(() => {
+        initializeDataTable()
+      }, 100)
+    }
+  }, [reservas])
+
+  // Función para limpiar completamente la tabla
+  const cleanupTable = () => {
+    if (tableRef.current) {
+      // Destruir instancia de DataTable si existe
+      if (tableInstanceRef.current) {
+        try {
+          tableInstanceRef.current.destroy()
+        } catch (error) {
+          console.warn('Error al destruir DataTable:', error)
+        }
+        tableInstanceRef.current = null
+      }
+      
+      // Verificar y destruir con jQuery si aún existe
+      if ($.fn.DataTable.isDataTable(tableRef.current)) {
+        try {
+          $(tableRef.current).DataTable().destroy()
+        } catch (error) {
+          console.warn('Error al destruir con jQuery:', error)
+        }
+      }
+      
+      // Limpiar clases y atributos de DataTable
+      $(tableRef.current).removeClass('dataTable')
+      $(tableRef.current).removeAttr('style')
+      $(tableRef.current).find('thead, tbody').removeAttr('style')
+      $(tableRef.current).find('th, td').removeAttr('style')
+      
+      // Remover elementos adicionales que DataTable pueda haber creado
+      $(tableRef.current).parent().find('.dataTables_wrapper').remove()
+    }
+  }
+
   // Función para cargar reservas pendientes
-  const cargarReservas = async (page = 1, search = '') => {
+  const cargarReservas = async (search = '') => {
     try {
       setLoading(true)
-      const result = await obtenerReservasPendientes(page, 20, search)
+      // Obtener todas las reservas pendientes sin paginación para DataTables
+      const result = await obtenerReservasPendientes(1, 1000, search)
       
       if (result.success) {
         setReservas(result.data)
-        setPagination(result.pagination || {
-          current_page: 1,
-          per_page: 20,
-          total_records: result.data.length,
-          total_pages: 1
-        })
       } else {
         swalHelpers.showError('Error', result.message)
       }
@@ -46,15 +97,91 @@ export const ListaView = () => {
     }
   }
 
+  // Función para inicializar DataTables
+  const initializeDataTable = () => {
+    if (tableRef.current && !tableInstanceRef.current) {
+      // Asegurar que la tabla esté completamente limpia
+      cleanupTable()
+
+      const isMobile = window.innerWidth <= 768;
+      
+      // Inicializar DataTable y guardar la instancia
+      tableInstanceRef.current = $(tableRef.current).DataTable({
+        language: {
+          "sProcessing":     "Procesando...",
+          "sLengthMenu":     "Mostrar _MENU_ registros",
+          "sZeroRecords":    "No se encontraron resultados",
+          "sEmptyTable":     "Ningún dato disponible en esta tabla",
+          "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+          "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+          "sInfoPostFix":    "",
+          "sSearch":         "Buscar:",
+          "sUrl":            "",
+          "sInfoThousands":  ",",
+          "sLoadingRecords": "Cargando...",
+          "oPaginate": {
+            "sFirst":    "Primero",
+            "sLast":     "Último",
+            "sNext":     "Siguiente",
+            "sPrevious": "Anterior"
+          },
+          "oAria": {
+            "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+            "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+          },
+          "buttons": {
+            "copy": "Copiar",
+            "colvis": "Visibilidad"
+          },
+          searchPanes: {
+            title: "Filtros",
+            collapse: "Filtros",
+            clearMessage: "Limpiar Todo",
+            emptyPanes: "No hay datos para filtrar",
+            count: "{total}",
+            countFiltered: "{shown} ({total})",
+            loadMessage: "Cargando paneles de búsqueda...",
+          }
+        },
+        searchPanes: {
+          layout: isMobile ? "columns-1" : "columns-2",
+           initCollapsed: true,
+           cascadePanes: true,
+           dtOpts: {
+             select: { style: "multi" },
+             info: false,
+             searching: true,
+           },
+           viewTotal: true,
+           columns: [ 3, 4, 5, 6, 7, 8, 9, 10, 11],
+         },
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+        order: [[2, 'desc']], // Ordenar por ID descendente
+        columnDefs: [
+          { orderable: false, targets: [0, 1] }, // Estado y Acciones no ordenables
+          { width: '80px', targets: [0, 1] }, // Ancho fijo para Estado y Acciones
+          { width: '100px', targets: [2] }, // Ancho fijo para ID
+          { width: '150px', targets: [3, 4, 5] }, // Ancho fijo para Cabaña, Cliente, Email
+          { width: '120px', targets: [6, 7, 8] }, // Ancho fijo para Personas, Depósito, Total
+          { width: '180px', targets: [9] }, // Ancho fijo para Fechas
+          { width: '120px', targets: [10, 11] } // Ancho fijo para Hora y Tipo Pago
+        ],
+        responsive: true,
+        dom: 'lPBfrtip',
+        buttons: [
+          'searchPanes',
+          'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+      })
+    }
+  }
+
   // Función para manejar búsqueda
   const handleSearch = (e) => {
     e.preventDefault()
-    cargarReservas(1, searchTerm)
-  }
-
-  // Función para cambiar página
-  const handlePageChange = (page) => {
-    cargarReservas(page, searchTerm)
+    cargarReservas(searchTerm)
   }
 
   // Función para eliminar reserva
@@ -78,7 +205,7 @@ export const ListaView = () => {
           'La reserva ha sido cancelada exitosamente'
         )
         // Recargar la lista
-        cargarReservas(pagination.current_page, searchTerm)
+        cargarReservas(searchTerm)
       } else {
         swalHelpers.showError('Error', result.message)
       }
@@ -166,22 +293,10 @@ export const ListaView = () => {
               {/* Barra de búsqueda */}
               <div className="row mb-3">
                 <div className="col-md-6">
-                  <form onSubmit={handleSearch} className="d-flex">
-                    <input
-                      type="text"
-                      className="form-control me-2"
-                      placeholder="Buscar por cliente, email o cabaña..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button type="submit" className="btn btn-outline-primary">
-                      <i className="fas fa-search"></i>
-                    </button>
-                  </form>
                 </div>
                 <div className="col-md-6 text-end">
                   <span className="text-muted">
-                    Total: {pagination.total_records} reservas pendientes
+                    Total: {reservas.length} reservas pendientes
                   </span>
                 </div>
               </div>
@@ -203,8 +318,8 @@ export const ListaView = () => {
                   </p>
                 </div>
               ) : (
-                <div className="table-responsive">
-                  <table className="table table-striped table-hover">
+                                 <div className="table-responsive">
+                   <table ref={tableRef} className="table table-striped table-hover">
                     <thead className="table-dark">
                       <tr>
                         <th>Estado</th>
@@ -324,43 +439,7 @@ export const ListaView = () => {
                 </div>
               )}
 
-              {/* Paginación */}
-              {pagination.total_pages > 1 && (
-                <nav aria-label="Navegación de páginas">
-                  <ul className="pagination justify-content-center">
-                    <li className={`page-item ${pagination.current_page === 1 ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
-                        onClick={() => handlePageChange(pagination.current_page - 1)}
-                        disabled={pagination.current_page === 1}
-                      >
-                        <i className="fas fa-chevron-left"></i>
-                      </button>
-                    </li>
-                    
-                    {Array.from({ length: pagination.total_pages }, (_, i) => i + 1).map(page => (
-                      <li key={page} className={`page-item ${page === pagination.current_page ? 'active' : ''}`}>
-                        <button 
-                          className="page-link" 
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </button>
-                      </li>
-                    ))}
-                    
-                    <li className={`page-item ${pagination.current_page === pagination.total_pages ? 'disabled' : ''}`}>
-                      <button 
-                        className="page-link" 
-                        onClick={() => handlePageChange(pagination.current_page + 1)}
-                        disabled={pagination.current_page === pagination.total_pages}
-                      >
-                        <i className="fas fa-chevron-right"></i>
-                      </button>
-                    </li>
-                  </ul>
-                </nav>
-              )}
+              
             </div>
           </div>
         </div>
