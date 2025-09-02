@@ -37,6 +37,7 @@ class Reserva {
     public $segundoDeposito_reserva;
     public $isEdit_reserva;
     public $estado_reserva;
+    public $telefono_reserva;
     
     // Conexión a la base de datos
     private $db;
@@ -190,13 +191,13 @@ class Reserva {
                       horaSalida_reserva, fechaIngreso_reserva, fechaSalida_reserva, 
                       tipoPagoPrimerDeposito_reserva, tipoPagoSegundoDeposito_reserva, 
                       tipoReserva_reserva, extras_reserva, primerDeposito_reserva, 
-                      segundoDeposito_reserva, isEdit_reserva, estado_reserva) 
+                      segundoDeposito_reserva, isEdit_reserva, estado_reserva, telefono_reserva) 
                      VALUES 
                      (:cabanaId, :cabanaNombre, :cabanaColor, :nombreCliente, :emailCliente, 
                       :nacionalidad, :mascotas, :cantidadPersonas, :deposito, :moneda, 
                       :totalDepositado, :horaIngreso, :horaSalida, :fechaIngreso, :fechaSalida, 
                       :tipoPagoPrimer, :tipoPagoSegundo, :tipoReserva, :extras, :primerDeposito, 
-                      :segundoDeposito, :isEdit, :estado)";
+                      :segundoDeposito, :isEdit, :estado, :telefono)";
             
             $stmt = $this->db->prepare($query);
             
@@ -224,6 +225,7 @@ class Reserva {
             $stmt->bindValue(':segundoDeposito', $segundoDeposito);
             $stmt->bindValue(':isEdit', $data['isEdit_reserva'] ?? 'false');
             $stmt->bindValue(':estado', 'pendiente');
+            $stmt->bindValue(':telefono', $data['telefono_reserva'] ?? '00');
             
             if ($stmt->execute()) {
                 $newId = $this->db->lastInsertId();
@@ -301,7 +303,7 @@ class Reserva {
                 'moneda_reserva', 'totalDepositado_reserva', 'horaIngreso_reserva',
                 'horaSalida_reserva', 'fechaIngreso_reserva', 'fechaSalida_reserva',
                 'tipoPagoPrimerDeposito_reserva', 'tipoPagoSegundoDeposito_reserva',
-                'tipoReserva_reserva', 'extras_reserva', 'estado_reserva'
+                'tipoReserva_reserva', 'extras_reserva', 'estado_reserva', 'telefono_reserva'
             ];
             
             // Solo actualizar campos que han cambiado

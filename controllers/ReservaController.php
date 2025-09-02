@@ -329,7 +329,8 @@ class ReservaController {
             'tipoPagoSegundoDeposito' => 'tipoPagoSegundoDeposito_reserva',
             'tipoReserva' => 'tipoReserva_reserva',
             'extras' => 'extras_reserva',
-            'isEdit' => 'isEdit_reserva'
+            'isEdit' => 'isEdit_reserva',
+            'telefono' => 'telefono_reserva'
         ];
         
         foreach ($fieldMapping as $frontendField => $dbField) {
