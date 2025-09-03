@@ -174,6 +174,56 @@ export const obtenerReservasPendientes = async (page = 1, limit = 20, search = '
 };
 
 /**
+ * Obtener solo las reservas confirmadas con paginación
+ * @param {number} page - Número de página
+ * @param {number} limit - Límite de resultados por página
+ * @param {string} search - Término de búsqueda (opcional)
+ * @returns {Promise} Resultado de la operación
+ */
+export const obtenerReservasConfirmadas = async (page = 1, limit = 20, search = '') => {
+  try {
+    // Obtener token de autenticación
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
+    }
+    
+    // Configurar headers
+    const headers = {
+      'Authorization': `Bearer ${token}`
+    };
+    
+    // Construir query parameters
+    const params = new URLSearchParams();
+    if (page) params.append('page', page);
+    if (limit) params.append('limit', limit);
+    if (search) params.append('search', search);
+    
+    const queryString = params.toString();
+    const url = `/reservas/confirmadas${queryString ? `?${queryString}` : ''}`;
+    
+    // Realizar petición
+    const response = await api.get(url, { headers });
+    
+    return {
+      success: true,
+      data: response.data,
+      pagination: response.pagination,
+      message: response.message || 'Reservas confirmadas obtenidas exitosamente'
+    };
+    
+  } catch (error) {
+    console.error('Error al obtener reservas confirmadas:', error);
+    
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Error al obtener las reservas confirmadas',
+      error: error
+    };
+  }
+};
+
+/**
  * Obtener una reserva específica por ID
  * @param {number} id - ID de la reserva
  * @returns {Promise} Resultado de la operación

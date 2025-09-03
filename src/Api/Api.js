@@ -39,12 +39,12 @@ class Api {
     
     // Siempre usar apiMagia.com (con M mayúscula) para evitar problemas de DNS
     if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
-      return 'http://apiMagia.com/api';
+      return 'https://apimagia.magiadelpoas.com/api';
     } else if (currentHost === 'sistema.magiadelpoas.com') {
       return 'https://apimagia.magiadelpoas.com/api';
     } else {
       // Fallback para otros entornos - usar apiMagia.com
-      return 'http://apiMagia.com/api';
+      return 'https://apimagia.magiadelpoas.com/api';
     }
   }
 

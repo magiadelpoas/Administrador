@@ -125,16 +125,22 @@ export const NavBar = () => {
                   </span>
                 </a>
                 <ul className="pc-submenu" style={{ display: reservasMenuOpen ? "block" : "none" }}>
-                  <li className="pc-item">
-                    <Link to="/reservas/listar" className="pc-link">
-                      Ver reservas
-                    </Link>
-                  </li>
-                  <li className="pc-item">
+                <li className="pc-item">
                     <Link to="/reservas/crear" className="pc-link">
                       Crear Reserva
                     </Link>
                   </li>
+                  <li className="pc-item">
+                    <Link to="/reservas/listar" className="pc-link">
+                      Reservas Pendientes
+                    </Link>
+                  </li>
+                  <li className="pc-item">
+                    <Link to="/reservas/confirmadas" className="pc-link">
+                      Reservas confirmadas
+                    </Link>
+                  </li>
+                  
                 </ul>
               </li>
             </ul>
