@@ -313,8 +313,8 @@ export const getInitialFormState = (reservaData = null) => ({
   fechaIngreso: reservaData?.fechaIngreso || "",
   fechaSalida: reservaData?.fechaSalida || "",
   
-  // Tipos de pago para depósitos (Sinpe móvil por defecto para primer depósito)
-  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Sinpe móvil",
+  // Tipos de pago para depósitos (Depósito por defecto para primer depósito)
+  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Depósito",
   tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "",
   
   // Tipo de reserva

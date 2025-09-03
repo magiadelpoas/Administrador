@@ -766,7 +766,7 @@ export const CrearView = () => {
                              </select>
                              <div className="form-text text-success">
                                <i className="fas fa-check me-1"></i>
-                               Sinpe móvil configurado por defecto
+                               Depósito configurado por defecto
                              </div>
                            </div>
                            
