@@ -108,6 +108,9 @@ try {
     // GET /api/reservas/pendientes - Listar solo reservas pendientes
     $router->get('/api/reservas/pendientes', ['ReservaController', 'pendientes']);
     
+    // GET /api/reservas/confirmadas - Listar solo reservas confirmadas
+    $router->get('/api/reservas/confirmadas', ['ReservaController', 'confirmadas']);
+    
     // GET /api/reservas/{id} - Obtener reserva específica
     $router->get('/api/reservas/{id}', ['ReservaController', 'show']);
     

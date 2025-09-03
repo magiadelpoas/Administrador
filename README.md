@@ -207,6 +207,47 @@ Elimina un administrador (soft delete).
 Authorization: Bearer <token>
 ```
 
+### Reservas
+
+#### GET /api/reservas
+Lista todas las reservas con paginación.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Resultados por página (default: 20, max: 100)
+- `search` (opcional): Término de búsqueda
+
+#### GET /api/reservas/pendientes
+Lista solo las reservas pendientes con paginación.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Resultados por página (default: 20, max: 100)
+- `search` (opcional): Término de búsqueda
+
+#### GET /api/reservas/confirmadas
+Lista solo las reservas confirmadas con paginación.
+
+**Headers:**
+```
+Authorization: Bearer <token>
+```
+
+**Query Parameters:**
+- `page` (opcional): Número de página (default: 1)
+- `limit` (opcional): Resultados por página (default: 20, max: 100)
+- `search` (opcional): Término de búsqueda
+
 ### Utilidades
 
 #### GET /api/health
