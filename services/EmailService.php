@@ -390,6 +390,16 @@ class EmailService {
                               </a>
                           </div>
                           
+                          <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #dee2e6;">
+                              <p style="font-size:12px;margin-bottom:10px;color:#6c757d;">Redes Sociales:</p>
+                              <a href="https://www.facebook.com/share/161QiswyvN/?mibextid=wwXIfr" style="display: inline-block; margin: 0 5px; text-decoration: none; padding: 8px 12px; background-color: #1877F2; color: white; border-radius: 5px; font-size: 12px;">
+                                  👍 Facebook
+                              </a>
+                              <a href="https://www.instagram.com/_magiadelpoas_?igsh=NmhrbWV6cDJ6bDZt&utm_source=qr" style="display: inline-block; margin: 0 5px; text-decoration: none; padding: 8px 12px; background-color: #E4405F; color: white; border-radius: 5px; font-size: 12px;">
+                                  📷 Instagram
+                              </a>
+                          </div>
+                          
                           <div style="text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6;">
                               <p style="font-size:11px;color:#6c757d;margin:0;">
                                   Magia del Poas - Cabañas de Montaña<br>
