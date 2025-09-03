@@ -294,7 +294,7 @@ export const opcionesMascotas = [
 export const getInitialFormState = (reservaData = null) => ({
   // Información del cliente
   nombreCliente: reservaData?.nombreCliente || "",
-  emailCliente: reservaData?.emailCliente || "magiadelpoas@gmail.com",
+  emailCliente: reservaData?.emailCliente || "info@magiadelpoas.com",
   telefono: reservaData?.telefono || "00",
   nacionalidad: reservaData?.nacionalidad || "Costa Rica",
   mascotas: reservaData?.mascotas || "No",
@@ -746,7 +746,6 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
     errors.push("💰 El total depositado debe ser un número válido");
   }
 
-  // ===== VALIDACIONES DE FECHAS =====
   
   // Validar fecha de ingreso
   if (!formData.fechaIngreso) {
@@ -758,23 +757,13 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
     errors.push("📅 La fecha de salida es requerida");
   }
 
-  // Validar que la fecha de salida sea posterior a la de ingreso
+  // Validar que la fecha de salida sea igual o posterior a la de ingreso
   if (formData.fechaIngreso && formData.fechaSalida) {
     const fechaIngreso = new Date(formData.fechaIngreso);
     const fechaSalida = new Date(formData.fechaSalida);
     
-    if (fechaIngreso >= fechaSalida) {
-      errors.push("📅 La fecha de salida debe ser posterior a la fecha de ingreso");
-    }
-    
-    // Solo validar fechas pasadas para nuevas reservas (NO para modo edición)
-    if (!isEditMode) {
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
-      
-      if (fechaIngreso < hoy) {
-        errors.push("📅 La fecha de ingreso no puede ser anterior a hoy");
-      }
+    if (fechaIngreso > fechaSalida) {
+      errors.push("📅 La fecha de salida debe ser igual o posterior a la fecha de ingreso");
     }
   }
 
@@ -842,20 +831,13 @@ export const validateField = (fieldName, value, formData = {}, cabañaSelecciona
       break;
     case "fechaIngreso":
       if (!value) return "La fecha de ingreso es requerida";
-      // Solo validar fechas pasadas para nuevas reservas (NO para modo edición)
-      if (!isEditMode) {
-        const fechaIngreso = new Date(value);
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        if (fechaIngreso < hoy) return "La fecha no puede ser anterior a hoy";
-      }
       break;
     case "fechaSalida":
       if (!value) return "La fecha de salida es requerida";
       if (formData.fechaIngreso && value) {
         const fechaIngreso = new Date(formData.fechaIngreso);
         const fechaSalida = new Date(value);
-        if (fechaIngreso >= fechaSalida) return "Debe ser posterior a la fecha de ingreso";
+        if (fechaIngreso > fechaSalida) return "Debe ser igual o posterior a la fecha de ingreso";
       }
       break;
     case "horaIngreso":
@@ -943,11 +925,11 @@ export const getValidationClasses = (fieldName, formData, touchedFields, cabaña
       break;
     case "fechaSalida":
       isValid = value && value !== "";
-      // Validación adicional: fecha de salida debe ser posterior a la de ingreso
+      // Validación adicional: fecha de salida debe ser igual o posterior a la de ingreso
       if (isValid && formData.fechaIngreso && value) {
         const fechaIngreso = new Date(formData.fechaIngreso);
         const fechaSalida = new Date(value);
-        isValid = fechaSalida > fechaIngreso;
+        isValid = fechaSalida >= fechaIngreso;
       }
       break;
     case "horaIngreso":
