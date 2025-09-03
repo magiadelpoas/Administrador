@@ -266,12 +266,12 @@ export const ListaView = () => {
     
     // Determinar el símbolo de moneda
     let simboloMoneda = ''
-    if (moneda === 'USD' || moneda === 'Dolares') {
+    if (moneda === 'USD' || moneda === 'Dolares' || moneda === 'Dólares') {
       simboloMoneda = '$'
     } else if (moneda === 'CRC' || moneda === 'Colones') {
       simboloMoneda = '₡'
     } else {
-      simboloMoneda = moneda || '₡'
+      simboloMoneda = '₡' // Default a colones
     }
     
     return `${simboloMoneda} ${numeroFormateado}`
