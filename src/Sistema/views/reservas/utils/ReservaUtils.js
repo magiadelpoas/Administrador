@@ -17,7 +17,7 @@ export const opcionesDeposito = ["50%", "100%"];
 export const opcionesMoneda = ["Colones", "Dólares"];
 
 // Opciones para los tipos de pago (incluye opción vacía)
-export const opcionesTipoPago = ["", "Sinpe móvil", "Depósito"];
+export const opcionesTipoPago = ["", "Sinpe móvil", "Depósito", "Efectivo"];
 
 // Opciones para el tipo de reserva (orden específico solicitado)
 export const opcionesTipoReserva = ["WhatsApp", "Airbnb", "Booking"];
@@ -283,6 +283,23 @@ export const opcionesMascotas = [
 
 /**
  * ========================================
+ * FUNCIÓN AUXILIAR PARA TIPO DE PAGO
+ * ========================================
+ * Determina el tipo de pago por defecto basado en el tipo de reserva
+ * 
+ * @param {string} tipoReserva - Tipo de reserva (WhatsApp, Airbnb, Booking)
+ * @returns {string} Tipo de pago por defecto
+ */
+export const getDefaultPaymentType = (tipoReserva) => {
+  if (tipoReserva === "WhatsApp") {
+    return "Sinpe móvil";
+  }
+  // Para Airbnb y Booking, o cualquier otro tipo
+  return "Depósito";
+};
+
+/**
+ * ========================================
  * FUNCIÓN PARA OBTENER ESTADO INICIAL
  * ========================================
  * Crea el estado inicial del formulario, ya sea para una nueva reserva
@@ -291,7 +308,14 @@ export const opcionesMascotas = [
  * @param {Object|null} reservaData - Datos de una reserva existente (opcional)
  * @returns {Object} Estado inicial del formulario con valores por defecto
  */
-export const getInitialFormState = (reservaData = null) => ({
+export const getInitialFormState = (reservaData = null) => {
+  // Determinar tipo de reserva
+  const tipoReserva = reservaData?.tipoReserva || "WhatsApp";
+  
+  // Obtener tipo de pago por defecto basado en el tipo de reserva
+  const defaultPaymentType = getDefaultPaymentType(tipoReserva);
+  
+  return {
   // Información del cliente
   nombreCliente: reservaData?.nombreCliente || "",
   emailCliente: reservaData?.emailCliente || "info@magiadelpoas.com",
@@ -313,19 +337,20 @@ export const getInitialFormState = (reservaData = null) => ({
   fechaIngreso: reservaData?.fechaIngreso || "",
   fechaSalida: reservaData?.fechaSalida || "",
   
-  // Tipos de pago para depósitos (Depósito por defecto para primer depósito)
-  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || "Depósito",
+  // Tipos de pago para depósitos (dinámicos según tipo de reserva)
+  tipoPagoPrimerDeposito: reservaData?.tipoPagoPrimerDeposito || defaultPaymentType,
   tipoPagoSegundoDeposito: reservaData?.tipoPagoSegundoDeposito || "",
   
   // Tipo de reserva
-  tipoReserva: reservaData?.tipoReserva || "WhatsApp",
+  tipoReserva: tipoReserva,
   
   // Estado de la reserva
   estado: reservaData?.estado || "pendiente",
   
   // Extras seleccionados (array)
   extras: reservaData?.extras || []
-});
+  };
+};
 
 /**
  * ========================================
@@ -395,10 +420,23 @@ export const useReservaForm = (reservaData = null) => {
    */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    
+    // Actualizar el campo modificado
+    const newFormData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    
+    // Si se cambió el tipo de reserva, actualizar tipos de pago automáticamente
+    if (name === 'tipoReserva') {
+      const defaultPaymentType = getDefaultPaymentType(value);
+      
+      // Actualizar ambos tipos de pago
+      newFormData.tipoPagoPrimerDeposito = defaultPaymentType;
+      newFormData.tipoPagoSegundoDeposito = defaultPaymentType;
+    }
+    
+    setFormData(newFormData);
     
     // Marcar el campo como tocado para validación visual
     setTouchedFields(prev => ({
@@ -786,8 +824,8 @@ export const validateForm = (formData, cabañaSeleccionada, primerDeposito = nul
     errors.push("💳 El tipo de pago del primer depósito es requerido cuando hay una imagen seleccionada");
   }
 
-  // Validar tipo de pago segundo depósito solo si hay imagen Y el depósito no es 100%
-  if (segundoDeposito && !formData.tipoPagoSegundoDeposito && formData.deposito !== "100%") {
+  // Validar tipo de pago segundo depósito solo si hay imagen
+  if (segundoDeposito && !formData.tipoPagoSegundoDeposito) {
     errors.push("💳 El tipo de pago del segundo depósito es requerido cuando hay una imagen seleccionada");
   }
 

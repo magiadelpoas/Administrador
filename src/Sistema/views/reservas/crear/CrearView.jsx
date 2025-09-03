@@ -177,8 +177,8 @@ export const CrearView = () => {
   // Los campos adicionales solo se muestran después de seleccionar cabaña y tipo de reserva
   const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
   
-  // Condición para mostrar campos del segundo depósito (solo si depósito es 50%)
-  const mostrarSegundoDeposito = formData.deposito === "50%";
+  // Mostrar siempre ambos campos de depósito
+  const mostrarSegundoDeposito = true;
 
   return (
     <div className="container-fluid px-3 px-md-4">

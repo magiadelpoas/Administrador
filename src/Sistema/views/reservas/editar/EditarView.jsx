@@ -435,8 +435,8 @@ export const EditarView = () => {
   // Los campos adicionales solo se muestran después de seleccionar cabaña y tipo de reserva
   const ambosSeleccionados = cabañaSeleccionada && formData.tipoReserva;
   
-  // Condición para mostrar campos del segundo depósito (solo si depósito es 50%)
-  const mostrarSegundoDeposito = formData.deposito === "50%";
+  // Mostrar siempre ambos campos de depósito
+  const mostrarSegundoDeposito = true;
   
   // Condición para deshabilitar el formulario si la reserva está confirmada
   const isFormDisabled = reservaData?.estado === 'confirmado';
