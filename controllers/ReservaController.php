@@ -97,26 +97,50 @@ class ReservaController {
      */
     public function store() {
         AuthMiddleware::requireAuth(function() {
-            // Verificar si es una petición multipart/form-data
-            if (isset($_FILES) && !empty($_FILES)) {
-                // Procesar datos de formulario con archivos
+            // Obtener el Content-Type
+            $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+            
+            // Debug logging
+            error_log("=== RESERVA CREATE DEBUG ===");
+            error_log("Content-Type: " . $contentType);
+            error_log("POST data: " . print_r($_POST, true));
+            error_log("FILES data: " . print_r($_FILES, true));
+            
+            // Verificar si es una petición multipart/form-data o form-urlencoded
+            if (strpos($contentType, 'multipart/form-data') !== false || 
+                strpos($contentType, 'application/x-www-form-urlencoded') !== false || 
+                !empty($_POST)) {
+                // Procesar datos de formulario (con o sin archivos)
                 $data = $_POST;
-                $files = $_FILES;
+                $files = $_FILES ?? [];
+                error_log("Procesando como FormData");
                 
             } else {
                 // Procesar datos JSON
-                $input = json_decode(file_get_contents('php://input'), true);
+                $rawInput = file_get_contents('php://input');
+                error_log("Raw JSON input: " . $rawInput);
                 
-                if (!$input) {
-                    Response::error('Datos JSON inválidos', 400);
+                if (empty($rawInput)) {
+                    Response::error('No se recibieron datos', 400);
+                    return;
+                }
+                
+                $input = json_decode($rawInput, true);
+                
+                if ($input === null) {
+                    error_log("JSON decode error: " . json_last_error_msg());
+                    Response::error('Datos JSON inválidos: ' . json_last_error_msg(), 400);
                     return;
                 }
                 
                 $data = $input;
                 $files = [];
-                
-
+                error_log("Procesando como JSON");
             }
+            
+            error_log("Final data: " . print_r($data, true));
+            error_log("Final files: " . print_r($files, true));
+            error_log("=== END DEBUG ===");
             
             // Mapear campos del frontend a la base de datos
             $mappedData = $this->mapFrontendToDatabase($data);
@@ -447,8 +471,8 @@ class ReservaController {
                 $fechaIngreso = new DateTime($data['fechaIngreso_reserva']);
                 $fechaSalida = new DateTime($data['fechaSalida_reserva']);
                 
-                if ($fechaIngreso >= $fechaSalida) {
-                    $errors[] = 'La fecha de salida debe ser posterior a la fecha de ingreso';
+                if ($fechaIngreso > $fechaSalida) {
+                    $errors[] = 'La fecha de salida debe ser igual o posterior a la fecha de ingreso';
                 }
             }
         }
