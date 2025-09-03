@@ -33,6 +33,9 @@ class Api {
     );
   }
 
+
+
+  
   // Método para detectar el entorno y establecer la URL base
   getBaseURL() {
     const currentHost = window.location.hostname;
