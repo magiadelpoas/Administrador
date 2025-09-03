@@ -18,6 +18,9 @@ export const ListaConfirmadasView = () => {
   const tableRef = useRef(null)
   const tableInstanceRef = useRef(null)
 
+
+  
+
   // Cargar reservas al montar el componente
   useEffect(() => {
     cargarReservas()
