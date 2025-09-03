@@ -10,6 +10,9 @@ import { swalHelpers } from "../../../../utils/sweetalertConfig";
  * campos de selección en el formulario de reservas.
  */
 
+
+
+
 // Opciones para el campo de depósito (porcentaje)
 export const opcionesDeposito = ["50%", "100%"];
 
