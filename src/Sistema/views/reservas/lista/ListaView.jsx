@@ -173,22 +173,21 @@ export const ListaView = () => {
             },
             viewTotal: true,
             threshold: 0.1, // Reducir el umbral para mostrar más paneles
-            columns: [2, 4, 5, 7] // Forzar columnas específicas
+            columns: [2, 3, 4, 5, 6] // Forzar columnas específicas
           },
         pageLength: 25,
         lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
-                 order: [[3, 'desc']], // Ordenar por ID descendente (ahora en columna 3)
+                 order: [[2, 'asc']], // Ordenar por Cliente ascendente
          columnDefs: [
            { orderable: false, targets: [0, 1] }, // Estado y Acciones no ordenables
            { width: '80px', targets: [0, 1] }, // Ancho fijo para Estado y Acciones
-           { width: '150px', targets: [2] }, // Ancho fijo para Cliente
-           { width: '100px', targets: [3] }, // Ancho fijo para ID
-           { width: '150px', targets: [4, 5] }, // Ancho fijo para Cabaña, Email
-           { width: '120px', targets: [6, 7, 8] }, // Ancho fijo para Personas, Depósito, Total
-           { width: '180px', targets: [9] }, // Ancho fijo para Fechas
-           { width: '120px', targets: [10, 11] }, // Ancho fijo para Hora y Tipo Pago
+           { width: '200px', targets: [2] }, // Ancho fijo para Cliente
+           { width: '180px', targets: [3] }, // Ancho fijo para Cabaña
+           { width: '120px', targets: [4] }, // Ancho fijo para Depósito
+           { width: '140px', targets: [5] }, // Ancho fijo para Total
+           { width: '180px', targets: [6] }, // Ancho fijo para Fechas
            // Configuración específica para searchPanes
-           { searchPanes: { show: true }, targets: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }, // Forzar mostrar en searchPanes
+           { searchPanes: { show: true }, targets: [2, 3, 4, 5, 6] }, // Forzar mostrar en searchPanes
            { searchPanes: { show: false }, targets: [0, 1] } // No mostrar Estado y Acciones en searchPanes
          ],
         responsive: true,
@@ -348,15 +347,10 @@ export const ListaView = () => {
                          <th>Estado</th>
                          <th>Acciones</th>
                          <th>Cliente</th>
-                         <th>ID</th>
-                         <th>Cabaña</th>
-                         <th>Email</th>
-                         <th>Personas</th>
+                                                  <th>Cabaña</th>
                          <th>Depósito</th>
                          <th>Total</th>
                          <th>Fechas</th>
-                         <th>Hora Ingreso</th>
-                         <th>Tipo Pago</th>
                        </tr>
                      </thead>
                     <tbody>
@@ -389,11 +383,6 @@ export const ListaView = () => {
                             </div>
                           </td>
                           <td>
-                            <span className="badge bg-secondary">
-                              #{reserva.id_reserva}
-                            </span>
-                          </td>
-                          <td>
                             <div className="d-flex align-items-center">
                               <div
                                 className="me-2"
@@ -408,16 +397,6 @@ export const ListaView = () => {
                                 {reserva.cabanaNombre_reserva || 'N/A'}
                               </span>
                             </div>
-                          </td>
-                          <td>
-                            <a href={`mailto:${reserva.emailCliente_reserva}`} className="text-decoration-none">
-                              {reserva.emailCliente_reserva || 'N/A'}
-                            </a>
-                          </td>
-                          <td>
-                            <span className="badge bg-info">
-                              {reserva.cantidadPersonas_reserva || 'N/A'} persona{reserva.cantidadPersonas_reserva > 1 ? 's' : ''}
-                            </span>
                           </td>
                           <td>
                             <span className={`badge ${
@@ -444,16 +423,6 @@ export const ListaView = () => {
                                 {formatearFecha(reserva.fechaSalida_reserva)}
                               </div>
                             </div>
-                          </td>
-                          <td>
-                            <span className="badge bg-light text-dark">
-                              {formatearHora(reserva.horaIngreso_reserva)}
-                            </span>
-                          </td>
-                          <td>
-                            <span className="badge bg-secondary">
-                              {reserva.tipoPagoPrimerDeposito_reserva || 'N/A'}
-                            </span>
                           </td>
                         </tr>
                       ))}
