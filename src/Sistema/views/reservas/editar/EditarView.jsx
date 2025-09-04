@@ -374,8 +374,8 @@ export const EditarView = () => {
           `
         );
         
-        // Redirigir a la lista de reservas
-        window.location.href = '/reservas/listar';
+        // Refrescar la página actual
+        window.location.reload();
       } else {
         swalHelpers.showError('Error al actualizar la reserva', result.message);
       }
@@ -438,8 +438,8 @@ export const EditarView = () => {
   // Mostrar siempre ambos campos de depósito
   const mostrarSegundoDeposito = true;
   
-  // Condición para deshabilitar el formulario si la reserva está confirmada
-  const isFormDisabled = reservaData?.estado === 'confirmado';
+  // Permitir editar todos los campos sin importar el estado
+  const isFormDisabled = false;
 
   return (
     <div className="container-fluid px-3 px-md-4">
@@ -490,7 +490,7 @@ export const EditarView = () => {
                       value={cabañaSeleccionada}
                       onChange={handleCabañaChange}
                       required
-                      disabled={isFormDisabled}
+                      disabled={false}
                     >
                       <option value="">Seleccione una cabaña</option>
                       {cabañas.map((cabaña) => (
@@ -516,7 +516,7 @@ export const EditarView = () => {
                       value={formData.tipoReserva}
                       onChange={handleInputChange}
                       required
-                      disabled={isFormDisabled}
+                      disabled={false}
                     >
                       {opcionesTipoReserva.map(opcion => (
                         <option key={opcion} value={opcion}>
@@ -634,17 +634,10 @@ export const EditarView = () => {
                           <i className="fas fa-edit me-2"></i>
                           Información Requerida
                         </h5>
-                        {isFormDisabled ? (
-                          <div className="alert alert-warning">
-                            <i className="fas fa-lock me-2"></i>
-                            Esta reserva está <strong>confirmada</strong> y no se pueden modificar sus datos.
-                          </div>
-                        ) : (
-                          <div className="alert alert-info">
-                            <i className="fas fa-info-circle me-2"></i>
-                            Complete los siguientes campos para actualizar la reserva
-                          </div>
-                        )}
+                        <div className="alert alert-info">
+                          <i className="fas fa-info-circle me-2"></i>
+                          Complete los siguientes campos para actualizar la reserva
+                        </div>
                       </div>
                     </div>
                     
@@ -666,9 +659,9 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
-                            {!isFormDisabled && getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada, true) && (
+                            {getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada, true) && (
                               <div className="invalid-feedback d-block">
                                 <i className="fas fa-exclamation-circle me-1"></i>
                                 {getFieldError("nombreCliente", formData, touchedFields, cabañaSeleccionada, true)}
@@ -689,7 +682,7 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             >
                               <option value="">Seleccione cantidad de personas</option>
                               {capacidadMaxima && Array.from({ length: capacidadMaxima }, (_, i) => i + 1).map(num => (
@@ -723,9 +716,9 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
-                            {!isFormDisabled && getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada, true) && (
+                            {getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada, true) && (
                               <div className="invalid-feedback d-block">
                                 <i className="fas fa-exclamation-circle me-1"></i>
                                 {getFieldError("totalDepositado", formData, touchedFields, cabañaSeleccionada, true)}
@@ -747,7 +740,7 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
                           </div>
                           
@@ -765,7 +758,7 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
                           </div>
                           
@@ -816,7 +809,7 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
                           </div>
                           
@@ -834,7 +827,7 @@ export const EditarView = () => {
                               onChange={handleInputChange}
                               onBlur={handleInputBlur}
                               required
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
                           </div>
                           
@@ -849,7 +842,7 @@ export const EditarView = () => {
                               id="primerDeposito"
                               accept="image/*,.pdf,.doc,.docx"
                               onChange={(e) => handleFileChange(e, 'primer')}
-                              disabled={isFormDisabled}
+                              disabled={false}
                             />
                             {/* Preview de la imagen del primer depósito */}
                             {primerDepositoPreview && (
@@ -877,7 +870,7 @@ export const EditarView = () => {
                                       type="button"
                                       className="btn btn-danger btn-sm"
                                       onClick={() => handleRemoveFile('primer')}
-                                      disabled={isFormDisabled}
+                                      disabled={false}
                                     >
                                       <i className="fas fa-times me-1"></i>
                                       Eliminar
@@ -918,7 +911,7 @@ export const EditarView = () => {
                                 id="segundoDeposito"
                                 accept="image/*,.pdf,.doc,.docx"
                                 onChange={(e) => handleFileChange(e, 'segundo')}
-                                disabled={isFormDisabled}
+                                disabled={false}
                               />
                               {/* Preview de la imagen del segundo depósito */}
                               {segundoDepositoPreview && (
@@ -946,7 +939,7 @@ export const EditarView = () => {
                                         type="button"
                                         className="btn btn-danger btn-sm"
                                         onClick={() => handleRemoveFile('segundo')}
-                                        disabled={isFormDisabled}
+                                        disabled={false}
                                       >
                                         <i className="fas fa-times me-1"></i>
                                         Eliminar
@@ -1010,9 +1003,9 @@ export const EditarView = () => {
                                value={formData.emailCliente}
                                onChange={handleInputChange}
                                onBlur={handleInputBlur}
-                               disabled={isFormDisabled}
+                               disabled={false}
                              />
-                             {!isFormDisabled && getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada, true) && (
+                             {getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada, true) && (
                                <div className="invalid-feedback d-block">
                                  <i className="fas fa-exclamation-circle me-1"></i>
                                  {getFieldError("emailCliente", formData, touchedFields, cabañaSeleccionada, true)}
@@ -1204,13 +1197,11 @@ export const EditarView = () => {
                     <div className="row mt-4">
                       <div className="col-12">
                         <div className="d-flex flex-column flex-sm-row gap-2">
-                          {/* Botón Actualizar - Solo visible si no está confirmado */}
-                          {reservaData?.estado !== 'confirmado' && (
-                            <button type="submit" className="btn btn-primary">
-                              <i className="fas fa-save"></i> 
-                              <span className="ms-1">Actualizar Reserva</span>
-                            </button>
-                          )}
+                          {/* Botón Actualizar - Siempre visible sin importar el estado */}
+                          <button type="submit" className="btn btn-primary">
+                            <i className="fas fa-save"></i> 
+                            <span className="ms-1">Actualizar Reserva</span>
+                          </button>
                           
                           {/* Botón Volver - Siempre visible */}
                           <Link to="/reservas/listar" className="btn btn-secondary">
