@@ -96,6 +96,51 @@ class ReservaLandingController {
     }
     
     /**
+     * POST /api/landing/validate-availability - Valida disponibilidad de fechas
+     * NO requiere autenticación
+     */
+    public function validateAvailability() {
+        try {
+            // Obtener datos de la petición
+            $input = json_decode(file_get_contents('php://input'), true);
+            
+            if ($input === null) {
+                Response::error('Datos JSON inválidos', 400);
+                return;
+            }
+            
+            // Validar campos requeridos
+            $requiredFields = ['cabanaId', 'fechaIngreso', 'fechaSalida'];
+            foreach ($requiredFields as $field) {
+                if (!isset($input[$field]) || empty($input[$field])) {
+                    Response::error("El campo {$field} es requerido", 400);
+                    return;
+                }
+            }
+            
+            // Validar disponibilidad
+            $result = $this->reservaLandingModel->validateAvailability(
+                $input['cabanaId'],
+                $input['fechaIngreso'],
+                $input['fechaSalida']
+            );
+            
+            if ($result['available']) {
+                Response::success([
+                    'available' => true,
+                    'message' => $result['message']
+                ], 'Fechas disponibles');
+            } else {
+                Response::error($result['message'], 409); // 409 = Conflict
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error en ReservaLandingController::validateAvailability(): " . $e->getMessage());
+            Response::error('Error al validar disponibilidad', 500);
+        }
+    }
+    
+    /**
      * GET /api/landing/health - Estado del servicio landing
      * NO requiere autenticación
      */
@@ -109,7 +154,8 @@ class ReservaLandingController {
                 'features' => [
                     'create_reservation' => true,
                     'file_upload' => true,
-                    'validation' => true
+                    'validation' => true,
+                    'availability_check' => true
                 ]
             ];
             

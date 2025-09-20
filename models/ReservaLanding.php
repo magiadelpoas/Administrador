@@ -329,6 +329,88 @@ class ReservaLanding {
     }
     
     /**
+     * Valida la disponibilidad de fechas para una cabaña específica
+     * @param string $cabanaId ID de la cabaña
+     * @param string $fechaIngreso Fecha de ingreso (YYYY-MM-DD)
+     * @param string $fechaSalida Fecha de salida (YYYY-MM-DD)
+     * @return array Resultado de la validación
+     */
+    public function validateAvailability($cabanaId, $fechaIngreso, $fechaSalida) {
+        try {
+            // Validar que las fechas sean válidas
+            $fechaIngresoObj = new DateTime($fechaIngreso);
+            $fechaSalidaObj = new DateTime($fechaSalida);
+            
+            // Verificar que la fecha de salida sea posterior a la de ingreso
+            if ($fechaSalidaObj <= $fechaIngresoObj) {
+                return [
+                    'available' => false,
+                    'message' => 'La fecha de salida debe ser posterior a la fecha de ingreso'
+                ];
+            }
+            
+            // Consulta SQL para verificar conflictos de fechas
+            // Un conflicto existe si:
+            // 1. La fecha de ingreso del cliente está entre fechas de una reserva existente
+            // 2. La fecha de salida del cliente está entre fechas de una reserva existente  
+            // 3. Las fechas del cliente engloban completamente una reserva existente
+            // NOTA: El mismo día de salida de una reserva = DISPONIBLE para ingreso (no es conflicto)
+            $query = "SELECT id_reserva, nombreCliente_reserva, fechaIngreso_reserva, fechaSalida_reserva 
+                     FROM {$this->table_name} 
+                     WHERE cabanaId_reserva = :cabanaId 
+                     AND (estado_reserva = 'pendiente' OR estado_reserva = 'confirmado')
+                     AND (
+                         -- Caso 1: El ingreso del cliente está dentro de una reserva existente
+                         (:fechaIngreso >= fechaIngreso_reserva AND :fechaIngreso < fechaSalida_reserva)
+                         OR
+                         -- Caso 2: La salida del cliente está dentro de una reserva existente
+                         (:fechaSalida > fechaIngreso_reserva AND :fechaSalida <= fechaSalida_reserva)
+                         OR
+                         -- Caso 3: El cliente engloba completamente una reserva existente
+                         (:fechaIngreso <= fechaIngreso_reserva AND :fechaSalida >= fechaSalida_reserva)
+                     )";
+            
+            $stmt = $this->db->prepare($query);
+            $stmt->bindValue(':cabanaId', $cabanaId);
+            $stmt->bindValue(':fechaIngreso', $fechaIngreso);
+            $stmt->bindValue(':fechaSalida', $fechaSalida);
+            $stmt->execute();
+            
+            $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (!empty($conflicts)) {
+                // Hay conflictos, generar mensaje de error
+                $conflictInfo = [];
+                foreach ($conflicts as $conflict) {
+                    $conflictInfo[] = "Reserva #{$conflict['id_reserva']} del {$conflict['fechaIngreso_reserva']} al {$conflict['fechaSalida_reserva']}";
+                }
+                
+                $message = "La cabaña no está disponible en las fechas seleccionadas. " .
+                          "Conflicto con: " . implode(', ', $conflictInfo);
+                
+                return [
+                    'available' => false,
+                    'message' => $message,
+                    'conflicts' => $conflicts
+                ];
+            }
+            
+            // No hay conflictos, las fechas están disponibles
+            return [
+                'available' => true,
+                'message' => 'Las fechas seleccionadas están disponibles para esta cabaña'
+            ];
+            
+        } catch (Exception $e) {
+            error_log("Error en validateAvailability(): " . $e->getMessage());
+            return [
+                'available' => false,
+                'message' => 'Error al validar disponibilidad de fechas'
+            ];
+        }
+    }
+    
+    /**
      * Busca si ya existe un archivo idéntico en el directorio
      * @param string $uploadDir Directorio de archivos
      * @param string $fileHash Hash MD5 del archivo
