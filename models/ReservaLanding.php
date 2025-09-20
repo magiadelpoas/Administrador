@@ -177,13 +177,23 @@ class ReservaLanding {
             }
         }
         
-        // Mapear fechas (convertir de dayjs a formato Y-m-d)
+        // Mapear fechas (las fechas ya vienen como strings desde el frontend)
         if (isset($data['fechaIngreso']) && $data['fechaIngreso']) {
-            $mapped['fechaIngreso_reserva'] = $data['fechaIngreso']->format('Y-m-d');
+            // Si es un string, usarlo directamente; si es un objeto, convertir a string
+            if (is_string($data['fechaIngreso'])) {
+                $mapped['fechaIngreso_reserva'] = $data['fechaIngreso'];
+            } else {
+                $mapped['fechaIngreso_reserva'] = $data['fechaIngreso']->format('Y-m-d');
+            }
         }
         
         if (isset($data['fechaSalida']) && $data['fechaSalida']) {
-            $mapped['fechaSalida_reserva'] = $data['fechaSalida']->format('Y-m-d');
+            // Si es un string, usarlo directamente; si es un objeto, convertir a string
+            if (is_string($data['fechaSalida'])) {
+                $mapped['fechaSalida_reserva'] = $data['fechaSalida'];
+            } else {
+                $mapped['fechaSalida_reserva'] = $data['fechaSalida']->format('Y-m-d');
+            }
         }
         
         // Procesar extras si es un array
