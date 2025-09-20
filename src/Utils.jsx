@@ -118,6 +118,8 @@ export const handleFileChange = (e, currentFormData) => {
 export const handleSubmit = async (e, formData) => {
   e.preventDefault()
   console.log('Form submitted:', formData)
+  console.log('fechaIngreso type:', typeof formData.fechaIngreso, formData.fechaIngreso)
+  console.log('fechaSalida type:', typeof formData.fechaSalida, formData.fechaSalida)
   
   // Mostrar loading
   Swal.fire({
@@ -150,10 +152,33 @@ export const handleSubmit = async (e, formData) => {
     
     // Agregar fechas (convertir dayjs a string)
     if (formData.fechaIngreso) {
-      formDataToSend.append('fechaIngreso', formData.fechaIngreso.format('YYYY-MM-DD'))
+      let fechaIngresoString = ''
+      if (typeof formData.fechaIngreso === 'string') {
+        fechaIngresoString = formData.fechaIngreso
+      } else if (formData.fechaIngreso && typeof formData.fechaIngreso.format === 'function') {
+        fechaIngresoString = formData.fechaIngreso.format('YYYY-MM-DD')
+      } else if (formData.fechaIngreso && formData.fechaIngreso.isValid && formData.fechaIngreso.isValid()) {
+        fechaIngresoString = formData.fechaIngreso.format('YYYY-MM-DD')
+      }
+      if (fechaIngresoString) {
+        formDataToSend.append('fechaIngreso', fechaIngresoString)
+        console.log('fechaIngreso enviada:', fechaIngresoString)
+      }
     }
+    
     if (formData.fechaSalida) {
-      formDataToSend.append('fechaSalida', formData.fechaSalida.format('YYYY-MM-DD'))
+      let fechaSalidaString = ''
+      if (typeof formData.fechaSalida === 'string') {
+        fechaSalidaString = formData.fechaSalida
+      } else if (formData.fechaSalida && typeof formData.fechaSalida.format === 'function') {
+        fechaSalidaString = formData.fechaSalida.format('YYYY-MM-DD')
+      } else if (formData.fechaSalida && formData.fechaSalida.isValid && formData.fechaSalida.isValid()) {
+        fechaSalidaString = formData.fechaSalida.format('YYYY-MM-DD')
+      }
+      if (fechaSalidaString) {
+        formDataToSend.append('fechaSalida', fechaSalidaString)
+        console.log('fechaSalida enviada:', fechaSalidaString)
+      }
     }
     
     // Agregar extras (convertir array a JSON)
@@ -169,8 +194,17 @@ export const handleSubmit = async (e, formData) => {
       formDataToSend.append('proofOfAddress2', formData.proofOfAddress2)
     }
     
-    // Usar el servidor de producción
-    const endpointURL = 'https://sistema.magiadelpoas.com/endpoint_temporal.php'
+    // Determinar la URL según el entorno
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    
+    // Usar el dominio correcto de la API
+    const endpointURL = 'https://apimagia.magiadelpoas.com/api/landing/reservas'
+    
+    // Log de los datos que se van a enviar
+    console.log('Enviando datos a:', endpointURL)
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0] + ': ' + pair[1])
+    }
     
     // Enviar petición al endpoint del landing
     const response = await fetch(endpointURL, {
