@@ -202,7 +202,8 @@ function App() {
       marginBottom: '1.25rem',
       transition: 'border-color 0.2s, box-shadow 0.2s',
       position: 'relative',
-      cursor: 'text'
+      cursor: 'text',
+      minHeight: '48px'
     },
     formSelect: {
       width: '100%',

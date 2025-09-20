@@ -6,32 +6,58 @@ html, body {
   min-height: 100vh;
 }
 
-/* Date input styles */
-input[type="date"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  position: relative;
+/* Date input styles for desktop */
+@media (min-width: 768px) {
+  input[type="date"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    position: relative;
+    background: white;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    margin-left: 10px;
+    opacity: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Firefox date input */
+  input[type="date"]::-moz-calendar-picker-indicator {
+    background: transparent;
+    cursor: pointer;
+    height: 20px;
+    width: 20px;
+    margin-left: 10px;
+    opacity: 1;
+    z-index: 1;
+  }
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
-  background: transparent;
-  cursor: pointer;
-  height: 20px;
-  width: 20px;
-  margin-left: 10px;
-  opacity: 1;
-  position: relative;
+/* Mobile styles - keep native behavior */
+@media (max-width: 767px) {
+  input[type="date"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
 }
 
-/* Firefox date input */
-input[type="date"]::-moz-calendar-picker-indicator {
-  background: transparent;
-  cursor: pointer;
-  height: 20px;
-  width: 20px;
-  margin-left: 10px;
-  opacity: 1;
+/* Additional desktop fixes */
+@media (min-width: 768px) {
+  input[type="date"]:focus {
+    border-color: #6a64f1;
+    box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.2);
+  }
+  
+  input[type="date"]:hover {
+    border-color: #9ca3af;
+  }
 }
 
 #root {
