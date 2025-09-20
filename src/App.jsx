@@ -14,6 +14,10 @@ function App() {
     fullname: '',
     email: '',
     phone: '',
+    currency: '₡ ',
+    totalDepositado: '',
+    fechaIngreso: '',
+    fechaSalida: '',
     proofOfAddress: null,
     declaration: false
   })
@@ -26,6 +30,10 @@ function App() {
       fullName: 'Nombre Completo*',
       email: 'Correo Electrónico',
       phone: 'Número de Teléfono (Opcional)',
+      currency: 'Moneda',
+      totalDepositado: 'Total Depositado',
+      fechaIngreso: 'Fecha de Ingreso',
+      fechaSalida: 'Fecha de Salida',
       proofOfAddress: 'Documento de Identificación (Opcional)',
       declaration: 'Confirmo que la información proporcionada es precisa y completa.',
       submitButton: 'Enviar Reservación',
@@ -42,6 +50,10 @@ function App() {
         '4': '4 .Deluxe - ROBLE ESCONDIDO',
         '5': '5 .Glamping',
         '6': '6 .Colima'
+      },
+      currencies: {
+        '₡ ': '₡ Colones',
+        '$ ': '$ Dólares'
       }
     },
     en: {
@@ -51,6 +63,10 @@ function App() {
       fullName: 'Full Name*',
       email: 'Email Address',
       phone: 'Phone Number (Optional)',
+      currency: 'Currency',
+      totalDepositado: 'Total Deposit',
+      fechaIngreso: 'Check In',
+      fechaSalida: 'Check Out',
       proofOfAddress: 'Identification Document (Optional)',
       declaration: 'I confirm that the information provided is accurate and complete.',
       submitButton: 'Submit Reservation',
@@ -67,6 +83,10 @@ function App() {
         '4': '4 .Deluxe - ROBLE ESCONDIDO',
         '5': '5 .Glamping',
         '6': '6 .Colima'
+      },
+      currencies: {
+        '₡ ': '₡ Colones',
+        '$ ': '$ Dollars'
       }
     }
   }
@@ -167,6 +187,22 @@ function App() {
       boxSizing: 'border-box',
       marginBottom: '1.25rem',
       transition: 'border-color 0.2s, box-shadow 0.2s'
+    },
+    formDateInput: {
+      width: '100%',
+      padding: '0.875rem 3rem 0.875rem 1.25rem',
+      border: '1px solid #d1d5db',
+      borderRadius: '0.5rem',
+      background: '#ffffff',
+      fontWeight: 500,
+      fontSize: '1rem',
+      color: '#111827',
+      outline: 'none',
+      boxSizing: 'border-box',
+      marginBottom: '1.25rem',
+      transition: 'border-color 0.2s, box-shadow 0.2s',
+      position: 'relative',
+      cursor: 'text'
     },
     formSelect: {
       width: '100%',
@@ -357,6 +393,53 @@ function App() {
             placeholder={t.placeholders.phone}
             value={formData.phone}
             onChange={handleInputChange}
+          />
+
+          <label htmlFor="currency" style={styles.formLabel}>{t.currency}</label>
+          <select 
+            name="currency"
+            id="currency" 
+            style={styles.formSelect} 
+            value={formData.currency}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="Colones">{t.currencies['₡ ']}</option>
+            <option value="Dólares">{t.currencies['$ ']}</option>
+          </select>
+
+          <label htmlFor="totalDepositado" style={styles.formLabel}>{t.totalDepositado}</label>
+          <input
+            type="number"
+            name="totalDepositado"
+            id="totalDepositado"
+            style={styles.formInput}
+            placeholder="0"
+            value={formData.totalDepositado}
+            onChange={handleInputChange}
+            required
+          />
+
+          <label htmlFor="fechaIngreso" style={styles.formLabel}>{t.fechaIngreso}</label>
+          <input
+            type="date"
+            name="fechaIngreso"
+            id="fechaIngreso"
+            style={styles.formDateInput}
+            value={formData.fechaIngreso}
+            onChange={handleInputChange}
+            required
+          />
+
+          <label htmlFor="fechaSalida" style={styles.formLabel}>{t.fechaSalida}</label>
+          <input
+            type="date"
+            name="fechaSalida"
+            id="fechaSalida"
+            style={styles.formDateInput}
+            value={formData.fechaSalida}
+            onChange={handleInputChange}
+            required
           />
 
 
