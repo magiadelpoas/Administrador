@@ -281,7 +281,7 @@ function App() {
         >
           <div style={styles.flagContainer}>
             <img 
-              src={language === 'es' ? "/estados.png" : "/espana.png"}
+              src={language === 'es' ? "/assets/estados.png" : "/assets/espana.png"}
               alt={language === 'es' ? 'US Flag' : 'Spain Flag'}
               style={styles.flag}
             />
@@ -292,7 +292,7 @@ function App() {
         </button>
 
         <img
-          src="logo.jpg"
+          src="/assets/logo.jpg"
             alt="Address Form Image"
           style={styles.formImg}
         />
