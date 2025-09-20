@@ -6,6 +6,237 @@ html, body {
   min-height: 100vh;
 }
 
+/* ===== FORM STYLES ===== */
+
+/* Contenedor principal centrado */
+.main-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+  background-color: #f3f4f6;
+  margin: 0;
+}
+
+/* Contenedor del formulario */
+.form-container {
+  margin: 0 auto;
+  max-width: 570px;
+  width: 100%;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Imagen del logo */
+.form-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
+
+/* Título del formulario */
+.form-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* Descripción del formulario */
+.form-desc {
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Labels del formulario */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Inputs del formulario */
+.form-input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  border-color: #6a64f1;
+  box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.2);
+}
+
+.form-input:hover {
+  border-color: #9ca3af;
+}
+
+/* Selects del formulario */
+.form-select {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-select:focus {
+  border-color: #6a64f1;
+  box-shadow: 0 0 0 3px rgba(106, 100, 241, 0.2);
+}
+
+.form-select:hover {
+  border-color: #9ca3af;
+}
+
+/* Archivos del formulario */
+.form-file {
+  display: block;
+  width: 100%;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Fila de checkbox */
+.form-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Checkbox del formulario */
+.form-checkbox {
+  margin-top: 0.125rem;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 0.25rem;
+  border: 1px solid #d1d5db;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Label del checkbox */
+.checkbox-label {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Botón del formulario */
+.form-btn {
+  text-align: center;
+  width: 100%;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  font-weight: 600;
+  background-color: #6a64f1;
+  color: white;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.form-btn:hover {
+  background-color: #5a54e1;
+  box-shadow: 0 4px 6px rgba(106, 100, 241, 0.2);
+}
+
+/* Header del formulario */
+.header-div {
+  margin-bottom: 2rem;
+}
+
+/* Botón de cambio de idioma */
+.language-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: white;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  width: 60px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  font-size: 12px;
+  z-index: 1000;
+  gap: 2px;
+}
+
+.language-button:hover {
+  border-color: #6a64f1;
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Contenedor de banderas */
+.flag-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Imagen de bandera */
+.flag {
+  width: 24px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 2px;
+  display: block;
+}
+
+/* Texto del idioma */
+.language-text {
+  font-size: 10px;
+  font-weight: bold;
+  color: #374151;
+  line-height: 1;
+  margin-top: 2px;
+}
+
 /* Date input styles for desktop */
 @media (min-width: 768px) {
   input[type="date"] {
