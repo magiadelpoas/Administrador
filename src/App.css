@@ -432,3 +432,39 @@ html, body {
   color: #1e3a8a;
   font-weight: 600;
 }
+
+/* ===== FIELD VALIDATION STYLES ===== */
+
+/* Campos con error (borde rojo) */
+.form-input.error,
+.form-select.error,
+.form-checkbox.error {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+/* DatePicker con error */
+.MuiOutlinedInput-root.error fieldset {
+  border-color: #dc2626 !important;
+}
+
+.MuiOutlinedInput-root.error:hover fieldset {
+  border-color: #dc2626 !important;
+}
+
+.MuiOutlinedInput-root.error.Mui-focused fieldset {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+/* Botón de archivo con error */
+.file-button.error {
+  border-color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+}
+
+.file-button.error:hover {
+  border-color: #dc2626 !important;
+  background-color: #fef2f2 !important;
+}

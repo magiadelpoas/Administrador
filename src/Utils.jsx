@@ -920,26 +920,27 @@ export const getEmailValidationMessage = (email, language = 'es') => {
  */
 export const validateRequiredFields = (formData, language = 'es') => {
   const requiredFields = {
-    cabana: language === 'es' ? 'Cabaña' : 'Cabin',
-    fullname: language === 'es' ? 'Nombre Completo' : 'Full Name',
-    email: language === 'es' ? 'Correo Electrónico' : 'Email',
-    currency: language === 'es' ? 'Moneda' : 'Currency',
-    totalDepositado: language === 'es' ? 'Total Depositado' : 'Total Deposit',
-    fechaIngreso: language === 'es' ? 'Fecha de Ingreso' : 'Check In',
-    fechaSalida: language === 'es' ? 'Fecha de Salida' : 'Check Out',
-    cantidadPersonas: language === 'es' ? 'Cantidad de Personas' : 'Number of People',
-    pais: language === 'es' ? 'País' : 'Country',
-    deposito: language === 'es' ? 'Depósito %' : 'Deposit %',
-    extras: language === 'es' ? 'Extras' : 'Extras',
-    mascotas: language === 'es' ? 'Mascotas' : 'Pets',
-    proofOfAddress: language === 'es' ? 'Comprobante de Pago 1' : 'Payment Receipt 1',
-    declaration: language === 'es' ? 'Declaración' : 'Declaration'
+    cabana: { label: language === 'es' ? 'Cabaña' : 'Cabin', type: 'select' },
+    fullname: { label: language === 'es' ? 'Nombre Completo' : 'Full Name', type: 'input' },
+    email: { label: language === 'es' ? 'Correo Electrónico' : 'Email', type: 'input' },
+    currency: { label: language === 'es' ? 'Moneda' : 'Currency', type: 'select' },
+    totalDepositado: { label: language === 'es' ? 'Total Depositado' : 'Total Deposit', type: 'input' },
+    fechaIngreso: { label: language === 'es' ? 'Fecha de Ingreso' : 'Check In', type: 'date' },
+    fechaSalida: { label: language === 'es' ? 'Fecha de Salida' : 'Check Out', type: 'date' },
+    cantidadPersonas: { label: language === 'es' ? 'Cantidad de Personas' : 'Number of People', type: 'select' },
+    pais: { label: language === 'es' ? 'País' : 'Country', type: 'select' },
+    deposito: { label: language === 'es' ? 'Depósito %' : 'Deposit %', type: 'select' },
+    extras: { label: language === 'es' ? 'Extras' : 'Extras', type: 'select' },
+    mascotas: { label: language === 'es' ? 'Mascotas' : 'Pets', type: 'select' },
+    proofOfAddress: { label: language === 'es' ? 'Comprobante de Pago 1' : 'Payment Receipt 1', type: 'file' },
+    declaration: { label: language === 'es' ? 'Declaración' : 'Declaration', type: 'checkbox' }
   }
 
   const missingFields = []
+  const missingFieldNames = []
 
   // Validar campos obligatorios
-  for (const [field, label] of Object.entries(requiredFields)) {
+  for (const [field, fieldInfo] of Object.entries(requiredFields)) {
     if (field === 'extras') {
       // Extras puede estar vacío
       continue
@@ -949,28 +950,33 @@ export const validateRequiredFields = (formData, language = 'es') => {
     } else if (field === 'declaration') {
       // Validar checkbox de declaración
       if (!formData[field]) {
-        missingFields.push(label)
+        missingFields.push(fieldInfo.label)
+        missingFieldNames.push(field)
       }
     } else if (field === 'fechaIngreso' || field === 'fechaSalida') {
       // Validar fechas (objetos dayjs)
       if (!formData[field] || !formData[field].isValid()) {
-        missingFields.push(label)
+        missingFields.push(fieldInfo.label)
+        missingFieldNames.push(field)
       }
     } else if (field === 'proofOfAddress') {
       // Validar archivo
       if (!formData[field]) {
-        missingFields.push(label)
+        missingFields.push(fieldInfo.label)
+        missingFieldNames.push(field)
       }
     } else {
       // Validar campos de texto y select
       if (!formData[field] || formData[field].toString().trim() === '') {
-        missingFields.push(label)
+        missingFields.push(fieldInfo.label)
+        missingFieldNames.push(field)
       }
     }
   }
 
   return {
     isValid: missingFields.length === 0,
-    missingFields
+    missingFields,
+    missingFieldNames
   }
 }

@@ -369,6 +369,7 @@ function App() {
               className="form-select" 
               value={formData.cabana}
               onChange={onInputChange}
+              required
             >
               {generateCabinOptions(t.cabins)}
             </select>
@@ -399,6 +400,7 @@ function App() {
               value={formData.fullname}
               onChange={onInputChange}
               disabled={!formData.cabana}
+                required
             />
 
             {/* Campo: Email */}
@@ -412,6 +414,7 @@ function App() {
               value={formData.email}
               onChange={onInputChange}
               disabled={!formData.cabana}
+                required
             />
             {/* Mensaje de validación de email */}
             {emailValidation.message && (
@@ -444,6 +447,7 @@ function App() {
               value={formData.currency}
               onChange={onInputChange}
               disabled={!formData.cabana}
+              required
             >
               <option value="Colones">{t.currencies['Colones']}</option>
               <option value="Dólares">{t.currencies['Dólares']}</option>
@@ -460,6 +464,7 @@ function App() {
               value={formData.totalDepositado}
               onChange={onInputChange}
               disabled={!formData.cabana}
+                required
             />
 
             {/* Campo: Fecha de Ingreso (Material-UI DatePicker) */}
@@ -470,6 +475,7 @@ function App() {
               disabled={!formData.cabana}
               slotProps={{
                 textField: {
+                  required: true,
                   disabled: !formData.cabana,
                   className: errorFields.includes('fechaIngreso') ? 'error' : '',
                 },
@@ -484,6 +490,7 @@ function App() {
               disabled={!formData.cabana}
               slotProps={{
                 textField: {
+                  required: true,
                   disabled: !formData.cabana,
                   className: errorFields.includes('fechaSalida') ? 'error' : '',
                 },
@@ -499,6 +506,7 @@ function App() {
               value={formData.cantidadPersonas}
               onChange={onInputChange}
               disabled={!formData.cabana}
+                required
             >
               {generatePersonOptions(t.personas, formData.cabana, language)}
             </select>
@@ -512,6 +520,7 @@ function App() {
               value={formData.pais}
               onChange={onInputChange}
               disabled={!formData.cabana}
+                required
             >
               {generateCountryOptions(t.paises)}
             </select>
@@ -525,6 +534,7 @@ function App() {
               value={formData.deposito}
               onChange={onInputChange}
               disabled={!formData.cabana}
+              required
             >
               {generateDepositOptions(t.depositos)}
             </select>
@@ -539,6 +549,7 @@ function App() {
               onChange={onInputChange}
               disabled={!formData.cabana}
               multiple
+              required
             >
               {generateExtrasOptions(t.extrasOptions)}
             </select>
@@ -551,6 +562,7 @@ function App() {
               className={`form-select ${errorFields.includes('mascotas') ? 'error' : ''}`} 
               value={formData.mascotas}
               onChange={onInputChange}
+              required
               disabled={!formData.cabana || formData.cabana === '4' || formData.cabana === '6'}
             >
               {generatePetsOptions(t.mascotasOptions)}
@@ -592,7 +604,7 @@ function App() {
             <label htmlFor="proofOfAddress2" className="form-label">
               {t.proofOfAddress2}
             </label>
-            <StyledFileUpload>
+            <StyledFileUpload></StyledFileUpload>
               <input
                 type="file"
                 id="proofOfAddress2"
@@ -621,6 +633,7 @@ function App() {
                 checked={formData.declaration}
                 onChange={onInputChange}
                 disabled={!formData.cabana}
+                    required
                 />
                 <label
                 htmlFor="declaration"
@@ -631,7 +644,7 @@ function App() {
             </div>
 
             {/* Botón de envío */}
-            <button type="submit" className="form-btn">{t.submitButton}</button>
+            <button type="submit" className="form-btn" disabled={!formData.cabana}>{t.submitButton}</button>
           </form>
         </div>
       </div>
