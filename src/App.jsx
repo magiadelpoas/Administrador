@@ -1,5 +1,153 @@
 import { useState, useEffect } from 'react'
 import './App.css'
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  FormControlLabel,
+  Checkbox,
+  Box,
+  IconButton
+} from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import dayjs from 'dayjs'
+import { styled } from '@mui/material/styles'
+
+// Styled components to maintain current design
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  margin: '0 auto',
+  maxWidth: '570px',
+  width: '100%',
+  padding: '2.5rem',
+  borderRadius: '0.75rem',
+  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+  position: 'relative',
+  backgroundColor: 'white'
+}))
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  width: '100%',
+  marginBottom: '1.25rem',
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '0.5rem',
+    fontSize: '1rem',
+    fontWeight: 500,
+    '& fieldset': {
+      borderColor: '#d1d5db'
+    },
+    '&:hover fieldset': {
+      borderColor: '#9ca3af'
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#6a64f1',
+      boxShadow: '0 0 0 3px rgba(106, 100, 241, 0.2)'
+    }
+  },
+  '& .MuiInputLabel-root': {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: '#374151',
+    marginBottom: '0.5rem'
+  }
+}))
+
+const StyledFormControl = styled(FormControl)(({ theme }) => ({
+  width: '100%',
+  marginBottom: '1.25rem',
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '0.5rem',
+    fontSize: '1rem',
+    fontWeight: 500,
+    '& fieldset': {
+      borderColor: '#d1d5db'
+    },
+    '&:hover fieldset': {
+      borderColor: '#9ca3af'
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#6a64f1',
+      boxShadow: '0 0 0 3px rgba(106, 100, 241, 0.2)'
+    }
+  },
+  '& .MuiInputLabel-root': {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: '#374151'
+  }
+}))
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  width: '100%',
+  fontSize: '1rem',
+  borderRadius: '0.5rem',
+  padding: '0.875rem 1.5rem',
+  fontWeight: 600,
+  backgroundColor: '#6a64f1',
+  marginTop: '1.5rem',
+  '&:hover': {
+    backgroundColor: '#5a54d1',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+  }
+}))
+
+const LanguageButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  top: '20px',
+  right: '20px',
+  backgroundColor: 'white',
+  border: '2px solid #d1d5db',
+  borderRadius: '8px',
+  width: '60px',
+  height: '40px',
+  boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+  zIndex: 1000,
+  '&:hover': {
+    backgroundColor: '#f9fafb'
+  }
+}))
+
+const FormImage = styled('img')(({ theme }) => ({
+  display: 'block',
+  marginLeft: 'auto',
+  marginRight: 'auto',
+  marginBottom: '2rem',
+  width: '100%',
+  maxWidth: '200px',
+  height: 'auto'
+}))
+
+const StyledDatePicker = styled(DatePicker)(({ theme }) => ({
+  width: '100%',
+  marginBottom: '1.25rem',
+  '& .MuiOutlinedInput-root': {
+    borderRadius: '0.5rem',
+    fontSize: '1rem',
+    fontWeight: 500,
+    '& fieldset': {
+      borderColor: '#d1d5db'
+    },
+    '&:hover fieldset': {
+      borderColor: '#9ca3af'
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#6a64f1',
+      boxShadow: '0 0 0 3px rgba(106, 100, 241, 0.2)'
+    }
+  },
+  '& .MuiInputLabel-root': {
+    fontSize: '0.875rem',
+    fontWeight: 600,
+    color: '#374151'
+  }
+}))
 
 function App() {
   // Get language from localStorage or default to Spanish
@@ -14,10 +162,10 @@ function App() {
     fullname: '',
     email: '',
     phone: '',
-    currency: '₡ ',
+    currency: 'Colones',
     totalDepositado: '',
-    fechaIngreso: '',
-    fechaSalida: '',
+    fechaIngreso: null,
+    fechaSalida: null,
     proofOfAddress: null,
     declaration: false
   })
@@ -52,8 +200,8 @@ function App() {
         '6': '6 .Colima'
       },
       currencies: {
-        '₡ ': '₡ Colones',
-        '$ ': '$ Dólares'
+        'Colones': '₡ Colones',
+        'Dólares': '$ Dólares'
       }
     },
     en: {
@@ -85,8 +233,8 @@ function App() {
         '6': '6 .Colima'
       },
       currencies: {
-        '₡ ': '₡ Colones',
-        '$ ': '$ Dollars'
+        'Colones': '₡ Colones',
+        'Dólares': '$ Dollars'
       }
     }
   }
@@ -109,6 +257,21 @@ function App() {
     }))
   }
 
+  const handleSelectChange = (event) => {
+    const { name, value } = event.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleDateChange = (name, date) => {
+    setFormData(prev => ({
+      ...prev,
+      [name]: date
+    }))
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log('Form submitted:', formData)
@@ -122,362 +285,189 @@ function App() {
     localStorage.setItem('preferredLanguage', newLanguage)
   }
 
-  const styles = {
-    mainCenter: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      padding: '2rem',
-      boxSizing: 'border-box',
-      fontFamily: '"Inter", sans-serif',
-      backgroundColor: '#f3f4f6',
-      margin: 0
-    },
-    formContainer: {
-      margin: '0 auto',
-      maxWidth: '570px',
-      width: '100%',
-      background: 'white',
-      padding: '2.5rem',
-      borderRadius: '0.75rem',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-      position: 'relative'
-    },
-    formImg: {
-      display: 'block',
-      marginLeft: 'auto',
-      marginRight: 'auto',
-      marginBottom: '2rem',
-      width: '100%',
-      maxWidth: '200px',
-      height: 'auto'
-    },
-    formTitle: {
-      fontSize: '1.875rem',
-      fontWeight: 700,
-      color: '#111827',
-      marginBottom: '0.5rem',
-      textAlign: 'center'
-    },
-    formDesc: {
-      color: '#6b7280',
-      marginBottom: '2rem',
-      fontSize: '0.875rem',
-      textAlign: 'center',
-      lineHeight: 1.5
-    },
-    formLabel: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      fontSize: '0.875rem',
-      fontWeight: 600,
-      color: '#374151'
-    },
-    formInput: {
-      width: '100%',
-      padding: '0.875rem 1.25rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      background: '#ffffff',
-      fontWeight: 500,
-      fontSize: '1rem',
-      color: '#111827',
-      outline: 'none',
-      boxSizing: 'border-box',
-      marginBottom: '1.25rem',
-      transition: 'border-color 0.2s, box-shadow 0.2s'
-    },
-    formDateInput: {
-      width: '100%',
-      padding: '0.875rem 3rem 0.875rem 1.25rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      background: '#ffffff',
-      fontWeight: 500,
-      fontSize: '1rem',
-      color: '#111827',
-      outline: 'none',
-      boxSizing: 'border-box',
-      marginBottom: '1.25rem',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      position: 'relative',
-      cursor: 'text',
-      minHeight: '48px'
-    },
-    formSelect: {
-      width: '100%',
-      padding: '0.875rem 1.25rem',
-      border: '1px solid #d1d5db',
-      borderRadius: '0.5rem',
-      background: '#ffffff',
-      fontWeight: 500,
-      fontSize: '1rem',
-      color: '#111827',
-      outline: 'none',
-      boxSizing: 'border-box',
-      marginBottom: '1.25rem',
-      transition: 'border-color 0.2s, box-shadow 0.2s'
-    },
-    formFile: {
-      display: 'block',
-      width: '100%',
-      marginBottom: '1.25rem',
-      fontSize: '0.875rem',
-      color: '#374151'
-    },
-    formCheckboxRow: {
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '0.75rem',
-      marginTop: '1.5rem',
-      marginBottom: '1.5rem'
-    },
-    formCheckbox: {
-      marginTop: '0.125rem',
-      height: '1.25rem',
-      width: '1.25rem',
-      borderRadius: '0.25rem',
-      border: '1px solid #d1d5db',
-      cursor: 'pointer',
-      flexShrink: 0
-    },
-    checkboxLabel: {
-      margin: 0,
-      fontWeight: 500,
-      fontSize: '0.875rem',
-      color: '#374151'
-    },
-    formBtn: {
-      textAlign: 'center',
-      width: '100%',
-      fontSize: '1rem',
-      borderRadius: '0.5rem',
-      padding: '0.875rem 1.5rem',
-      border: 'none',
-      fontWeight: 600,
-      backgroundColor: '#6a64f1',
-      color: 'white',
-      cursor: 'pointer',
-      marginTop: '1.5rem',
-      transition: 'background-color 0.2s, box-shadow 0.2s'
-    },
-    headerDiv: {
-      marginBottom: '2rem'
-    },
-    languageButton: {
-      position: 'absolute',
-      top: '20px',
-      right: '20px',
-      background: 'white',
-      border: '2px solid #d1d5db',
-      borderRadius: '8px',
-      width: '60px',
-      height: '40px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-      transition: 'all 0.2s ease',
-      fontSize: '12px',
-      zIndex: 1000,
-      gap: '2px'
-    },
-    flagContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%'
-    },
-    flag: {
-      width: '24px',
-      height: '16px',
-      objectFit: 'cover',
-      borderRadius: '2px',
-      display: 'block'
-    },
-    languageText: {
-      fontSize: '10px',
-      fontWeight: 'bold',
-      color: '#374151',
-      lineHeight: 1,
-      marginTop: '2px'
-    }
-  }
 
   return (
-    <div style={styles.mainCenter}>
-      <div style={styles.formContainer}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container 
+        maxWidth="sm" 
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '2rem',
+          backgroundColor: '#f3f4f6',
+          fontFamily: '"Inter", sans-serif'
+        }}
+      >
+      <StyledPaper elevation={3}>
         {/* Language Toggle Button */}
-        <button 
+        <LanguageButton
           onClick={toggleLanguage}
-          style={styles.languageButton}
           title={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
         >
-          <div style={styles.flagContainer}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
             <img 
               src={language === 'es' ? "/assets/estados.png" : "/assets/espana.png"}
               alt={language === 'es' ? 'US Flag' : 'Spain Flag'}
-              style={styles.flag}
+              style={{ width: '24px', height: '16px', objectFit: 'cover', borderRadius: '2px' }}
             />
-          </div>
-          <span style={styles.languageText}>
-            {language === 'es' ? 'EN' : 'ES'}
-          </span>
-        </button>
+            <Typography variant="caption" sx={{ fontSize: '10px', fontWeight: 'bold', color: '#374151' }}>
+              {language === 'es' ? 'EN' : 'ES'}
+            </Typography>
+          </Box>
+        </LanguageButton>
 
-        <img
-          src="/assets/logo.jpg"
-            alt="Address Form Image"
-          style={styles.formImg}
-        />
+        <FormImage src="/assets/logo.jpg" alt="Reservation Form Image" />
+
         <form onSubmit={handleSubmit}>
-          <div style={styles.headerDiv}>
-            <h2 style={styles.formTitle}>{t.formTitle}</h2>
-            <p style={styles.formDesc}>
+          <Box sx={{ marginBottom: '2rem', textAlign: 'center' }}>
+            <Typography variant="h4" component="h2" sx={{ 
+              fontSize: '1.875rem', 
+              fontWeight: 700, 
+              color: '#111827', 
+              marginBottom: '0.5rem' 
+            }}>
+              {t.formTitle}
+            </Typography>
+            <Typography variant="body2" sx={{ 
+              color: '#6b7280', 
+              fontSize: '0.875rem', 
+              lineHeight: 1.5 
+            }}>
               {t.formDesc}
-                </p>
-            </div>
+            </Typography>
+          </Box>
 
-          <label htmlFor="cabana" style={styles.formLabel}>{t.selectCabin}</label>
-          <select 
-            name="cabana" 
-            id="cabana" 
-            style={styles.formSelect} 
-            value={formData.cabana}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="">{t.cabins['']}</option>
-            <option value="1">{t.cabins['1']}</option>
-            <option value="2">{t.cabins['2']}</option>
-            <option value="3">{t.cabins['3']}</option>
-            <option value="4">{t.cabins['4']}</option>
-            <option value="5">{t.cabins['5']}</option>
-            <option value="6">{t.cabins['6']}</option>
-          </select>
+          <StyledFormControl>
+            <InputLabel>{t.selectCabin}</InputLabel>
+            <Select
+              name="cabana"
+              value={formData.cabana}
+              onChange={handleSelectChange}
+              required
+            >
+              <MenuItem value="">{t.cabins['']}</MenuItem>
+              <MenuItem value="1">{t.cabins['1']}</MenuItem>
+              <MenuItem value="2">{t.cabins['2']}</MenuItem>
+              <MenuItem value="3">{t.cabins['3']}</MenuItem>
+              <MenuItem value="4">{t.cabins['4']}</MenuItem>
+              <MenuItem value="5">{t.cabins['5']}</MenuItem>
+              <MenuItem value="6">{t.cabins['6']}</MenuItem>
+            </Select>
+          </StyledFormControl>
 
-          <label htmlFor="fullname" style={styles.formLabel}>{t.fullName}</label>
-          <input
-            type="text"
+          <StyledTextField
             name="fullname"
-            id="fullname"
-            style={styles.formInput}
+            label={t.fullName}
             placeholder={t.placeholders.fullName}
             value={formData.fullname}
             onChange={handleInputChange}
             required
           />
 
-          <label htmlFor="email" style={styles.formLabel}>{t.email}</label>
-            <input
-                type="email"
-                name="email"
-                id="email"
-            style={styles.formInput}
+          <StyledTextField
+            name="email"
+            type="email"
+            label={t.email}
             placeholder={t.placeholders.email}
             value={formData.email}
             onChange={handleInputChange}
-                required
-            />
+            required
+          />
 
-          <label htmlFor="phone" style={styles.formLabel}>
-            {t.phone}
-          </label>
-            <input
-                type="tel"
-                name="phone"
-                id="phone"
-            style={styles.formInput}
+          <StyledTextField
+            name="phone"
+            type="tel"
+            label={t.phone}
             placeholder={t.placeholders.phone}
             value={formData.phone}
             onChange={handleInputChange}
           />
 
-          <label htmlFor="currency" style={styles.formLabel}>{t.currency}</label>
-          <select 
-            name="currency"
-            id="currency" 
-            style={styles.formSelect} 
-            value={formData.currency}
-            onChange={handleInputChange}
-            required
-          >
-            <option value="Colones">{t.currencies['₡ ']}</option>
-            <option value="Dólares">{t.currencies['$ ']}</option>
-          </select>
+          <StyledFormControl>
+            <InputLabel>{t.currency}</InputLabel>
+            <Select
+              name="currency"
+              value={formData.currency}
+              onChange={handleSelectChange}
+              required
+            >
+              <MenuItem value="Colones">{t.currencies['Colones']}</MenuItem>
+              <MenuItem value="Dólares">{t.currencies['Dólares']}</MenuItem>
+            </Select>
+          </StyledFormControl>
 
-          <label htmlFor="totalDepositado" style={styles.formLabel}>{t.totalDepositado}</label>
-          <input
-            type="number"
+          <StyledTextField
             name="totalDepositado"
-            id="totalDepositado"
-            style={styles.formInput}
+            type="number"
+            label={t.totalDepositado}
             placeholder="0"
             value={formData.totalDepositado}
             onChange={handleInputChange}
             required
           />
 
-          <label htmlFor="fechaIngreso" style={styles.formLabel}>{t.fechaIngreso}</label>
-          <input
-            type="date"
-            name="fechaIngreso"
-            id="fechaIngreso"
-            style={styles.formDateInput}
+          <StyledDatePicker
+            label={t.fechaIngreso}
             value={formData.fechaIngreso}
-            onChange={handleInputChange}
-            required
+            onChange={(date) => handleDateChange('fechaIngreso', date)}
+            slotProps={{
+              textField: {
+                required: true,
+              },
+            }}
           />
 
-          <label htmlFor="fechaSalida" style={styles.formLabel}>{t.fechaSalida}</label>
-          <input
-            type="date"
-            name="fechaSalida"
-            id="fechaSalida"
-            style={styles.formDateInput}
+          <StyledDatePicker
+            label={t.fechaSalida}
             value={formData.fechaSalida}
-            onChange={handleInputChange}
-            required
+            onChange={(date) => handleDateChange('fechaSalida', date)}
+            slotProps={{
+              textField: {
+                required: true,
+              },
+            }}
           />
 
-
-          <label htmlFor="proofOfAddress" style={styles.formLabel}>
-            {t.proofOfAddress}
-          </label>
-            <input
-                type="file"
+          <StyledTextField
             name="proofOfAddress"
-            id="proofOfAddress"
-                accept=".pdf,.jpg,.jpeg,.png"
-            style={styles.formFile}
+            type="file"
+            label={t.proofOfAddress}
             onChange={handleInputChange}
-            />
+            InputLabelProps={{
+              shrink: true,
+            }}
+            inputProps={{
+              accept: '.pdf,.jpg,.jpeg,.png'
+            }}
+          />
 
-          <div style={styles.formCheckboxRow}>
-                <input
-                    type="checkbox"
-              name="declaration"
-                    id="declaration"
-              style={styles.formCheckbox}
-              checked={formData.declaration}
-              onChange={handleInputChange}
-                    required
-                />
-                <label
-              htmlFor="declaration"
-              style={styles.checkboxLabel}
-                >
-              {t.declaration}
-                </label>
-            </div>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="declaration"
+                checked={formData.declaration}
+                onChange={handleInputChange}
+                required
+                sx={{
+                  '&.Mui-checked': {
+                    color: '#6a64f1',
+                  },
+                }}
+              />
+            }
+            label={t.declaration}
+            sx={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}
+          />
 
-          <button type="submit" style={styles.formBtn}>{t.submitButton}</button>
+          <StyledButton type="submit" variant="contained">
+            {t.submitButton}
+          </StyledButton>
         </form>
-    </div>
-</div>
+      </StyledPaper>
+    </Container>
+    </LocalizationProvider>
   )
 }
 
