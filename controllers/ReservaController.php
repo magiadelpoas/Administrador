@@ -70,6 +70,28 @@ class ReservaController {
     }
     
     /**
+     * GET /api/reservas/confirmadas - Obtiene solo las reservas confirmadas con paginación
+     * Requiere autenticación
+     */
+    public function confirmadas() {
+        AuthMiddleware::requireAuth(function() {
+            // Obtener parámetros de query
+            $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+            $limit = isset($_GET['limit']) ? min(Config::MAX_RESULTS_PER_PAGE, max(1, intval($_GET['limit']))) : Config::DEFAULT_RESULTS_PER_PAGE;
+            $search = $_GET['search'] ?? '';
+            
+            // Obtener solo reservas confirmadas
+            $result = $this->reservaModel->getConfirmadas($page, $limit, $search);
+            
+            if ($result['success']) {
+                Response::paginated($result, 'Reservas confirmadas obtenidas exitosamente');
+            } else {
+                Response::error($result['message'], 500);
+            }
+        });
+    }
+    
+    /**
      * GET /api/reservas/{id} - Obtiene una reserva específica
      * Requiere autenticación
      */

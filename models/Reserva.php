@@ -181,6 +181,71 @@ class Reserva {
     }
     
     /**
+     * Obtiene solo las reservas confirmadas con paginación
+     * @param int $page Número de página
+     * @param int $limit Límite de resultados por página
+     * @param string $search Término de búsqueda (opcional)
+     * @return array Array con las reservas confirmadas y metadatos de paginación
+     */
+    public function getConfirmadas($page = 1, $limit = 20, $search = '') {
+        try {
+            $offset = ($page - 1) * $limit;
+            
+            // Construir consulta base solo para reservas confirmadas
+            $baseQuery = "FROM {$this->table_name} WHERE estado_reserva = 'confirmado'";
+            $params = [];
+            
+            // Agregar búsqueda si se proporciona
+            if (!empty($search)) {
+                $baseQuery .= " AND (nombreCliente_reserva LIKE :search OR emailCliente_reserva LIKE :search OR cabanaNombre_reserva LIKE :search)";
+                $params[':search'] = "%{$search}%";
+            }
+            
+            // Contar total de registros confirmados
+            $countQuery = "SELECT COUNT(*) as total " . $baseQuery;
+            $countStmt = $this->db->prepare($countQuery);
+            $countStmt->execute($params);
+            $totalRecords = $countStmt->fetch()['total'];
+            
+            // Obtener registros confirmados con paginación
+            $query = "SELECT * " . $baseQuery . " ORDER BY id_reserva DESC LIMIT :limit OFFSET :offset";
+            
+            $stmt = $this->db->prepare($query);
+            
+            // Bind parámetros
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value);
+            }
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            $reservas = $stmt->fetchAll();
+            
+            return [
+                'success' => true,
+                'data' => $reservas,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $totalRecords,
+                    'total_pages' => ceil($totalRecords / $limit),
+                    'has_next' => ($page * $limit) < $totalRecords,
+                    'has_prev' => $page > 1
+                ]
+            ];
+            
+        } catch (PDOException $e) {
+            error_log("Error en getConfirmadas(): " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error al obtener las reservas confirmadas',
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+    
+    /**
      * Obtiene una reserva por ID
      * @param int $id ID de la reserva
      * @return array Resultado de la operación
