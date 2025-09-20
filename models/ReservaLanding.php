@@ -357,24 +357,26 @@ class ReservaLanding {
             // NOTA: El mismo día de salida de una reserva = DISPONIBLE para ingreso (no es conflicto)
             $query = "SELECT id_reserva, nombreCliente_reserva, fechaIngreso_reserva, fechaSalida_reserva 
                      FROM {$this->table_name} 
-                     WHERE cabanaId_reserva = :cabanaId 
+                     WHERE cabanaId_reserva = ? 
                      AND (estado_reserva = 'pendiente' OR estado_reserva = 'confirmado')
                      AND (
-                         -- Caso 1: El ingreso del cliente está dentro de una reserva existente
-                         (:fechaIngreso >= fechaIngreso_reserva AND :fechaIngreso < fechaSalida_reserva)
+                         (? >= fechaIngreso_reserva AND ? < fechaSalida_reserva)
                          OR
-                         -- Caso 2: La salida del cliente está dentro de una reserva existente
-                         (:fechaSalida > fechaIngreso_reserva AND :fechaSalida <= fechaSalida_reserva)
+                         (? > fechaIngreso_reserva AND ? <= fechaSalida_reserva)
                          OR
-                         -- Caso 3: El cliente engloba completamente una reserva existente
-                         (:fechaIngreso <= fechaIngreso_reserva AND :fechaSalida >= fechaSalida_reserva)
+                         (? <= fechaIngreso_reserva AND ? >= fechaSalida_reserva)
                      )";
             
             $stmt = $this->db->prepare($query);
-            $stmt->bindValue(':cabanaId', $cabanaId);
-            $stmt->bindValue(':fechaIngreso', $fechaIngreso);
-            $stmt->bindValue(':fechaSalida', $fechaSalida);
-            $stmt->execute();
+            $stmt->execute([
+                $cabanaId,      // 1
+                $fechaIngreso,  // 2
+                $fechaIngreso,  // 3
+                $fechaSalida,   // 4
+                $fechaSalida,   // 5
+                $fechaIngreso,  // 6
+                $fechaSalida    // 7
+            ]);
             
             $conflicts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
