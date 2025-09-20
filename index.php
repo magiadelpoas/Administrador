@@ -142,6 +142,9 @@ try {
     // POST /api/landing/reservas - Crear nueva reserva desde landing page
     $router->post('/api/landing/reservas', ['ReservaLandingController', 'create']);
     
+    // POST /api/landing/validate-availability - Validar disponibilidad de fechas
+    $router->post('/api/landing/validate-availability', ['ReservaLandingController', 'validateAvailability']);
+    
     // GET /api/landing/health - Estado del servicio landing
     $router->get('/api/landing/health', ['ReservaLandingController', 'health']);
     

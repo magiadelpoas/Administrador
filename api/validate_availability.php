@@ -28,6 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Debug: Log de la petición
+error_log("=== VALIDATE AVAILABILITY DEBUG ===");
+error_log("REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD']);
+error_log("CONTENT_TYPE: " . ($_SERVER['CONTENT_TYPE'] ?? 'No definido'));
+error_log("SCRIPT_NAME: " . $_SERVER['SCRIPT_NAME']);
+
 try {
     // Incluir configuración
     require_once __DIR__ . '/../config/Database.php';
@@ -40,7 +46,10 @@ try {
     // Obtener datos JSON
     $input = json_decode(file_get_contents('php://input'), true);
     
+    error_log("Input recibido: " . print_r($input, true));
+    
     if ($input === null) {
+        error_log("Error: JSON inválido");
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -54,6 +63,7 @@ try {
     $requiredFields = ['cabanaId', 'fechaIngreso', 'fechaSalida'];
     foreach ($requiredFields as $field) {
         if (!isset($input[$field]) || empty($input[$field])) {
+            error_log("Error: Campo requerido faltante: {$field}");
             http_response_code(400);
             echo json_encode([
                 'success' => false,
@@ -73,6 +83,8 @@ try {
         $input['fechaIngreso'],
         $input['fechaSalida']
     );
+    
+    error_log("Resultado validación: " . print_r($result, true));
     
     if ($result['available']) {
         http_response_code(200);
@@ -95,12 +107,15 @@ try {
     
 } catch (Exception $e) {
     error_log("Error en validate_availability.php: " . $e->getMessage());
+    error_log("Stack trace: " . $e->getTraceAsString());
     
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Error interno del servidor',
+        'message' => 'Error interno del servidor: ' . $e->getMessage(),
         'timestamp' => date('Y-m-d H:i:s')
     ]);
 }
+
+error_log("=== END VALIDATE AVAILABILITY DEBUG ===");
 ?>
