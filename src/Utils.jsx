@@ -911,3 +911,66 @@ export const getEmailValidationMessage = (email, language = 'es') => {
     }
   }
 }
+
+/**
+ * Valida que todos los campos obligatorios estén llenos
+ * @param {Object} formData - Datos del formulario
+ * @param {string} language - Idioma actual
+ * @returns {Object} Objeto con validación y mensajes
+ */
+export const validateRequiredFields = (formData, language = 'es') => {
+  const requiredFields = {
+    cabana: language === 'es' ? 'Cabaña' : 'Cabin',
+    fullname: language === 'es' ? 'Nombre Completo' : 'Full Name',
+    email: language === 'es' ? 'Correo Electrónico' : 'Email',
+    currency: language === 'es' ? 'Moneda' : 'Currency',
+    totalDepositado: language === 'es' ? 'Total Depositado' : 'Total Deposit',
+    fechaIngreso: language === 'es' ? 'Fecha de Ingreso' : 'Check In',
+    fechaSalida: language === 'es' ? 'Fecha de Salida' : 'Check Out',
+    cantidadPersonas: language === 'es' ? 'Cantidad de Personas' : 'Number of People',
+    pais: language === 'es' ? 'País' : 'Country',
+    deposito: language === 'es' ? 'Depósito %' : 'Deposit %',
+    extras: language === 'es' ? 'Extras' : 'Extras',
+    mascotas: language === 'es' ? 'Mascotas' : 'Pets',
+    proofOfAddress: language === 'es' ? 'Comprobante de Pago 1' : 'Payment Receipt 1',
+    declaration: language === 'es' ? 'Declaración' : 'Declaration'
+  }
+
+  const missingFields = []
+
+  // Validar campos obligatorios
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (field === 'extras') {
+      // Extras puede estar vacío
+      continue
+    } else if (field === 'proofOfAddress2') {
+      // Comprobante de Pago 2 es opcional
+      continue
+    } else if (field === 'declaration') {
+      // Validar checkbox de declaración
+      if (!formData[field]) {
+        missingFields.push(label)
+      }
+    } else if (field === 'fechaIngreso' || field === 'fechaSalida') {
+      // Validar fechas (objetos dayjs)
+      if (!formData[field] || !formData[field].isValid()) {
+        missingFields.push(label)
+      }
+    } else if (field === 'proofOfAddress') {
+      // Validar archivo
+      if (!formData[field]) {
+        missingFields.push(label)
+      }
+    } else {
+      // Validar campos de texto y select
+      if (!formData[field] || formData[field].toString().trim() === '') {
+        missingFields.push(label)
+      }
+    }
+  }
+
+  return {
+    isValid: missingFields.length === 0,
+    missingFields
+  }
+}

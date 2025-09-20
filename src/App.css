@@ -368,3 +368,67 @@ html, body {
 .email-invalid {
   color: #dc2626;
 }
+
+/* ===== DISABLED STATE STYLES ===== */
+
+/* Botón de archivo deshabilitado */
+.file-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.file-button.disabled:hover {
+  border-color: #e5e7eb;
+  background-color: #f9fafb;
+}
+
+/* Botón de envío deshabilitado */
+.form-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+}
+
+.form-btn:disabled:hover {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  transform: none;
+}
+
+/* ===== INFO MESSAGE STYLES ===== */
+
+/* Mensaje informativo para seleccionar cabaña */
+.form-info-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.info-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.info-text {
+  color: #1e40af;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.info-text strong {
+  color: #1e3a8a;
+  font-weight: 600;
+}

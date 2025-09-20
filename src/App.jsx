@@ -35,7 +35,8 @@ import {
   generateExtrasOptions,
   generatePetsOptions,
   validateEmail,
-  getEmailValidationMessage
+  getEmailValidationMessage,
+  validateRequiredFields
 } from './Utils.jsx'
 
 
@@ -259,6 +260,31 @@ function App() {
    * @param {Event} e - Evento de envío del formulario
    */
   const onSubmit = (e) => {
+    e.preventDefault()
+    
+    // Validar campos obligatorios
+    const validation = validateRequiredFields(formData, language)
+    
+    if (!validation.isValid) {
+      // Mostrar SweetAlert con campos faltantes
+      const fieldsList = validation.missingFields.join(', ')
+      
+      Swal.fire({
+        icon: 'warning',
+        title: language === 'es' ? 'Campos Obligatorios Faltantes' : 'Missing Required Fields',
+        html: language === 'es' 
+          ? `Los siguientes campos son obligatorios y deben ser llenados:<br><br><strong>${fieldsList}</strong><br><br>Por favor, complete todos los campos requeridos para continuar.`
+          : `The following fields are required and must be filled:<br><br><strong>${fieldsList}</strong><br><br>Please complete all required fields to continue.`,
+        confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false
+      })
+      
+      return
+    }
+    
+    // Si todos los campos están llenos, proceder con el envío
     handleSubmit(e, formData)
   }
 
@@ -322,6 +348,21 @@ function App() {
               {generateCabinOptions(t.cabins)}
             </select>
 
+            {/* Mensaje informativo para seleccionar cabaña */}
+            {!formData.cabana && (
+              <div className="form-info-message">
+                <div className="info-icon">ℹ️</div>
+                <div className="info-text">
+                  <strong>{language === 'es' ? 'Paso 1:' : 'Step 1:'}</strong>
+                  <br />
+                  {language === 'es' 
+                    ? 'Para poder editar todos los campos, debe seleccionar una cabaña para continuar.'
+                    : 'To edit all fields, you must select a cabin to continue.'
+                  }
+                </div>
+              </div>
+            )}
+
             {/* Campo: Nombre Completo */}
             <label htmlFor="fullname" className="form-label">{t.fullName}</label>
             <input
@@ -332,6 +373,7 @@ function App() {
               placeholder={t.placeholders.fullName}
               value={formData.fullname}
               onChange={onInputChange}
+              disabled={!formData.cabana}
                 required
             />
 
@@ -345,6 +387,7 @@ function App() {
               placeholder={t.placeholders.email}
               value={formData.email}
               onChange={onInputChange}
+              disabled={!formData.cabana}
                 required
             />
             {/* Mensaje de validación de email */}
@@ -366,6 +409,7 @@ function App() {
               placeholder={t.placeholders.phone}
               value={formData.phone}
               onChange={onInputChange}
+              disabled={!formData.cabana}
             />
 
             {/* Campo: Moneda */}
@@ -376,6 +420,7 @@ function App() {
               className="form-select" 
               value={formData.currency}
               onChange={onInputChange}
+              disabled={!formData.cabana}
               required
             >
               <option value="Colones">{t.currencies['Colones']}</option>
@@ -392,6 +437,7 @@ function App() {
               placeholder="0"
               value={formData.totalDepositado}
               onChange={onInputChange}
+              disabled={!formData.cabana}
                 required
             />
 
@@ -400,9 +446,11 @@ function App() {
               label={t.fechaIngreso}
               value={formData.fechaIngreso}
               onChange={(date) => onDateChange('fechaIngreso', date)}
+              disabled={!formData.cabana}
               slotProps={{
                 textField: {
                   required: true,
+                  disabled: !formData.cabana,
                 },
               }}
             />
@@ -412,9 +460,11 @@ function App() {
               label={t.fechaSalida}
               value={formData.fechaSalida}
               onChange={(date) => onDateChange('fechaSalida', date)}
+              disabled={!formData.cabana}
               slotProps={{
                 textField: {
                   required: true,
+                  disabled: !formData.cabana,
                 },
               }}
             />
@@ -427,6 +477,7 @@ function App() {
               className="form-select" 
               value={formData.cantidadPersonas}
               onChange={onInputChange}
+              disabled={!formData.cabana}
                 required
             >
               {generatePersonOptions(t.personas, formData.cabana, language)}
@@ -440,6 +491,7 @@ function App() {
               className="form-select" 
               value={formData.pais}
               onChange={onInputChange}
+              disabled={!formData.cabana}
                 required
             >
               {generateCountryOptions(t.paises)}
@@ -453,6 +505,7 @@ function App() {
               className="form-select" 
               value={formData.deposito}
               onChange={onInputChange}
+              disabled={!formData.cabana}
               required
             >
               {generateDepositOptions(t.depositos)}
@@ -466,6 +519,7 @@ function App() {
               className="form-select" 
               value={formData.extras}
               onChange={onInputChange}
+              disabled={!formData.cabana}
               multiple
               required
             >
@@ -481,7 +535,7 @@ function App() {
               value={formData.mascotas}
               onChange={onInputChange}
               required
-              disabled={formData.cabana === '4' || formData.cabana === '6'}
+              disabled={!formData.cabana || formData.cabana === '4' || formData.cabana === '6'}
             >
               {generatePetsOptions(t.mascotasOptions)}
             </select>
@@ -507,8 +561,9 @@ function App() {
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={onFileChange}
                 className="file-input"
+                disabled={!formData.cabana}
               />
-              <label htmlFor="proofOfAddress" className={`file-button ${formData.proofOfAddress ? 'file-selected' : ''}`}>
+              <label htmlFor="proofOfAddress" className={`file-button ${formData.proofOfAddress ? 'file-selected' : ''} ${!formData.cabana ? 'disabled' : ''}`}>
                 <CloudUpload className="file-icon" />
                 {formData.proofOfAddress 
                   ? (language === 'es' ? `Archivo seleccionado: ${formData.proofOfAddress.name}` : `File selected: ${formData.proofOfAddress.name}`)
@@ -529,8 +584,9 @@ function App() {
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={onFileChange}
                 className="file-input"
+                disabled={!formData.cabana}
               />
-              <label htmlFor="proofOfAddress2" className={`file-button ${formData.proofOfAddress2 ? 'file-selected' : ''}`}>
+              <label htmlFor="proofOfAddress2" className={`file-button ${formData.proofOfAddress2 ? 'file-selected' : ''} ${!formData.cabana ? 'disabled' : ''}`}>
                 <CloudUpload className="file-icon" />
                 {formData.proofOfAddress2 
                   ? (language === 'es' ? `Archivo seleccionado: ${formData.proofOfAddress2.name}` : `File selected: ${formData.proofOfAddress2.name}`)
@@ -548,6 +604,7 @@ function App() {
                 className="form-checkbox"
                 checked={formData.declaration}
                 onChange={onInputChange}
+                disabled={!formData.cabana}
                     required
                 />
                 <label
@@ -559,7 +616,7 @@ function App() {
             </div>
 
             {/* Botón de envío */}
-            <button type="submit" className="form-btn">{t.submitButton}</button>
+            <button type="submit" className="form-btn" disabled={!formData.cabana}>{t.submitButton}</button>
         </form>
     </div>
 </div>
