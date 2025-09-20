@@ -334,3 +334,37 @@ html, body {
 .read-the-docs {
   color: #888;
 }
+
+/* ===== MESSAGE STYLES ===== */
+
+/* Mensaje informativo para campos deshabilitados */
+.form-text-disabled {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #dc2626;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* ===== EMAIL VALIDATION STYLES ===== */
+
+/* Mensajes de validación de email */
+.form-validation-message {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Email válido - color verde */
+.email-valid {
+  color: #059669;
+}
+
+/* Email inválido - color rojo */
+.email-invalid {
+  color: #dc2626;
+}

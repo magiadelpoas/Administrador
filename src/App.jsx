@@ -33,7 +33,9 @@ import {
   generateCountryOptions,
   generateDepositOptions,
   generateExtrasOptions,
-  generatePetsOptions
+  generatePetsOptions,
+  validateEmail,
+  getEmailValidationMessage
 } from './Utils.jsx'
 
 
@@ -120,6 +122,9 @@ function App() {
   
   // Estado de los datos del formulario
   const [formData, setFormData] = useState(initialFormData)
+  
+  // Estado para el mensaje de validación de email
+  const [emailValidation, setEmailValidation] = useState({ message: '', className: '' })
 
   // Objeto de traducciones para el idioma actual
   const t = translations[language]
@@ -132,11 +137,62 @@ function App() {
     }
   }, [])
 
+  // Actualizar validación de email cuando cambie el idioma
+  useEffect(() => {
+    if (formData.email) {
+      const validation = getEmailValidationMessage(formData.email, language)
+      setEmailValidation(validation)
+    }
+  }, [language, formData.email])
+
   /**
    * Wrapper para handleInputChange que actualiza el estado
    * @param {Event} e - Evento del input
    */
   const onInputChange = (e) => {
+    const { name, value } = e.target
+    
+    // Validar email en tiempo real
+    if (name === 'email') {
+      const validation = getEmailValidationMessage(value, language)
+      setEmailValidation(validation)
+    }
+    
+    // Manejar selección de cabañas especiales
+    if (name === 'cabana' && (value === '4' || value === '6')) {
+      // Mostrar alert de políticas para Roble Escondido y Colima
+      const cabinName = value === '4' ? 'Roble Escondido' : 'Colima'
+      
+      Swal.fire({
+        title: language === 'es' ? 'Políticas de Cabaña Roble y Colima' : 'Roble and Colima Cabin Policies',
+        text: language === 'es' 
+          ? 'Por favor, tenga en cuenta que Cabaña Roble Escondido y Colima NO admite mascotas en sus instalaciones.'
+          : 'Please note that Roble Escondido and Colima cabins do NOT allow pets in their facilities.',
+        icon: 'info',
+        confirmButtonText: language === 'es' ? 'Acepto las políticas' : 'I accept the policies',
+        showCancelButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        allowEnterKey: false,
+        showConfirmButton: true,
+        focusConfirm: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: language === 'es' ? '¡Aceptado!' : 'Accepted!',
+            text: language === 'es' 
+              ? 'Ha aceptado las políticas de Cabaña Roble. ¡Gracias!'
+              : 'You have accepted the Roble cabin policies. Thank you!',
+            icon: 'success',
+            confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+          })
+        }
+      })
+    }
+    
     setFormData(prev => handleInputChange(e, prev))
   }
 
@@ -291,6 +347,12 @@ function App() {
               onChange={onInputChange}
                 required
             />
+            {/* Mensaje de validación de email */}
+            {emailValidation.message && (
+              <small className={`form-validation-message ${emailValidation.className}`}>
+                {emailValidation.message}
+              </small>
+            )}
 
             {/* Campo: Teléfono */}
             <label htmlFor="phone" className="form-label">
@@ -367,7 +429,7 @@ function App() {
               onChange={onInputChange}
                 required
             >
-              {generatePersonOptions(t.personas)}
+              {generatePersonOptions(t.personas, formData.cabana, language)}
             </select>
 
             {/* Campo: País */}
@@ -419,9 +481,19 @@ function App() {
               value={formData.mascotas}
               onChange={onInputChange}
               required
+              disabled={formData.cabana === '4' || formData.cabana === '6'}
             >
               {generatePetsOptions(t.mascotasOptions)}
             </select>
+            {/* Mensaje informativo cuando las mascotas están deshabilitadas */}
+            {(formData.cabana === '4' || formData.cabana === '6') && (
+              <small className="form-text-disabled">
+                {language === 'es' 
+                  ? 'Las mascotas no están permitidas en Cabaña Roble Escondido y Colima'
+                  : 'Pets are not allowed in Roble Escondido and Colima cabins'
+                }
+              </small>
+            )}
 
             {/* Campo: Comprobante de Pago 1 (Material-UI) */}
             <label htmlFor="proofOfAddress" className="form-label">

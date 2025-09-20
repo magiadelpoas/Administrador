@@ -58,10 +58,22 @@ export const handleInputChange = (e, currentFormData) => {
       [name]: selectedValues
     }
   } else {
-    return {
+    const newFormData = {
       ...currentFormData,
       [name]: value
     }
+    
+    // Si se selecciona cabaña Roble Escondido (4) o Colima (6), forzar mascotas a 'No'
+    if (name === 'cabana' && (value === '4' || value === '6')) {
+      newFormData.mascotas = 'No'
+    }
+    
+    // Si se cambia de cabaña, resetear la cantidad de personas
+    if (name === 'cabana') {
+      newFormData.cantidadPersonas = '2' // Valor por defecto
+    }
+    
+    return newFormData
   }
 }
 
@@ -801,9 +813,31 @@ export const generateCabinOptions = (cabins) => {
 /**
  * Genera las opciones de personas para el select
  * @param {Object} personas - Objeto de personas del idioma actual
+ * @param {string} selectedCabin - Cabaña seleccionada
+ * @param {string} language - Idioma actual
  * @returns {Array} Array de elementos option para el select
  */
-export const generatePersonOptions = (personas) => {
+export const generatePersonOptions = (personas, selectedCabin = '', language = 'es') => {
+  // Si la cabaña seleccionada es Colima (6), mostrar opciones especiales
+  if (selectedCabin === '6') {
+    const colimaOptions = [
+      { value: '', label: language === 'es' ? 'Cantidad personas' : 'Number of people' },
+      { value: '1', label: '1 persona / 1 person' },
+      { value: '2', label: '2 personas / 2 people' },
+      { value: '3', label: '3 personas / 3 people' },
+      { value: '4', label: '4 personas / 4 people' },
+      { value: '5', label: '5 personas / 5 people' },
+      { value: '6', label: '6 personas / 6 people' },
+      { value: '7', label: '7 personas / 7 people' },
+      { value: '8', label: '8 personas / 8 people' }
+    ]
+    
+    return colimaOptions.map((option) => (
+      <option key={option.value} value={option.value}>{option.label}</option>
+    ))
+  }
+  
+  // Para todas las otras cabañas, usar las opciones normales
   return Object.entries(personas).map(([value, label]) => (
     <option key={value} value={value}>{label}</option>
   ))
@@ -840,4 +874,40 @@ export const generatePetsOptions = (mascotasOptions) => {
   return Object.entries(mascotasOptions).map(([value, label]) => (
     <option key={value} value={value}>{label}</option>
   ))
+}
+
+/**
+ * Valida el formato de email usando el patrón especificado
+ * @param {string} email - Email a validar
+ * @returns {boolean} true si es válido, false si no
+ */
+export const validateEmail = (email) => {
+  const pattern = /^[.a-zA-Z0-9_]+([.][.a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/
+  return pattern.test(email)
+}
+
+/**
+ * Obtiene el mensaje de validación de email según el estado
+ * @param {string} email - Email a validar
+ * @param {string} language - Idioma actual
+ * @returns {Object} Objeto con mensaje y clase CSS
+ */
+export const getEmailValidationMessage = (email, language = 'es') => {
+  if (!email) {
+    return { message: '', className: '' }
+  }
+  
+  const isValid = validateEmail(email)
+  
+  if (isValid) {
+    return {
+      message: language === 'es' ? 'Formato de correo válido' : 'Valid email format',
+      className: 'email-valid'
+    }
+  } else {
+    return {
+      message: language === 'es' ? 'El formato del correo no es válido' : 'Email format is not valid',
+      className: 'email-invalid'
+    }
+  }
 }
