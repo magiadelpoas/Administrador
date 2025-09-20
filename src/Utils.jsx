@@ -3,6 +3,9 @@
  * Centraliza toda la lógica de manejo de formulario, traducciones y validaciones
  */
 
+// Import de SweetAlert2 para validaciones
+import Swal from 'sweetalert2'
+
 /**
  * Obtiene el idioma inicial desde localStorage o retorna español por defecto
  * @returns {string} Idioma inicial ('es' o 'en')
@@ -112,10 +115,116 @@ export const handleFileChange = (e, currentFormData) => {
  * @param {Event} e - Evento de envío
  * @param {Object} formData - Datos del formulario
  */
-export const handleSubmit = (e, formData) => {
+export const handleSubmit = async (e, formData) => {
   e.preventDefault()
   console.log('Form submitted:', formData)
-  // Aquí se puede agregar la lógica de envío al servidor
+  
+  // Mostrar loading
+  Swal.fire({
+    title: 'Enviando Reserva...',
+    text: 'Por favor espere mientras procesamos su solicitud',
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading()
+    }
+  })
+  
+  try {
+    // Crear FormData para enviar archivos
+    const formDataToSend = new FormData()
+    
+    // Agregar campos de texto
+    formDataToSend.append('cabana', formData.cabana)
+    formDataToSend.append('fullname', formData.fullname)
+    formDataToSend.append('email', formData.email)
+    formDataToSend.append('phone', formData.phone || '')
+    formDataToSend.append('currency', formData.currency)
+    formDataToSend.append('totalDepositado', formData.totalDepositado || '')
+    formDataToSend.append('cantidadPersonas', formData.cantidadPersonas)
+    formDataToSend.append('pais', formData.pais)
+    formDataToSend.append('deposito', formData.deposito)
+    formDataToSend.append('mascotas', formData.mascotas)
+    formDataToSend.append('declaration', formData.declaration)
+    
+    // Agregar fechas (convertir dayjs a string)
+    if (formData.fechaIngreso) {
+      formDataToSend.append('fechaIngreso', formData.fechaIngreso.format('YYYY-MM-DD'))
+    }
+    if (formData.fechaSalida) {
+      formDataToSend.append('fechaSalida', formData.fechaSalida.format('YYYY-MM-DD'))
+    }
+    
+    // Agregar extras (convertir array a JSON)
+    if (formData.extras && Array.isArray(formData.extras)) {
+      formDataToSend.append('extras', JSON.stringify(formData.extras))
+    }
+    
+    // Agregar archivos
+    if (formData.proofOfAddress) {
+      formDataToSend.append('proofOfAddress', formData.proofOfAddress)
+    }
+    if (formData.proofOfAddress2) {
+      formDataToSend.append('proofOfAddress2', formData.proofOfAddress2)
+    }
+    
+    // Usar el servidor de producción
+    const endpointURL = 'https://sistema.magiadelpoas.com/api/landing/reservas'
+    
+    // Enviar petición al endpoint del landing
+    const response = await fetch(endpointURL, {
+      method: 'POST',
+      body: formDataToSend
+    })
+    
+    // Verificar si la respuesta es JSON válido
+    let result
+    const contentType = response.headers.get('content-type')
+    
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json()
+    } else {
+      // Si no es JSON, crear un objeto de error
+      const textResponse = await response.text()
+      console.error('Respuesta no JSON:', textResponse)
+      result = {
+        success: false,
+        message: 'Error del servidor: respuesta inválida'
+      }
+    }
+    
+    if (response.ok && result.success) {
+      // Éxito - mostrar mensaje de confirmación
+      Swal.fire({
+        icon: 'success',
+        title: '¡Reserva Enviada!',
+        text: 'Su reserva ha sido enviada exitosamente. Nos pondremos en contacto con usted pronto.',
+        confirmButtonText: 'Entendido'
+      })
+      
+      // Opcional: resetear el formulario
+      // window.location.reload()
+      
+    } else {
+      // Error - mostrar mensaje de error
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al Enviar',
+        text: result.message || 'Hubo un error al enviar su reserva. Por favor, intente nuevamente.',
+        confirmButtonText: 'Entendido'
+      })
+    }
+    
+  } catch (error) {
+    console.error('Error al enviar formulario:', error)
+    Swal.fire({
+      icon: 'error',
+      title: 'Error de Conexión',
+      text: 'No se pudo conectar con el servidor. Por favor, verifique su conexión e intente nuevamente.',
+      confirmButtonText: 'Entendido'
+    })
+  }
 }
 
 /**
