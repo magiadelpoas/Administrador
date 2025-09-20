@@ -26,6 +26,7 @@ require_once __DIR__ . '/config/Environment.php';
 require_once __DIR__ . '/core/Router.php';
 require_once __DIR__ . '/controllers/AdminController.php';
 require_once __DIR__ . '/controllers/ReservaController.php';
+require_once __DIR__ . '/controllers/ReservaLandingController.php';
 require_once __DIR__ . '/utils/Response.php';
 
 // Inicializar configuración
@@ -38,7 +39,9 @@ $allowedOrigins = [
     'http://127.0.0.1:5173',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
-    'https://sistema.magiadelpoas.com'
+    'https://sistema.magiadelpoas.com',
+    'https://magiadelpoas.com',
+    'https://landing.magiadelpoas.com'
 ];
 
 if (in_array($origin, $allowedOrigins)) {
@@ -128,6 +131,16 @@ try {
     
     // PATCH /api/reservas/{id}/reactivar - Reactivar reserva
     $router->patch('/api/reservas/{id}/reactivar', ['ReservaController', 'reactivar']);
+    
+    // ========================================
+    // RUTAS DE LANDING PAGE (SIN AUTENTICACIÓN)
+    // ========================================
+    
+    // POST /api/landing/reservas - Crear nueva reserva desde landing page
+    $router->post('/api/landing/reservas', ['ReservaLandingController', 'create']);
+    
+    // GET /api/landing/health - Estado del servicio landing
+    $router->get('/api/landing/health', ['ReservaLandingController', 'health']);
     
     // ========================================
     // RUTAS UTILITARIAS

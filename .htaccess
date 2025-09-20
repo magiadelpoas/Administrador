@@ -1,11 +1,14 @@
 RewriteEngine On
 
-# Redirigir todas las peticiones a index.php excepto archivos y directorios existentes
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
+# Redirigir peticiones API al index.php
+RewriteCond %{REQUEST_URI} ^/api/
 RewriteRule ^(.*)$ index.php [QSA,L]
 
-# Configurar headers de seguridad básicos
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
+# Configurar tipos MIME
+AddType application/json .json
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Configurar charset
+AddDefaultCharset UTF-8
