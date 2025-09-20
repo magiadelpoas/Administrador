@@ -15,6 +15,9 @@ import dayjs from 'dayjs'
 import { styled } from '@mui/material/styles'
 import { CloudUpload } from '@mui/icons-material'
 
+// Import de SweetAlert2 para validaciones
+import Swal from 'sweetalert2'
+
 // Imports de funciones utilitarias centralizadas
 import {
   getInitialLanguage,
@@ -143,7 +146,48 @@ function App() {
    * @param {Object} date - Objeto de fecha de dayjs
    */
   const onDateChange = (name, date) => {
-    setFormData(prev => handleDateChange(name, date, prev))
+    // Validar inmediatamente cuando se selecciona una fecha
+    if (date && name === 'fechaSalida' && formData.fechaIngreso) {
+      if (date.isBefore(formData.fechaIngreso, 'day')) {
+        // Mostrar error según el idioma
+        const errorMessage = language === 'es' 
+          ? 'La fecha de salida no puede ser menor que la fecha de entrada'
+          : 'The departure date cannot be earlier than the arrival date'
+        
+        Swal.fire({
+          icon: 'error',
+          title: language === 'es' ? 'Error de Fechas' : 'Date Error',
+          text: errorMessage,
+          confirmButtonText: language === 'es' ? 'Entendido' : 'OK'
+        })
+        
+        // No actualizar el estado si hay error
+        return
+      }
+    }
+
+    // Validar también cuando se cambia la fecha de ingreso
+    if (date && name === 'fechaIngreso' && formData.fechaSalida) {
+      if (formData.fechaSalida.isBefore(date, 'day')) {
+        // Mostrar error según el idioma
+        const errorMessage = language === 'es' 
+          ? 'La fecha de salida no puede ser menor que la fecha de entrada'
+          : 'The departure date cannot be earlier than the arrival date'
+        
+        Swal.fire({
+          icon: 'error',
+          title: language === 'es' ? 'Error de Fechas' : 'Date Error',
+          text: errorMessage,
+          confirmButtonText: language === 'es' ? 'Entendido' : 'OK'
+        })
+        
+        // No actualizar el estado si hay error
+        return
+      }
+    }
+
+    // Actualizar el estado normalmente si no hay errores
+    setFormData(prev => handleDateChange(name, date, prev, language))
   }
 
   /**

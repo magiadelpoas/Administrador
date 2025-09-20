@@ -70,9 +70,10 @@ export const handleInputChange = (e, currentFormData) => {
  * @param {string} name - Nombre del campo de fecha
  * @param {Object} date - Objeto de fecha de dayjs
  * @param {Object} currentFormData - Datos actuales del formulario
+ * @param {string} language - Idioma actual ('es' o 'en')
  * @returns {Object} Nuevos datos del formulario
  */
-export const handleDateChange = (name, date, currentFormData) => {
+export const handleDateChange = (name, date, currentFormData, language = 'es') => {
   return {
     ...currentFormData,
     [name]: date
