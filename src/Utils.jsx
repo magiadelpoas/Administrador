@@ -170,7 +170,7 @@ export const handleSubmit = async (e, formData) => {
     }
     
     // Usar el servidor de producción
-    const endpointURL = 'https://sistema.magiadelpoas.com/api/landing/reservas'
+    const endpointURL = 'https://sistema.magiadelpoas.com/endpoint_temporal.php'
     
     // Enviar petición al endpoint del landing
     const response = await fetch(endpointURL, {
@@ -218,11 +218,28 @@ export const handleSubmit = async (e, formData) => {
     
   } catch (error) {
     console.error('Error al enviar formulario:', error)
+    
+    // Determinar el tipo de error y mostrar mensaje apropiado
+    let errorTitle = 'Error de Conexión'
+    let errorText = 'No se pudo conectar con el servidor. Por favor, verifique su conexión e intente nuevamente.'
+    
+    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+      errorTitle = 'Error de Conexión'
+      errorText = 'No se pudo conectar con el servidor. Esto puede ser debido a:\n\n• Problemas de conexión a internet\n• El servidor está temporalmente no disponible\n• Problemas de CORS\n\nPor favor, intente nuevamente en unos minutos.'
+    } else if (error.name === 'TypeError') {
+      errorTitle = 'Error de Red'
+      errorText = 'Error de red al intentar enviar la reserva. Verifique su conexión.'
+    } else {
+      errorTitle = 'Error Inesperado'
+      errorText = `Error inesperado: ${error.message}`
+    }
+    
     Swal.fire({
       icon: 'error',
-      title: 'Error de Conexión',
-      text: 'No se pudo conectar con el servidor. Por favor, verifique su conexión e intente nuevamente.',
-      confirmButtonText: 'Entendido'
+      title: errorTitle,
+      text: errorText,
+      confirmButtonText: 'Entendido',
+      footer: 'Si el problema persiste, contacte al administrador del sistema.'
     })
   }
 }
