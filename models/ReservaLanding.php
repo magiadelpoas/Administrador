@@ -387,8 +387,8 @@ class ReservaLanding {
                     $conflictInfo[] = "Reserva #{$conflict['id_reserva']} del {$conflict['fechaIngreso_reserva']} al {$conflict['fechaSalida_reserva']}";
                 }
                 
-                $message = "La cabaña no está disponible en las fechas seleccionadas. " .
-                          "Conflicto con: " . implode(', ', $conflictInfo);
+                $message = "Las fechas seleccionadas no están disponibles para esta cabaña. " .
+                          "Existe una reserva en el período: " . implode(', ', $conflictInfo);
                 
                 return [
                     'available' => false,
