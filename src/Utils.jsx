@@ -114,17 +114,34 @@ export const handleFileChange = (e, currentFormData) => {
  * Maneja el envío del formulario
  * @param {Event} e - Evento de envío
  * @param {Object} formData - Datos del formulario
+ * @param {string} language - Idioma actual ('es' o 'en')
  */
-export const handleSubmit = async (e, formData) => {
+export const handleSubmit = async (e, formData, language = 'es') => {
   e.preventDefault()
-  console.log('Form submitted:', formData)
-  console.log('fechaIngreso type:', typeof formData.fechaIngreso, formData.fechaIngreso)
-  console.log('fechaSalida type:', typeof formData.fechaSalida, formData.fechaSalida)
+  
+  // Mostrar confirmación antes de enviar
+  const confirmResult = await Swal.fire({
+    title: language === 'es' ? '¿Confirmar Reserva?' : 'Confirm Reservation?',
+    text: language === 'es' ? '¿Está seguro de que desea crear esta reserva?' : 'Are you sure you want to create this reservation?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#6a64f1',
+    cancelButtonColor: '#d33',
+    confirmButtonText: language === 'es' ? 'Sí, crear reserva' : 'Yes, create reservation',
+    cancelButtonText: language === 'es' ? 'Cancelar' : 'Cancel',
+    allowOutsideClick: false,
+    allowEscapeKey: false
+  })
+  
+  // Si el usuario cancela, no proceder
+  if (!confirmResult.isConfirmed) {
+    return
+  }
   
   // Mostrar loading
   Swal.fire({
-    title: 'Enviando Reserva...',
-    text: 'Por favor espere mientras procesamos su solicitud',
+    title: language === 'es' ? 'Enviando Reserva...' : 'Sending Reservation...',
+    text: language === 'es' ? 'Por favor espere mientras procesamos su solicitud' : 'Please wait while we process your request',
     allowOutsideClick: false,
     allowEscapeKey: false,
     showConfirmButton: false,
@@ -162,7 +179,6 @@ export const handleSubmit = async (e, formData) => {
       }
       if (fechaIngresoString) {
         formDataToSend.append('fechaIngreso', fechaIngresoString)
-        console.log('fechaIngreso enviada:', fechaIngresoString)
       }
     }
     
@@ -177,7 +193,6 @@ export const handleSubmit = async (e, formData) => {
       }
       if (fechaSalidaString) {
         formDataToSend.append('fechaSalida', fechaSalidaString)
-        console.log('fechaSalida enviada:', fechaSalidaString)
       }
     }
     
@@ -200,11 +215,6 @@ export const handleSubmit = async (e, formData) => {
     // Usar el dominio correcto de la API
     const endpointURL = 'https://apimagia.magiadelpoas.com/api/landing/reservas'
     
-    // Log de los datos que se van a enviar
-    console.log('Enviando datos a:', endpointURL)
-    for (let pair of formDataToSend.entries()) {
-      console.log(pair[0] + ': ' + pair[1])
-    }
     
     // Enviar petición al endpoint del landing
     const response = await fetch(endpointURL, {
@@ -221,7 +231,6 @@ export const handleSubmit = async (e, formData) => {
     } else {
       // Si no es JSON, crear un objeto de error
       const textResponse = await response.text()
-      console.error('Respuesta no JSON:', textResponse)
       result = {
         success: false,
         message: 'Error del servidor: respuesta inválida'
@@ -229,13 +238,56 @@ export const handleSubmit = async (e, formData) => {
     }
     
     if (response.ok && result.success) {
-      // Éxito - mostrar mensaje de confirmación
+      // Obtener datos de la reserva para el mensaje de WhatsApp
+      const nombre = formData.fullname
+      const fi = formData.fechaIngreso ? (typeof formData.fechaIngreso === 'string' ? formData.fechaIngreso : formData.fechaIngreso.format('YYYY-MM-DD')) : ''
+      const ff = formData.fechaSalida ? (typeof formData.fechaSalida === 'string' ? formData.fechaSalida : formData.fechaSalida.format('YYYY-MM-DD')) : ''
+      
+      // Mapear ID de cabaña a nombre
+      const cabanaNames = {
+        '1': 'ANTÍA',
+        '2': 'LILLIAM', 
+        '3': 'LUNA',
+        '4': 'ROBLE ESCONDIDO',
+        '5': 'GLAMPING',
+        '6': 'COLIMA'
+      }
+      const name = cabanaNames[formData.cabana] || 'Cabaña'
+      
+      // Obtener ID de referencia (usar el ID de la reserva si está disponible)
+      const idReferencia = result.data?.id_reserva || 'Pendiente'
+      const deposito = formData.deposito || '50%'
+      const moneda = formData.currency || 'Colones'
+      const cantidad = formData.totalDepositado || '0'
+      
+      // Crear mensaje de WhatsApp según el idioma
+      const mensaje = language === 'es' 
+        ? `Hola mi nombre es ${nombre} y acabo de crear esta reserva, check in ${fi} y check out ${ff} en cabaña ${name}, \nEste es mi ID de referencia: #(${idReferencia}) con un pago del ${deposito}, ${moneda} ${cantidad}.`
+        : `Hello my name is ${nombre} and I just created this reservation, check in ${fi} and check out ${ff} in cabin ${name}, \nThis is my reference ID: #(${idReferencia}) with a payment of ${deposito}, ${moneda} ${cantidad}.`
+      
+      // Configurar WhatsApp
+      const numero = "+50687234000"
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      let url = isMobile 
+        ? `whatsapp://send?phone=${numero}&text=${encodeURIComponent(mensaje)}`
+        : `https://web.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`
+      
+      // Mostrar mensaje de confirmación
       Swal.fire({
         icon: 'success',
-        title: '¡Reserva Enviada!',
-        text: 'Su reserva ha sido enviada exitosamente. Nos pondremos en contacto con usted pronto.',
-        confirmButtonText: 'Entendido'
+        title: language === 'es' ? '¡Reserva Enviada!' : 'Reservation Sent!',
+        text: language === 'es' ? 'Su reserva ha sido enviada exitosamente. Se abrirá WhatsApp automáticamente en 3 segundos...' : 'Your reservation has been sent successfully. WhatsApp will open automatically in 3 seconds...',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        allowOutsideClick: false,
+        allowEscapeKey: false
       })
+      
+      // Abrir WhatsApp después de 3 segundos
+      setTimeout(() => {
+        window.open(url, '_blank')
+      }, 3000)
       
       // Opcional: resetear el formulario
       // window.location.reload()
@@ -244,36 +296,37 @@ export const handleSubmit = async (e, formData) => {
       // Error - mostrar mensaje de error
       Swal.fire({
         icon: 'error',
-        title: 'Error al Enviar',
-        text: result.message || 'Hubo un error al enviar su reserva. Por favor, intente nuevamente.',
-        confirmButtonText: 'Entendido'
+        title: language === 'es' ? 'Error al Enviar' : 'Send Error',
+        text: result.message || (language === 'es' ? 'Hubo un error al enviar su reserva. Por favor, intente nuevamente.' : 'There was an error sending your reservation. Please try again.'),
+        confirmButtonText: language === 'es' ? 'Entendido' : 'OK'
       })
     }
     
   } catch (error) {
-    console.error('Error al enviar formulario:', error)
     
     // Determinar el tipo de error y mostrar mensaje apropiado
-    let errorTitle = 'Error de Conexión'
-    let errorText = 'No se pudo conectar con el servidor. Por favor, verifique su conexión e intente nuevamente.'
+    let errorTitle = language === 'es' ? 'Error de Conexión' : 'Connection Error'
+    let errorText = language === 'es' ? 'No se pudo conectar con el servidor. Por favor, verifique su conexión e intente nuevamente.' : 'Could not connect to the server. Please check your connection and try again.'
     
     if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
-      errorTitle = 'Error de Conexión'
-      errorText = 'No se pudo conectar con el servidor. Esto puede ser debido a:\n\n• Problemas de conexión a internet\n• El servidor está temporalmente no disponible\n• Problemas de CORS\n\nPor favor, intente nuevamente en unos minutos.'
+      errorTitle = language === 'es' ? 'Error de Conexión' : 'Connection Error'
+      errorText = language === 'es' 
+        ? 'No se pudo conectar con el servidor. Esto puede ser debido a:\n\n• Problemas de conexión a internet\n• El servidor está temporalmente no disponible\n• Problemas de CORS\n\nPor favor, intente nuevamente en unos minutos.'
+        : 'Could not connect to the server. This may be due to:\n\n• Internet connection problems\n• Server is temporarily unavailable\n• CORS issues\n\nPlease try again in a few minutes.'
     } else if (error.name === 'TypeError') {
-      errorTitle = 'Error de Red'
-      errorText = 'Error de red al intentar enviar la reserva. Verifique su conexión.'
+      errorTitle = language === 'es' ? 'Error de Red' : 'Network Error'
+      errorText = language === 'es' ? 'Error de red al intentar enviar la reserva. Verifique su conexión.' : 'Network error when trying to send the reservation. Check your connection.'
     } else {
-      errorTitle = 'Error Inesperado'
-      errorText = `Error inesperado: ${error.message}`
+      errorTitle = language === 'es' ? 'Error Inesperado' : 'Unexpected Error'
+      errorText = language === 'es' ? `Error inesperado: ${error.message}` : `Unexpected error: ${error.message}`
     }
     
     Swal.fire({
       icon: 'error',
       title: errorTitle,
       text: errorText,
-      confirmButtonText: 'Entendido',
-      footer: 'Si el problema persiste, contacte al administrador del sistema.'
+      confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
+      footer: language === 'es' ? 'Si el problema persiste, contacte al administrador del sistema.' : 'If the problem persists, contact the system administrator.'
     })
   }
 }
@@ -1134,11 +1187,6 @@ export const validateDateAvailability = async (cabanaId, fechaIngreso, fechaSali
       fechaSalida: fechaSalidaString
     }
     
-    console.log('=== DATOS ENVIADOS AL API ===')
-    console.log('URL del endpoint:', endpointURL)
-    console.log('Datos a enviar:', requestData)
-    console.log('JSON stringificado:', JSON.stringify(requestData))
-    console.log('================================')
     
     // Llamar al endpoint
     const response = await fetch(endpointURL, {
@@ -1155,18 +1203,9 @@ export const validateDateAvailability = async (cabanaId, fechaIngreso, fechaSali
     
     if (contentType && contentType.includes('application/json')) {
       result = await response.json()
-      console.log('=== RESPUESTA DEL SERVIDOR ===')
-      console.log('Status HTTP:', response.status)
-      console.log('Respuesta JSON:', result)
-      console.log('===============================')
     } else {
       // Si no es JSON, crear un objeto de error
       const textResponse = await response.text()
-      console.error('=== ERROR: RESPUESTA NO JSON ===')
-      console.error('Status HTTP:', response.status)
-      console.error('Content-Type:', contentType)
-      console.error('Respuesta texto:', textResponse)
-      console.error('=================================')
       result = {
         success: false,
         available: false,
@@ -1188,18 +1227,10 @@ export const validateDateAvailability = async (cabanaId, fechaIngreso, fechaSali
       conflicts: result.conflicts || null
     }
     
-    console.log('=== RESULTADO FINAL PROCESADO ===')
-    console.log('isAvailabilityResponse:', isAvailabilityResponse)
-    console.log('result.available (original):', result.available)
-    console.log('result.data?.available:', result.data?.available)
-    console.log('Boolean(result.data?.available || result.available):', Boolean(result.data?.available || result.available))
-    console.log('Resultado final:', finalResult)
-    console.log('=================================')
     
     return finalResult
     
   } catch (error) {
-    console.error('Error al validar disponibilidad:', error)
     
     return {
       success: false,

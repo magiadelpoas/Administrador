@@ -220,11 +220,6 @@ function App() {
    * @param {Object} date - Objeto de fecha de dayjs
    */
   const onDateChange = async (name, date) => {
-
-    console.log('========================================')
-    console.log("Datos", formData)
-    console.log('========================================')
-    
     // Limpiar error del campo cuando el usuario lo edita
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
@@ -277,9 +272,6 @@ function App() {
 
     // Actualizar el estado primero
     const newFormData = handleDateChange(name, date, formData, language)
-    console.log('========================================')
-    console.log("Datos", formData)
-    console.log('========================================')
     setFormData(newFormData)
     
     if (formData.cabana && newFormData.fechaIngreso && newFormData.fechaSalida) {
@@ -367,7 +359,6 @@ function App() {
           })
         }
       } catch (error) {
-        console.error('Error al validar disponibilidad:', error)
         // No mostrar error al usuario, solo loggear
       }
     }
@@ -424,7 +415,7 @@ function App() {
     setErrorFields([])
     
     // Si todos los campos están llenos, proceder con el envío
-    handleSubmit(e, formData)
+    handleSubmit(e, formData, language)
   }
 
   /**
