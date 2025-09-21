@@ -284,9 +284,13 @@ export const handleSubmit = async (e, formData, language = 'es') => {
         allowEscapeKey: false
       })
       
-      // Abrir WhatsApp después de 3 segundos
+      // Abrir WhatsApp después de 3 segundos y refrescar la página
       setTimeout(() => {
         window.open(url, '_blank')
+        // Refrescar la página después de abrir WhatsApp
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000) // Esperar 1 segundo adicional para que WhatsApp se abra
       }, 3000)
       
       // Opcional: resetear el formulario
