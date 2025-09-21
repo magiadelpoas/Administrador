@@ -384,7 +384,7 @@ class ReservaLanding {
                 // Hay conflictos, generar mensaje de error
                 $conflictInfo = [];
                 foreach ($conflicts as $conflict) {
-                    $conflictInfo[] = "Reserva #{$conflict['id_reserva']} del {$conflict['fechaIngreso_reserva']} al {$conflict['fechaSalida_reserva']}";
+                    $conflictInfo[] = ", {$conflict['fechaIngreso_reserva']} al {$conflict['fechaSalida_reserva']}";
                 }
                 
                 $message = "Las fechas seleccionadas no están disponibles para esta cabaña. " .
