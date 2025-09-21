@@ -623,6 +623,13 @@ export const translations = {
       '': 'Seleccionar',
       'Si': 'Si',
       'No': 'No'
+    },
+    
+    // Mensajes de disponibilidad
+    availabilityMessages: {
+      available: '✅ Fechas disponibles',
+      notAvailable: '❌ Fechas no disponibles',
+      checking: '⏳ Verificando disponibilidad...'
     }
   },
   
@@ -944,6 +951,13 @@ export const translations = {
       '': 'Select',
       'Si': 'Yes',
       'No': 'No'
+    },
+    
+    // Mensajes de disponibilidad
+    availabilityMessages: {
+      available: '✅ Dates available',
+      notAvailable: '❌ Dates not available',
+      checking: '⏳ Checking availability...'
     }
   }
 }
@@ -1068,6 +1082,129 @@ export const getEmailValidationMessage = (email, language = 'es') => {
     return {
       message: language === 'es' ? 'El formato del correo no es válido' : 'Email format is not valid',
       className: 'email-invalid'
+    }
+  }
+}
+
+/**
+ * Valida la disponibilidad de fechas llamando al endpoint de la API
+ * @param {string} cabanaId - ID de la cabaña
+ * @param {Object|string} fechaIngreso - Fecha de ingreso (dayjs object o string)
+ * @param {Object|string} fechaSalida - Fecha de salida (dayjs object o string)
+ * @returns {Promise<Object>} Resultado de la validación
+ */
+export const validateDateAvailability = async (cabanaId, fechaIngreso, fechaSalida) => {
+  try {
+    // Convertir fechas a string si son objetos dayjs
+    let fechaIngresoString = ''
+    let fechaSalidaString = ''
+    
+    if (typeof fechaIngreso === 'string') {
+      fechaIngresoString = fechaIngreso
+    } else if (fechaIngreso && typeof fechaIngreso.format === 'function') {
+      fechaIngresoString = fechaIngreso.format('YYYY-MM-DD')
+    } else if (fechaIngreso && fechaIngreso.isValid && fechaIngreso.isValid()) {
+      fechaIngresoString = fechaIngreso.format('YYYY-MM-DD')
+    }
+    
+    if (typeof fechaSalida === 'string') {
+      fechaSalidaString = fechaSalida
+    } else if (fechaSalida && typeof fechaSalida.format === 'function') {
+      fechaSalidaString = fechaSalida.format('YYYY-MM-DD')
+    } else if (fechaSalida && fechaSalida.isValid && fechaSalida.isValid()) {
+      fechaSalidaString = fechaSalida.format('YYYY-MM-DD')
+    }
+    
+    // Validar que tengamos las fechas
+    if (!fechaIngresoString || !fechaSalidaString) {
+      return {
+        success: false,
+        available: false,
+        message: 'Fechas inválidas para validación'
+      }
+    }
+    
+    // URL del endpoint de validación
+    const endpointURL = 'https://apimagia.magiadelpoas.com/api/landing/validate-availability'
+    
+    // Datos a enviar
+    const requestData = {
+      cabanaId: cabanaId,
+      fechaIngreso: fechaIngresoString,
+      fechaSalida: fechaSalidaString
+    }
+    
+    console.log('=== DATOS ENVIADOS AL API ===')
+    console.log('URL del endpoint:', endpointURL)
+    console.log('Datos a enviar:', requestData)
+    console.log('JSON stringificado:', JSON.stringify(requestData))
+    console.log('================================')
+    
+    // Llamar al endpoint
+    const response = await fetch(endpointURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData)
+    })
+    
+    // Verificar si la respuesta es JSON válido
+    let result
+    const contentType = response.headers.get('content-type')
+    
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json()
+      console.log('=== RESPUESTA DEL SERVIDOR ===')
+      console.log('Status HTTP:', response.status)
+      console.log('Respuesta JSON:', result)
+      console.log('===============================')
+    } else {
+      // Si no es JSON, crear un objeto de error
+      const textResponse = await response.text()
+      console.error('=== ERROR: RESPUESTA NO JSON ===')
+      console.error('Status HTTP:', response.status)
+      console.error('Content-Type:', contentType)
+      console.error('Respuesta texto:', textResponse)
+      console.error('=================================')
+      result = {
+        success: false,
+        available: false,
+        message: 'Error del servidor: respuesta inválida'
+      }
+    }
+    
+    // Para validación de disponibilidad:
+    // - 200 = Fechas disponibles (success: true)
+    // - 409 = Fechas no disponibles (success: true, pero available: false)
+    // - Otros códigos = Error real del sistema
+    
+    const isAvailabilityResponse = response.status === 200 || response.status === 409
+    
+    const finalResult = {
+      success: isAvailabilityResponse,
+      available: Boolean(result.data?.available || result.available),
+      message: result.message || 'Error al validar disponibilidad',
+      conflicts: result.conflicts || null
+    }
+    
+    console.log('=== RESULTADO FINAL PROCESADO ===')
+    console.log('isAvailabilityResponse:', isAvailabilityResponse)
+    console.log('result.available (original):', result.available)
+    console.log('result.data?.available:', result.data?.available)
+    console.log('Boolean(result.data?.available || result.available):', Boolean(result.data?.available || result.available))
+    console.log('Resultado final:', finalResult)
+    console.log('=================================')
+    
+    return finalResult
+    
+  } catch (error) {
+    console.error('Error al validar disponibilidad:', error)
+    
+    return {
+      success: false,
+      available: false,
+      message: 'Error de conexión al validar disponibilidad'
     }
   }
 }

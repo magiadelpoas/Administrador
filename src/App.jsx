@@ -36,7 +36,8 @@ import {
   generatePetsOptions,
   validateEmail,
   getEmailValidationMessage,
-  validateRequiredFields
+  validateRequiredFields,
+  validateDateAvailability
 } from './Utils.jsx'
 
 
@@ -129,6 +130,9 @@ function App() {
   
   // Estado para campos con error
   const [errorFields, setErrorFields] = useState([])
+  
+  // Estado para mensaje de disponibilidad
+  const [availabilityMessage, setAvailabilityMessage] = useState({ text: '', type: '' })
 
   // Objeto de traducciones para el idioma actual
   const t = translations[language]
@@ -159,6 +163,11 @@ function App() {
     // Limpiar error del campo cuando el usuario lo edita
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
+    }
+    
+    // Limpiar mensaje de disponibilidad cuando se cambia la cabaña
+    if (name === 'cabana') {
+      setAvailabilityMessage({ text: '', type: '' })
     }
     
     // Validar email en tiempo real
@@ -210,10 +219,20 @@ function App() {
    * @param {string} name - Nombre del campo de fecha
    * @param {Object} date - Objeto de fecha de dayjs
    */
-  const onDateChange = (name, date) => {
+  const onDateChange = async (name, date) => {
+
+    console.log('========================================')
+    console.log("Datos", formData)
+    console.log('========================================')
+    
     // Limpiar error del campo cuando el usuario lo edita
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
+    }
+    
+    // Limpiar mensaje de disponibilidad cuando se borran las fechas
+    if (!date) {
+      setAvailabilityMessage({ text: '', type: '' })
     }
     
     // Validar inmediatamente cuando se selecciona una fecha
@@ -256,8 +275,102 @@ function App() {
       }
     }
 
-    // Actualizar el estado normalmente si no hay errores
-    setFormData(prev => handleDateChange(name, date, prev, language))
+    // Actualizar el estado primero
+    const newFormData = handleDateChange(name, date, formData, language)
+    console.log('========================================')
+    console.log("Datos", formData)
+    console.log('========================================')
+    setFormData(newFormData)
+    
+    if (formData.cabana && newFormData.fechaIngreso && newFormData.fechaSalida) {
+      // Mostrar mensaje de verificación
+      setAvailabilityMessage({
+        text: t.availabilityMessages.checking,
+        type: 'checking'
+      })
+      
+      // Mostrar loading mientras se valida
+      const loadingToast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer)
+          toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+      })
+
+      
+      loadingToast.fire({
+        icon: 'info',
+        title: language === 'es' ? 'Validando disponibilidad...' : 'Checking availability...'
+      })
+
+      try {
+        
+        // Validar disponibilidad
+        const availabilityResult = await validateDateAvailability(
+          formData.cabana,
+          newFormData.fechaIngreso,
+          newFormData.fechaSalida
+        )
+
+        if (!availabilityResult.available) {
+          // Mostrar mensaje de no disponibilidad
+          setAvailabilityMessage({
+            text: t.availabilityMessages.notAvailable,
+            type: 'not-available'
+          })
+          
+          // Mostrar error de disponibilidad
+          Swal.fire({
+            icon: 'error',
+            title: language === 'es' ? 'Fechas No Disponibles' : 'Dates Not Available',
+            text: availabilityResult.message,
+            confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
+            footer: language === 'es' 
+              ? 'Por favor, seleccione otras fechas para continuar.'
+              : 'Please select different dates to continue.'
+          })
+
+          // Limpiar las fechas que causaron el conflicto
+          setFormData(prev => ({
+            ...prev,
+            fechaIngreso: name === 'fechaIngreso' ? null : prev.fechaIngreso,
+            fechaSalida: name === 'fechaSalida' ? null : prev.fechaSalida
+          }))
+        } else {
+          // Mostrar mensaje de disponibilidad
+          setAvailabilityMessage({
+            text: t.availabilityMessages.available,
+            type: 'available'
+          })
+          
+          // Mostrar mensaje de éxito
+          const successToast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer)
+              toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+          })
+
+          successToast.fire({
+            icon: 'success',
+            title: language === 'es' ? 'Fechas disponibles' : 'Dates available'
+          })
+        }
+      } catch (error) {
+        console.error('Error al validar disponibilidad:', error)
+        // No mostrar error al usuario, solo loggear
+      }
+    }
   }
 
   /**
@@ -489,6 +602,13 @@ function App() {
                 },
               }}
             />
+
+            {/* Mensaje de disponibilidad */}
+            {availabilityMessage.text && (
+              <div className={`availability-message ${availabilityMessage.type}`}>
+                {availabilityMessage.text}
+              </div>
+            )}
 
             {/* Campo: Cantidad de Personas */}
             <label htmlFor="cantidadPersonas" className="form-label">{t.cantidadPersonas}</label>
