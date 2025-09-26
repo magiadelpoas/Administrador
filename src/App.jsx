@@ -4,40 +4,38 @@
  * Utiliza Material-UI para campos de fecha y archivo, HTML nativo para el resto
  */
 
-import React, { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 // Imports de Material-UI para DatePicker y componentes de archivo
+import { CloudUpload } from '@mui/icons-material'
+import { styled } from '@mui/material/styles'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import dayjs from 'dayjs'
-import { styled } from '@mui/material/styles'
-import { CloudUpload } from '@mui/icons-material'
 
 // Import de SweetAlert2 para validaciones
 import Swal from 'sweetalert2'
 
 // Imports de funciones utilitarias centralizadas
 import {
-  getInitialLanguage,
-  toggleLanguage,
-  handleInputChange,
-  handleDateChange,
-  handleFileChange,
-  handleSubmit,
-  initialFormData,
-  translations,
   generateCabinOptions,
-  generatePersonOptions,
   generateCountryOptions,
   generateDepositOptions,
   generateExtrasOptions,
+  generatePersonOptions,
   generatePetsOptions,
-  validateEmail,
   getEmailValidationMessage,
-  validateRequiredFields,
-  validateDateAvailability
+  getInitialLanguage,
+  handleDateChange,
+  handleFileChange,
+  handleInputChange,
+  handleSubmit,
+  initialFormData,
+  toggleLanguage,
+  translations,
+  validateDateAvailability,
+  validateRequiredFields
 } from './Utils.jsx'
 
 
@@ -121,16 +119,16 @@ const StyledFileUpload = styled('div')(({ theme }) => ({
 function App() {
   // Estado del idioma actual
   const [language, setLanguage] = useState(getInitialLanguage)
-  
+
   // Estado de los datos del formulario
   const [formData, setFormData] = useState(initialFormData)
-  
+
   // Estado para el mensaje de validación de email
   const [emailValidation, setEmailValidation] = useState({ message: '', className: '' })
-  
+
   // Estado para campos con error
   const [errorFields, setErrorFields] = useState([])
-  
+
   // Estado para mensaje de disponibilidad
   const [availabilityMessage, setAvailabilityMessage] = useState({ text: '', type: '' })
 
@@ -159,31 +157,31 @@ function App() {
    */
   const onInputChange = (e) => {
     const { name, value } = e.target
-    
+
     // Limpiar error del campo cuando el usuario lo edita
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
     }
-    
+
     // Limpiar mensaje de disponibilidad cuando se cambia la cabaña
     if (name === 'cabana') {
       setAvailabilityMessage({ text: '', type: '' })
     }
-    
+
     // Validar email en tiempo real
     if (name === 'email') {
       const validation = getEmailValidationMessage(value, language)
       setEmailValidation(validation)
     }
-    
+
     // Manejar selección de cabañas especiales
     if (name === 'cabana' && (value === '4' || value === '6')) {
       // Mostrar alert de políticas para Roble Escondido y Colima
       const cabinName = value === '4' ? 'Roble Escondido' : 'Colima'
-      
+
       Swal.fire({
         title: language === 'es' ? 'Políticas de Cabaña Roble y Colima' : 'Roble and Colima Cabin Policies',
-        text: language === 'es' 
+        text: language === 'es'
           ? 'Por favor, tenga en cuenta que Cabaña Roble Escondido y Colima NO admite mascotas en sus instalaciones.'
           : 'Please note that Roble Escondido and Colima cabins do NOT allow pets in their facilities.',
         icon: 'info',
@@ -198,7 +196,7 @@ function App() {
         if (result.isConfirmed) {
           Swal.fire({
             title: language === 'es' ? '¡Aceptado!' : 'Accepted!',
-            text: language === 'es' 
+            text: language === 'es'
               ? 'Ha aceptado las políticas de Cabaña Roble. ¡Gracias!'
               : 'You have accepted the Roble cabin policies. Thank you!',
             icon: 'success',
@@ -210,7 +208,7 @@ function App() {
         }
       })
     }
-    
+
     setFormData(prev => handleInputChange(e, prev))
   }
 
@@ -224,27 +222,27 @@ function App() {
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
     }
-    
+
     // Limpiar mensaje de disponibilidad cuando se borran las fechas
     if (!date) {
       setAvailabilityMessage({ text: '', type: '' })
     }
-    
+
     // Validar inmediatamente cuando se selecciona una fecha
     if (date && name === 'fechaSalida' && formData.fechaIngreso) {
       if (date.isBefore(formData.fechaIngreso, 'day')) {
         // Mostrar error según el idioma
-        const errorMessage = language === 'es' 
+        const errorMessage = language === 'es'
           ? 'La fecha de salida no puede ser menor que la fecha de entrada'
           : 'The departure date cannot be earlier than the arrival date'
-        
+
         Swal.fire({
           icon: 'error',
           title: language === 'es' ? 'Error de Fechas' : 'Date Error',
           text: errorMessage,
           confirmButtonText: language === 'es' ? 'Entendido' : 'OK'
         })
-        
+
         // No actualizar el estado si hay error
         return
       }
@@ -254,17 +252,17 @@ function App() {
     if (date && name === 'fechaIngreso' && formData.fechaSalida) {
       if (formData.fechaSalida.isBefore(date, 'day')) {
         // Mostrar error según el idioma
-        const errorMessage = language === 'es' 
+        const errorMessage = language === 'es'
           ? 'La fecha de salida no puede ser menor que la fecha de entrada'
           : 'The departure date cannot be earlier than the arrival date'
-        
+
         Swal.fire({
           icon: 'error',
           title: language === 'es' ? 'Error de Fechas' : 'Date Error',
           text: errorMessage,
           confirmButtonText: language === 'es' ? 'Entendido' : 'OK'
         })
-        
+
         // No actualizar el estado si hay error
         return
       }
@@ -273,14 +271,14 @@ function App() {
     // Actualizar el estado primero
     const newFormData = handleDateChange(name, date, formData, language)
     setFormData(newFormData)
-    
+
     if (formData.cabana && newFormData.fechaIngreso && newFormData.fechaSalida) {
       // Mostrar mensaje de verificación
       setAvailabilityMessage({
         text: t.availabilityMessages.checking,
         type: 'checking'
       })
-      
+
       // Mostrar loading mientras se valida
       const loadingToast = Swal.mixin({
         toast: true,
@@ -294,14 +292,14 @@ function App() {
         }
       })
 
-      
+
       loadingToast.fire({
         icon: 'info',
         title: language === 'es' ? 'Validando disponibilidad...' : 'Checking availability...'
       })
 
       try {
-        
+
         // Validar disponibilidad
         const availabilityResult = await validateDateAvailability(
           formData.cabana,
@@ -315,14 +313,14 @@ function App() {
             text: t.availabilityMessages.notAvailable,
             type: 'not-available'
           })
-          
+
           // Mostrar error de disponibilidad
           Swal.fire({
             icon: 'error',
             title: language === 'es' ? 'Fechas No Disponibles' : 'Dates Not Available',
             text: availabilityResult.message,
             confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
-            footer: language === 'es' 
+            footer: language === 'es'
               ? 'Por favor, seleccione otras fechas para continuar.'
               : 'Please select different dates to continue.'
           })
@@ -339,7 +337,7 @@ function App() {
             text: t.availabilityMessages.available,
             type: 'available'
           })
-          
+
           // Mostrar mensaje de éxito
           const successToast = Swal.mixin({
             toast: true,
@@ -370,12 +368,12 @@ function App() {
    */
   const onFileChange = (e) => {
     const { name } = e.target
-    
+
     // Limpiar error del campo cuando el usuario selecciona un archivo
     if (errorFields.includes(name)) {
       setErrorFields(prev => prev.filter(field => field !== name))
     }
-    
+
     setFormData(prev => handleFileChange(e, prev))
   }
 
@@ -385,21 +383,21 @@ function App() {
    */
   const onSubmit = (e) => {
     e.preventDefault()
-    
+
     // Validar campos obligatorios
     const validation = validateRequiredFields(formData, language)
-    
+
     if (!validation.isValid) {
       // Resaltar campos con error
       setErrorFields(validation.missingFieldNames)
-      
+
       // Mostrar SweetAlert con campos faltantes
       const fieldsList = validation.missingFields.join(', ')
-      
+
       Swal.fire({
         icon: 'warning',
         title: language === 'es' ? 'Campos Obligatorios Faltantes' : 'Missing Required Fields',
-        html: language === 'es' 
+        html: language === 'es'
           ? `Los siguientes campos son obligatorios y deben ser llenados:<br><br><strong>${fieldsList}</strong><br><br>Por favor, complete todos los campos requeridos para continuar.`
           : `The following fields are required and must be filled:<br><br><strong>${fieldsList}</strong><br><br>Please complete all required fields to continue.`,
         confirmButtonText: language === 'es' ? 'Entendido' : 'OK',
@@ -407,13 +405,13 @@ function App() {
         allowEscapeKey: false,
         allowEnterKey: false
       })
-      
+
       return
     }
-    
+
     // Limpiar errores si la validación es exitosa
     setErrorFields([])
-    
+
     // Si todos los campos están llenos, proceder con el envío
     handleSubmit(e, formData, language)
   }
@@ -431,14 +429,14 @@ function App() {
       <div className="main-center">
         <div className="form-container">
           {/* Botón de cambio de idioma */}
-          <button 
+          <button
             onClick={onLanguageToggle}
             className="language-button"
             title={language === 'es' ? 'Switch to English' : 'Cambiar a Español'}
           >
             <div className="flag-container">
-              <img 
-                src={language === 'es' ? "/assets/estados.png" : "/assets/espana.png"}
+              <img
+                src={language === 'es' ? "/landing/assets/estados.png" : "/landing/assets/espana.png"}
                 alt={language === 'es' ? 'US Flag' : 'Spain Flag'}
                 className="flag"
               />
@@ -450,11 +448,11 @@ function App() {
 
           {/* Logo */}
           <img
-            src="/assets/logo.jpg"
+            src="/landing/assets/logo.jpg"
             alt="Logo"
             className="form-img"
           />
-          
+
           {/* Formulario */}
           <form onSubmit={onSubmit}>
             {/* Header del formulario */}
@@ -462,15 +460,15 @@ function App() {
               <h2 className="form-title">{t.formTitle}</h2>
               <p className="form-desc">
                 {t.formDesc}
-                </p>
+              </p>
             </div>
 
             {/* Campo: Selección de Cabaña */}
             <label htmlFor="cabana" className="form-label">{t.selectCabin}</label>
-            <select 
-              name="cabana" 
-              id="cabana" 
-              className="form-select" 
+            <select
+              name="cabana"
+              id="cabana"
+              className="form-select"
               value={formData.cabana}
               onChange={onInputChange}
             >
@@ -484,7 +482,7 @@ function App() {
                 <div className="info-text">
                   <strong>{language === 'es' ? 'Paso 1:' : 'Step 1:'}</strong>
                   <br />
-                  {language === 'es' 
+                  {language === 'es'
                     ? 'Para poder editar todos los campos, debe seleccionar una cabaña para continuar.'
                     : 'To edit all fields, you must select a cabin to continue.'
                   }
@@ -495,9 +493,9 @@ function App() {
             {/* Campo: Nombre Completo */}
             <label htmlFor="fullname" className="form-label">{t.fullName}</label>
             <input
-                type="text"
-                name="fullname"
-                id="fullname"
+              type="text"
+              name="fullname"
+              id="fullname"
               className={`form-input ${errorFields.includes('fullname') ? 'error' : ''}`}
               placeholder={t.placeholders.fullName}
               value={formData.fullname}
@@ -508,9 +506,9 @@ function App() {
             {/* Campo: Email */}
             <label htmlFor="email" className="form-label">{t.email}</label>
             <input
-                type="email"
-                name="email"
-                id="email"
+              type="email"
+              name="email"
+              id="email"
               className={`form-input ${errorFields.includes('email') ? 'error' : ''}`}
               placeholder={t.placeholders.email}
               value={formData.email}
@@ -529,9 +527,9 @@ function App() {
               {t.phone}
             </label>
             <input
-                type="tel"
-                name="phone"
-                id="phone"
+              type="tel"
+              name="phone"
+              id="phone"
               className={`form-input ${errorFields.includes('phone') ? 'error' : ''}`}
               placeholder={t.placeholders.phone}
               value={formData.phone}
@@ -541,10 +539,10 @@ function App() {
 
             {/* Campo: Moneda */}
             <label htmlFor="currency" className="form-label">{t.currency}</label>
-            <select 
+            <select
               name="currency"
-              id="currency" 
-              className={`form-select ${errorFields.includes('currency') ? 'error' : ''}`} 
+              id="currency"
+              className={`form-select ${errorFields.includes('currency') ? 'error' : ''}`}
               value={formData.currency}
               onChange={onInputChange}
               disabled={!formData.cabana}
@@ -603,10 +601,10 @@ function App() {
 
             {/* Campo: Cantidad de Personas */}
             <label htmlFor="cantidadPersonas" className="form-label">{t.cantidadPersonas}</label>
-            <select 
+            <select
               name="cantidadPersonas"
-              id="cantidadPersonas" 
-              className={`form-select ${errorFields.includes('cantidadPersonas') ? 'error' : ''}`} 
+              id="cantidadPersonas"
+              className={`form-select ${errorFields.includes('cantidadPersonas') ? 'error' : ''}`}
               value={formData.cantidadPersonas}
               onChange={onInputChange}
               disabled={!formData.cabana}
@@ -616,10 +614,10 @@ function App() {
 
             {/* Campo: País */}
             <label htmlFor="pais" className="form-label">{t.pais}</label>
-            <select 
+            <select
               name="pais"
-              id="pais" 
-              className={`form-select ${errorFields.includes('pais') ? 'error' : ''}`} 
+              id="pais"
+              className={`form-select ${errorFields.includes('pais') ? 'error' : ''}`}
               value={formData.pais}
               onChange={onInputChange}
               disabled={!formData.cabana}
@@ -629,10 +627,10 @@ function App() {
 
             {/* Campo: Depósito % */}
             <label htmlFor="deposito" className="form-label">{t.deposito}</label>
-            <select 
+            <select
               name="deposito"
-              id="deposito" 
-              className={`form-select ${errorFields.includes('deposito') ? 'error' : ''}`} 
+              id="deposito"
+              className={`form-select ${errorFields.includes('deposito') ? 'error' : ''}`}
               value={formData.deposito}
               onChange={onInputChange}
               disabled={!formData.cabana}
@@ -642,10 +640,10 @@ function App() {
 
             {/* Campo: Extras (Select Múltiple) */}
             <label htmlFor="extras" className="form-label">{t.extras}</label>
-            <select 
+            <select
               name="extras"
-              id="extras" 
-              className={`form-select ${errorFields.includes('extras') ? 'error' : ''}`} 
+              id="extras"
+              className={`form-select ${errorFields.includes('extras') ? 'error' : ''}`}
               value={formData.extras}
               onChange={onInputChange}
               disabled={!formData.cabana}
@@ -656,10 +654,10 @@ function App() {
 
             {/* Campo: Mascotas */}
             <label htmlFor="mascotas" className="form-label">{t.mascotasLabel}</label>
-            <select 
+            <select
               name="mascotas"
-              id="mascotas" 
-              className={`form-select ${errorFields.includes('mascotas') ? 'error' : ''}`} 
+              id="mascotas"
+              className={`form-select ${errorFields.includes('mascotas') ? 'error' : ''}`}
               value={formData.mascotas}
               onChange={onInputChange}
               disabled={!formData.cabana || formData.cabana === '4' || formData.cabana === '6'}
@@ -669,7 +667,7 @@ function App() {
             {/* Mensaje informativo cuando las mascotas están deshabilitadas */}
             {(formData.cabana === '4' || formData.cabana === '6') && (
               <small className="form-text-disabled">
-                {language === 'es' 
+                {language === 'es'
                   ? 'Las mascotas no están permitidas en Cabaña Roble Escondido y Colima'
                   : 'Pets are not allowed in Roble Escondido and Colima cabins'
                 }
@@ -681,7 +679,7 @@ function App() {
               {t.proofOfAddress}
             </label>
             <StyledFileUpload>
-            <input
+              <input
                 type="file"
                 id="proofOfAddress"
                 name="proofOfAddress"
@@ -692,7 +690,7 @@ function App() {
               />
               <label htmlFor="proofOfAddress" className={`file-button ${formData.proofOfAddress ? 'file-selected' : ''} ${!formData.cabana ? 'disabled' : ''} ${errorFields.includes('proofOfAddress') ? 'error' : ''}`}>
                 <CloudUpload className="file-icon" />
-                {formData.proofOfAddress 
+                {formData.proofOfAddress
                   ? (language === 'es' ? `Archivo seleccionado: ${formData.proofOfAddress.name}` : `File selected: ${formData.proofOfAddress.name}`)
                   : (language === 'es' ? 'Hacer clic para seleccionar archivo' : 'Click to select file')
                 }
@@ -715,7 +713,7 @@ function App() {
               />
               <label htmlFor="proofOfAddress2" className={`file-button ${formData.proofOfAddress2 ? 'file-selected' : ''} ${!formData.cabana ? 'disabled' : ''} ${errorFields.includes('proofOfAddress2') ? 'error' : ''}`}>
                 <CloudUpload className="file-icon" />
-                {formData.proofOfAddress2 
+                {formData.proofOfAddress2
                   ? (language === 'es' ? `Archivo seleccionado: ${formData.proofOfAddress2.name}` : `File selected: ${formData.proofOfAddress2.name}`)
                   : (language === 'es' ? 'Hacer clic para seleccionar archivo (Opcional)' : 'Click to select file (Optional)')
                 }
@@ -724,21 +722,21 @@ function App() {
 
             {/* Campo: Declaración (Checkbox) */}
             <div className="form-checkbox-row">
-                <input
-                    type="checkbox"
+              <input
+                type="checkbox"
                 name="declaration"
-                    id="declaration"
+                id="declaration"
                 className={`form-checkbox ${errorFields.includes('declaration') ? 'error' : ''}`}
                 checked={formData.declaration}
                 onChange={onInputChange}
                 disabled={!formData.cabana}
-                />
-                <label
+              />
+              <label
                 htmlFor="declaration"
                 className="checkbox-label"
-                >
+              >
                 {t.declaration}
-                </label>
+              </label>
             </div>
 
             {/* Botón de envío */}
